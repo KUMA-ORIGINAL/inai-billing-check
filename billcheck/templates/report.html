@@ -196,6 +196,25 @@ td code { font-family: var(--font-mono); word-break: break-all; }
 .r-sum.red { color: #C62F2A; font-weight: 700; }
 .r-foot { text-align: center; margin-top: 14px; color: var(--r-faded); letter-spacing: .08em; font-size: .8rem; }
 
+/* phone demo */
+dialog.phone-dialog {
+  border: 0; padding: 0; background: transparent; max-width: min(860px, calc(100vw - 24px)); width: 100%;
+  color: var(--ink);
+}
+dialog.phone-dialog::backdrop { background: rgba(10, 16, 18, .62); }
+.phone-wrap { display: grid; grid-template-columns: 300px 1fr; gap: 28px; align-items: center; background: var(--sheet); border-radius: 18px; padding: 26px; box-shadow: var(--shadow); }
+.phone-frame { background: #15191C; border-radius: 38px; padding: 14px; box-shadow: inset 0 0 0 2px #2D3438; }
+.phone-screen { background: #0E1A16; border-radius: 26px; min-height: 470px; padding: 18px 16px; color: #CFEFD9; font: .95rem/1.5 var(--font-mono); display: flex; flex-direction: column; gap: 12px; }
+.demo-badge { align-self: center; text-align: center; font: 700 .66rem/1.35 var(--font-display); letter-spacing: .12em; text-transform: uppercase; color: #0E1A16; background: var(--marker); padding: 6px 10px; border-radius: 999px; }
+.ussd { background: #F4F6F2; color: #1D2124; border-radius: 12px; padding: 14px; white-space: pre-line; min-height: 220px; }
+.ussd .reply { margin-top: 10px; padding-top: 8px; border-top: 1px solid #D5DAD6; color: #2B37D0; font-weight: 700; }
+.ussd-steps { margin: 0; padding: 0 0 0 18px; color: #9FC8AE; font-size: .8rem; }
+.ussd-steps li.on { color: #E6FFEF; font-weight: 700; }
+.phone-side h2 { margin-bottom: 10px; }
+.phone-side blockquote { margin: 10px 0; padding: 12px 14px; background: var(--pen-wash); border-radius: 8px; font-size: 1.05rem; }
+.phone-side .row { margin-top: 16px; }
+@media (max-width: 760px) { .phone-wrap { grid-template-columns: 1fr; padding: 18px; } .phone-screen { min-height: 380px; } }
+
 @media (max-width: 980px) {
   .layout { grid-template-columns: 1fr; gap: 28px; padding: 12px 16px 56px; }
   .top { padding: 14px 16px 0; }
@@ -305,6 +324,28 @@ td code { font-family: var(--font-mono); word-break: break-all; }
   </aside>
 </main>
 
+<dialog class="phone-dialog" id="phone" aria-labelledby="phone-title">
+  <div class="phone-wrap">
+    <div class="phone-frame" aria-hidden="false">
+      <div class="phone-screen">
+        <span class="demo-badge">Демо: так это могло бы выглядеть</span>
+        <div class="ussd" id="ussd" aria-live="polite"></div>
+        <ol class="ussd-steps" id="ussd-steps"><li>меню</li><li>мои платные номера</li><li>отключить все</li><li>готово</li></ol>
+      </div>
+    </div>
+    <div class="phone-side">
+      <h2 id="phone-title">Отключить платные подписки</h2>
+      <p>Слева — идея: одно меню оператора, где видно все платные номера абонента и их можно отключить разом. Это демонстрация, у учебного INAI Mobile такого меню нет.</p>
+      <p><b>Как сделать сегодня</b> — совет оператора:</p>
+      <blockquote id="phone-advice"></blockquote>
+      <div class="row">
+        <button type="button" class="pen" id="phone-replay">Показать ещё раз</button>
+        <button type="button" class="ghost" id="phone-close">Закрыть</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
 <script id="bill-data" type="application/json">__BILL_DATA__</script>
 <script>
 "use strict";
@@ -376,8 +417,8 @@ for (const a of D.anomalies) {
     box.addEventListener("change", () => { setSelected(a.line, box.checked); });
     footer.append(h("label", { class: "check" }, box, "В заявление"),
       h("button", { type: "button", class: "link", onclick: () => gotoLine(a.line), text: `Показать в чеке · строка ${a.line}` }));
-    if (window.PhoneDemo && (a.anomaly_type === "new_subscription" || a.anomaly_type === "night_charge")) {
-      footer.append(h("button", { type: "button", class: "off-btn", onclick: () => window.PhoneDemo.open(), text: "Отключить подписки" }));
+    if (D.phone.numbers.length && (a.anomaly_type === "new_subscription" || a.anomaly_type === "night_charge")) {
+      footer.append(h("button", { type: "button", class: "off-btn", onclick: openPhone, text: "Отключить подписки" }));
     }
   }
   cards.append(h("article", { class: "card kind-" + a.anomaly_type, id: "a-" + a.id },
@@ -604,6 +645,41 @@ if (D.dropped.length) {
 } else {
   $("#dropped").append(h("p", { class: "mini-note", text: "Все строки файла разобраны." }));
 }
+
+/* ---------- phone demo ---------- */
+const phone = $("#phone");
+let phoneTimers = [];
+function phoneScreens() {
+  const NL = String.fromCharCode(10);
+  const lines = (...rows) => rows.join(NL);
+  const list = D.phone.numbers.map(n => `${n.number} — ${n.types_text}, ${n.charges} ${plural(n.charges, ["списание", "списания", "списаний"])}, ${n.total_text} сом`);
+  return [
+    { text: lines("INAI Mobile", "", "1 — Мои платные номера", "2 — Отключить все", "3 — Запрет платного контента", "0 — Выход"), reply: "1" },
+    { text: lines("Платные номера за " + D.period.label + ":", "", ...list, "", "2 — Отключить все"), reply: "2" },
+    { text: lines("Отключить все платные номера и запретить платный контент?", "", "1 — Подтвердить", "0 — Отмена"), reply: "1" },
+    { text: lines("Готово ✓", "", "Подписки отключены, платный контент запрещён.", "", "(демонстрация)"), reply: "" }
+  ];
+}
+function showPhoneStep(i) {
+  const s = phoneScreens()[i];
+  $("#ussd").replaceChildren(document.createTextNode(s.text), s.reply ? h("div", { class: "reply", text: "Ответ: " + s.reply }) : "");
+  document.querySelectorAll("#ussd-steps li").forEach((li, j) => li.classList.toggle("on", j === i));
+}
+function playPhone() {
+  phoneTimers.forEach(clearTimeout); phoneTimers = [];
+  if (reduceMotion) { showPhoneStep(1); return; }
+  phoneScreens().forEach((_, i) => phoneTimers.push(setTimeout(() => showPhoneStep(i), i * 1700)));
+}
+function openPhone() {
+  $("#phone-advice").textContent = state.lang === "ky" ? D.phone.advice_ky : D.phone.advice_ru;
+  $("#phone-advice").lang = state.lang;
+  if (typeof phone.showModal === "function") phone.showModal(); else phone.setAttribute("open", "");
+  playPhone();
+}
+$("#phone-replay").addEventListener("click", playPhone);
+$("#phone-close").addEventListener("click", () => phone.close());
+phone.addEventListener("close", () => { phoneTimers.forEach(clearTimeout); phoneTimers = []; });
+phone.addEventListener("click", e => { if (e.target === phone) phone.close(); });
 
 initBigToggle();
 </script>

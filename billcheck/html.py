@@ -5,7 +5,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from .claim import BLANK, INTRO, claim_basis, claim_positions
-from .explain import TYPE_NAMES, advice, explain, possible_overpay, ratio_text
+from .explain import ADVICE_FAQ_ID, TYPE_NAMES, advice, explain, load_faq, possible_overpay, ratio_text
 from .family import family_summary, number_reputation, self_check
 from .money import format_som, money
 from .pipeline import Result
@@ -120,6 +120,15 @@ def checklist(result: Result, llm_text: str | None) -> list[dict]:
     return groups
 
 
+def phone_payload(result: Result) -> dict:
+    """Платные короткие номера этого абонента для демо-окна телефона и честный совет из FAQ (id 8)."""
+    faq = load_faq().get(ADVICE_FAQ_ID["new_subscription"], {})
+    numbers = [{"number": row["number"], "charges": row["charges"], "total_text": format_som(Decimal(str(row["total_som"]))),
+                "types_text": ", ".join(TYPE_NAMES[t] for t in row["types"])}
+               for row in number_reputation([result])]
+    return {"numbers": numbers, "advice_ru": faq.get("answer_ru", ""), "advice_ky": faq.get("answer_ky", "")}
+
+
 def report_payload(result: Result, profile: str | None = None, llm_text: str | None = None,
                    family_link: str | None = None) -> dict:
     report = result.report
@@ -159,6 +168,7 @@ def report_payload(result: Result, profile: str | None = None, llm_text: str | N
                     for d in result.dropped],
         "llm": llm_text,
         "family_link": family_link,
+        "phone": phone_payload(result),
     }
 
 
