@@ -51,3 +51,12 @@ def test_missing_file_exit_code(tmp_path, capsys):
 def test_headerless_file_exit_code(tmp_path):
     path = write_csv(tmp_path, ["2026-09-01 09:32:08,sms,+996700188574,0,0,1.00"], header=False)
     assert cli.main([str(path), "--out", str(tmp_path / "out")]) == 2
+
+
+def test_anomalies_json_has_explanations(data_dir, tmp_path):
+    out = tmp_path / "out"
+    assert cli.main([str(data_dir / "billing_03.csv"), "--out", str(out)]) == 0
+    anomalies = json.loads((out / "anomalies.json").read_text(encoding="utf-8"))
+    night = next(a for a in anomalies if a["anomaly_type"] == "night_charge")
+    assert night["line"] == 243 and "62626" in night["explanation_ru"]
+    assert "Подписки" in night["advice_ru"] and "Жазылуулар" in night["advice_ky"]

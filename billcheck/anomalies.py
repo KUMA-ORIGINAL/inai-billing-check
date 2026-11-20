@@ -1,7 +1,7 @@
 """Пять правил аномалий из уточнений организаторов (CLARIFICATIONS_RU, раздел 4)."""
 import math
 import statistics
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, time
 from decimal import Decimal
 
@@ -32,6 +32,8 @@ class Anomaly:
     reason: str
     line: int | None = None
     charge: Charge | None = None
+    previous: Charge | None = None   # duplicate_charge: более раннее такое же списание
+    baseline: Decimal | None = None  # day_spike: средние расходы семи предыдущих дней
 
     def as_dict(self) -> dict:
         """Ровно поля эталона организаторов."""
@@ -62,14 +64,14 @@ def find_new_subscription(charges: list[Charge]) -> list[Anomaly]:
 
 def find_duplicates(charges: list[Charge]) -> list[Anomaly]:
     """Одинаковые type, number, duration_sec, mb, cost в пределах 60 с; флаг — на более позднюю."""
-    last_seen: dict[tuple, datetime] = {}
+    last_seen: dict[tuple, Charge] = {}
     found = []
     for charge in sorted(charges, key=lambda c: (c.dt, c.line)):
         key = (charge.type, normalize_number(charge.number), charge.duration_sec, charge.mb, charge.cost)
         previous = last_seen.get(key)
-        if previous is not None and (charge.dt - previous).total_seconds() <= DUPLICATE_WINDOW_SEC:
-            found.append(_from_charge(charge, "duplicate_charge", charge.cost))
-        last_seen[key] = charge.dt
+        if previous is not None and (charge.dt - previous.dt).total_seconds() <= DUPLICATE_WINDOW_SEC:
+            found.append(replace(_from_charge(charge, "duplicate_charge", charge.cost), previous=previous))
+        last_seen[key] = charge
     return found
 
 
@@ -109,8 +111,9 @@ def find_day_spikes(charges: list[Charge]) -> list[Anomaly]:
         day, value = series[i]
         window = [total for _, total in series[i - SPIKE_WINDOW_DAYS:i]]
         if _z_score(value, window) > SPIKE_Z:
+            mean = statistics.mean(window)
             found.append(Anomaly(datetime.combine(day, time()), "day_spike", "day_spike",
-                                 value - statistics.mean(window), REASONS["day_spike"]))
+                                 value - mean, REASONS["day_spike"], baseline=mean))
     return found
 
 

@@ -9,6 +9,7 @@ import html
 import sys
 from pathlib import Path
 
+from billcheck.explain import possible_overpay
 from billcheck.parse import BillingFileError
 from billcheck.pipeline import Result, analyze, write_outputs
 
@@ -42,7 +43,7 @@ def print_summary(result: Result, out_dir: Path) -> None:
     report = result.report
     print(f"{result.source.name}: списаний {report['valid_rows']}, отброшено строк {report['dropped_rows']}, "
           f"потрачено {report['total_som']:.2f} сом")
-    print(f"  аномалий: {len(result.anomalies)}")
+    print(f"  аномалий: {len(result.anomalies)}, возможно лишнее: {possible_overpay(result.anomalies):.2f} сом")
     for a in result.anomalies:
         row = a.as_dict()
         print(f"  {row['datetime']}  {a.anomaly_type:<18} {row['amount_som']:>8.2f} сом  {a.reason}")

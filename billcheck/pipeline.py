@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .anomalies import Anomaly, find_all
+from .explain import advice, explain
 from .parse import Charge, Dropped, read_billing
 from .report import summarize
 
@@ -28,8 +29,10 @@ def analyze(path: str | Path) -> Result:
 
 
 def anomaly_records(result: Result) -> list[dict]:
-    """anomalies.json: поля эталона + номер строки детализации (у day_spike — null)."""
-    return [a.as_dict() | {"line": a.line} for a in result.anomalies]
+    """anomalies.json: поля эталона + строка детализации (у day_spike — null), пояснение и советы RU/KY."""
+    return [a.as_dict() | {"line": a.line, "explanation_ru": explain(a),
+                           "advice_ru": advice(a, "ru"), "advice_ky": advice(a, "ky")}
+            for a in result.anomalies]
 
 
 def write_json(path: Path, data) -> None:
