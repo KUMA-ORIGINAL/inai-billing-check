@@ -106,7 +106,7 @@ def checklist(result: Result, llm_text: str | None, expected_dir: Path) -> list[
              "value": "день-всплеск выделен, дни со спорными списаниями отмечены точкой"},
             {"title": "Пояснения через LLM", "ok": bool(llm_text), "where": "hero",
              "value": "письмо абоненту написано ИИ по посчитанным числам" if llm_text
-                      else "включается флагом --llm, если есть ключ ANTHROPIC_API_KEY"},
+                      else "включается флагом --llm: бесплатный Gemini, локальная Ollama, Groq или Claude"},
             {"title": "Чтение PDF-детализации", "ok": False, "where": "",
              "value": "не делали: у организаторов нет образцов PDF"},
         ]},

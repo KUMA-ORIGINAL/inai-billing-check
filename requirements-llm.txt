@@ -1,0 +1,3 @@
+-r requirements.txt
+# Только для Claude. Gemini и OpenAI-совместимые сервисы (Ollama, Groq, OpenRouter) работают без пакетов.
+anthropic

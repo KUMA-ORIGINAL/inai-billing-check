@@ -15,6 +15,7 @@ from urllib.parse import unquote, urlparse
 
 from .family import load_profiles, profile_name
 from .html import embed, render_family, render_report
+from .llm import llm_summary
 from .parse import BillingFileError
 from .pipeline import analyze
 
@@ -56,9 +57,12 @@ class ReportStore:
             return self.pages.get(key)
 
 
-def make_server(data_dir: Path, port: int = 8000) -> ThreadingHTTPServer:
+def make_server(data_dir: Path, port: int = 8000, use_llm: bool = False) -> ThreadingHTTPServer:
     data_dir = Path(data_dir)
     reports = ReportStore()
+
+    def letter(result) -> str | None:
+        return llm_summary(result) if use_llm else None
 
     class Handler(BaseHTTPRequestHandler):
         server_version = "GdeMoiDengi/1.0"
@@ -108,7 +112,8 @@ def make_server(data_dir: Path, port: int = 8000) -> ThreadingHTTPServer:
                 self._send(HTTPStatus.OK, reports.get(path[len("/report/"):]))
             elif path.startswith("/profile/") and path[len("/profile/"):] in files:
                 source = files[path[len("/profile/"):]]
-                page = render_report(analyze(source), profile_name(profiles, source), back_link=FAMILY_BACK)
+                result = analyze(source)
+                page = render_report(result, profile_name(profiles, source), letter(result), back_link=FAMILY_BACK)
                 self._send(HTTPStatus.OK, page)
             else:
                 self._error(HTTPStatus.NOT_FOUND, "Такой страницы нет.")
@@ -132,7 +137,7 @@ def make_server(data_dir: Path, port: int = 8000) -> ThreadingHTTPServer:
                 except BillingFileError as exc:
                     self._error(HTTPStatus.BAD_REQUEST, str(exc))
                     return
-                page = render_report(result, profile_name(load_profiles(data_dir), path),
+                page = render_report(result, profile_name(load_profiles(data_dir), path), letter(result),
                                      back_link=UPLOAD_BACK, expected_dir=data_dir)
             self._send(HTTPStatus.OK, page, headers={"X-Report-Url": f"/report/{reports.add(page)}"})
 

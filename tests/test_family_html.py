@@ -27,7 +27,7 @@ def test_family_page_has_profiles_and_reputation(results):
     data = _payload(page)
     assert [m["name"] for m in data["members"]] == ["Я", "Папа", "Бабушка", "Мама", "Брат"]
     assert data["members"][2]["link"] == "billing_03/report.html"
-    assert data["totals"]["overpay_text"] == "204,26" and data["totals"]["total_text"] == "8 285,42"
+    assert data["totals"]["overpay_text"] == "204,26" and data["totals"]["total_text"] == "8\u00a0285,42"
     top = data["reputation"][0]
     assert top["number"] == "7575" and top["members_text"] == "у 5 из 5" and top["unseen_by_rules"] is True
     assert top["by_member"] == [30.0, 15.0, 10.0, 20.0, 10.0]

@@ -2,7 +2,8 @@
 
 Один файл → out/report.json, out/anomalies.json, out/dropped_rows.csv.
 Несколько файлов (или ни одного — тогда все data/billing_*.csv) → out/<имя>/… и out/index.html.
-Коды возврата: 0 — успех, 2 — проблема с входным файлом, 3 — не хватает зависимостей.
+--llm добавляет письмо абоненту от Claude (нужны пакет anthropic и доступ к API; иначе — шаблоны).
+Коды возврата: 0 — успех, 2 — проблема с входным файлом.
 """
 import argparse
 import sys
@@ -12,12 +13,13 @@ from pathlib import Path
 from billcheck.explain import possible_overpay
 from billcheck.family import load_profiles, profile_name
 from billcheck.html import render_family
+from billcheck.llm import llm_summary
 from billcheck.parse import BillingFileError
 from billcheck.pipeline import Result, analyze, write_outputs
 
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data"
-EXIT_OK, EXIT_INPUT, EXIT_DEPS = 0, 2, 3
+EXIT_OK, EXIT_INPUT = 0, 2
 FAMILY_BACK_LINK = {"href": "../index.html", "label": "← Вся семья"}
 
 
@@ -62,11 +64,11 @@ def write_family_index(results: list[Result], out_dir: Path) -> Path:
     return path
 
 
-def serve(port: int, open_browser: bool) -> int:
+def serve(port: int, open_browser: bool, use_llm: bool = False) -> int:
     from billcheck.server import make_server
 
     try:
-        server = make_server(DATA_DIR, port)
+        server = make_server(DATA_DIR, port, use_llm=use_llm)
     except OSError as exc:
         print(f"Ошибка: порт {port} занят ({exc}). Запустите с --port 8001.", file=sys.stderr)
         return EXIT_INPUT
@@ -91,6 +93,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--open", action="store_true", help="открыть отчёт в браузере")
     parser.add_argument("--serve", action="store_true", help="веб-демо: загрузка файла и профили семьи")
     parser.add_argument("--port", type=int, default=8000, help="порт веб-демо (по умолчанию 8000)")
+    parser.add_argument("--llm", action="store_true", help="письмо абоненту от Claude по посчитанным числам (бонус)")
     return parser
 
 
@@ -98,7 +101,7 @@ def main(argv: list[str] | None = None) -> int:
     utf8_console()
     args = build_parser().parse_args(argv)
     if args.serve:
-        return serve(args.port, args.open)
+        return serve(args.port, args.open, args.llm)
     files = resolve_inputs(args.files)
     if not files:
         print("Ошибка: не найдено ни одной детализации (billing_*.csv).", file=sys.stderr)
@@ -111,13 +114,15 @@ def main(argv: list[str] | None = None) -> int:
     out = Path(args.out)
     if len(results) == 1:
         result = results[0]
-        write_outputs(result, out, profile_name(load_profiles(result.source.parent), result.source))
+        write_outputs(result, out, profile_name(load_profiles(result.source.parent), result.source),
+                      llm_summary(result) if args.llm else None)
         print_summary(result, out)
         page = out / "report.html"
     else:
         for result in results:
             name = profile_name(load_profiles(result.source.parent), result.source)
-            write_outputs(result, out / result.source.stem, name, back_link=FAMILY_BACK_LINK)
+            write_outputs(result, out / result.source.stem, name, llm_summary(result) if args.llm else None,
+                          back_link=FAMILY_BACK_LINK)
             print_summary(result, out / result.source.stem)
         page = write_family_index(results, out)
         print(f"Сводка: {page}")

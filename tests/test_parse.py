@@ -95,9 +95,9 @@ def test_parse_amount_rejects(text):
 
 
 def test_format_som_russian():
-    assert format_som(Decimal("2106.02")) == "2 106,02"
+    assert format_som(Decimal("2106.02")) == "2\u00a0106,02"
     assert format_som(Decimal("0.125")) == "0,13"
-    assert format_som(Decimal("8285.42")) == "8 285,42"
+    assert format_som(Decimal("8285.42")) == "8\u00a0285,42"
 
 
 def test_money_rounds_half_up():

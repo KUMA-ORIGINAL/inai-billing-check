@@ -24,7 +24,7 @@ def round_money(value: Decimal) -> Decimal:
 
 def format_som(value: Decimal) -> str:
     """Сумма для человека по-русски: 2 106,02 (неразрывный пробел между разрядами)."""
-    return f"{round_money(value):,.2f}".replace(",", " ").replace(".", ",")
+    return f"{round_money(value):,.2f}".replace(",", "\u00a0").replace(".", ",")
 
 
 def money(value: Decimal) -> float:
