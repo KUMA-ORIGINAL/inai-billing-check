@@ -1,10 +1,8 @@
-from pathlib import Path
-
 import pytest
 
-DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+from helpers import DATA_DIR
 
 
 @pytest.fixture
-def data_dir() -> Path:
+def data_dir():
     return DATA_DIR

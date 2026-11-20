@@ -5,6 +5,7 @@ from pathlib import Path
 
 from billcheck.parse import Charge
 
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 HEADER = "datetime,type,number,duration_sec,mb,cost_som"
 
 
