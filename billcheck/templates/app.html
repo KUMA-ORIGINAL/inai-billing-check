@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Акчам кайда? — аудитор мобильных расходов</title>
+<title>Акчам кайда? Аудитор мобильных расходов</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
@@ -16,7 +16,7 @@
   --paper:#F6F2E8;--ink:#17191C;--marker:rgba(255,122,89,.42);--pen:#D2361B;
   --display:"Unbounded","Manrope",system-ui,sans-serif;--font:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;--hand:"Caveat","Segoe Print","Comic Sans MS",cursive;
-  --r:20px;
+  --r:20px;--r-md:14px;--r-sm:10px;--h-btn:44px;--h-btn-sm:34px;--h-pill:38px;--top-h:64px;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -31,33 +31,47 @@ a{color:var(--mint)}a:hover{color:#A7F3D0}
 
 /* ---------- top */
 .top{position:sticky;top:0;z-index:30;background:rgba(7,11,18,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-.top .wrap{display:flex;align-items:center;gap:14px;min-height:68px;flex-wrap:wrap}
-.logo{display:flex;align-items:center;gap:12px;background:none;border:0;cursor:pointer;padding:0;text-align:left;color:var(--text)}
-.logo b{font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:-.01em;display:block;line-height:1.1}
-.logo small{font-size:12px;color:var(--muted)}
-.top nav{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.pill{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:9px 16px;border-radius:999px;border:1px solid var(--line2);background:rgba(255,255,255,.03);cursor:pointer;font-weight:700;font-size:14px;color:var(--text);text-decoration:none}
-.pill:hover{background:rgba(255,255,255,.07)}
+.top .wrap{display:flex;align-items:center;gap:16px;height:var(--top-h);flex-wrap:nowrap}
+.logo{display:flex;align-items:center;gap:11px;background:none;border:0;cursor:pointer;padding:0;text-align:left;color:var(--text);flex:none;min-width:0;border-radius:var(--r-sm)}
+.logo svg{width:36px;height:36px;flex:none}
+.logo b{font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:-.01em;display:block;line-height:1.15;white-space:nowrap}
+.logo small{font-size:12px;color:var(--muted);white-space:nowrap;display:block}
+.top nav{margin-left:auto;display:flex;gap:6px;flex-wrap:nowrap;align-items:center;min-width:0}
+.pill{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:var(--h-pill);padding:0 13px;border-radius:999px;border:1px solid var(--line2);background:rgba(255,255,255,.03);cursor:pointer;font-weight:700;font-size:13.5px;color:var(--text);text-decoration:none;white-space:nowrap;flex:none;transition:background .15s,border-color .15s,transform .1s}
+.pill svg{flex:none}
+.pill:hover{background:rgba(255,255,255,.08);border-color:rgba(148,163,184,.34)}
+.pill:active{transform:scale(.97)}
 .pill[aria-pressed="true"]{background:var(--paper);color:var(--ink);border-color:var(--paper)}
-.pill.cta{background:var(--mint);border-color:var(--mint);color:#06281D}
-.pill.cta:hover{background:#A7F3D0}
-.offline{font-size:12px;color:var(--spike);border:1px dashed rgba(251,191,36,.5);border-radius:999px;padding:5px 11px}
+.pill.cta{background:var(--mint);border-color:var(--mint);color:#06281D;padding:0 16px}
+.pill.cta:hover{background:#A7F3D0;border-color:#A7F3D0}
+.pill.lang{padding:0 11px;gap:4px;font-family:var(--mono);font-size:12.5px}
+.offline{display:inline-flex;align-items:center;gap:6px;font:600 11px/1 var(--mono);letter-spacing:.04em;color:var(--muted);padding:0 6px;white-space:nowrap;flex:none}
+.offline::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--spike);opacity:.8}
+.offline[hidden]{display:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* ---------- buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:11px 20px;border-radius:14px;border:1px solid var(--line2);background:var(--panel2);cursor:pointer;font-weight:800;font-size:14px;color:var(--text);text-decoration:none;transition:transform .12s,background .15s}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--h-btn);padding:0 20px;border-radius:var(--r-md);border:1px solid var(--line2);background:var(--panel2);cursor:pointer;font-weight:800;font-size:14px;line-height:1.2;color:var(--text);text-decoration:none;transition:transform .12s,background .15s,border-color .15s}
 .btn:hover{background:#1A2537;transform:translateY(-1px)}
-.btn.mint{background:var(--mint);border-color:var(--mint);color:#06281D;box-shadow:0 10px 30px -10px rgba(110,231,183,.55)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn.mint{background:var(--mint);border-color:var(--mint);color:#06281D;box-shadow:0 10px 30px -12px rgba(110,231,183,.55)}
 .btn.mint:hover{background:#A7F3D0}
-.btn.hot{background:var(--hot);border-color:var(--hot);color:#2A0A02;box-shadow:0 10px 30px -10px rgba(255,122,89,.6)}
-.btn.sm{min-height:36px;padding:7px 13px;font-size:13px;border-radius:11px}
+.btn.hot{background:var(--hot);border-color:var(--hot);color:#2A0A02;box-shadow:0 10px 30px -12px rgba(255,122,89,.6)}
+.btn.hot:hover{background:#FF9478}
+.btn.sm{min-height:var(--h-btn-sm);padding:0 13px;font-size:13px;border-radius:var(--r-sm)}
 .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.mcard:focus-visible,.case:focus-visible{outline-offset:2px;border-radius:var(--r)}
+.cal .d:focus-visible{outline-offset:1px;border-radius:var(--r-sm)}
 
 /* ---------- panels */
 .panel{background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0)),var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:24px}
 .eyebrow{font:700 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mint)}
-.h2{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:-.02em;margin:10px 0 6px;line-height:1.15}
+.h2{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:-.02em;margin:0 0 6px;line-height:1.15}
 .h3{font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:-.01em;margin:0}
 .sub{color:var(--muted);margin:0;font-size:15px;max-width:640px}
+.rc-legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:8px;max-width:none;font-size:14px}
+.rc-legend span{display:inline-flex;align-items:center;gap:8px}
+.rc-legend i{width:10px;height:10px;border-radius:50%;flex:none}
 section.block{padding-top:64px}
 .sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:22px}
 .grid{display:grid;gap:16px}
@@ -68,29 +82,41 @@ section.block{padding-top:64px}
 .split{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(320px,1fr);gap:20px;align-items:start}
 
 /* ---------- hero */
-.hero{padding:56px 0 24px}
-.hero-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:56px;align-items:center}
-.hero h1{font-family:var(--display);font-weight:700;font-size:46px;line-height:1.08;letter-spacing:-.03em;margin:18px 0 10px}
-.bignum{font-family:var(--display);font-weight:800;font-size:88px;line-height:1;letter-spacing:-.04em;color:var(--mint);text-shadow:0 0 60px rgba(110,231,183,.35);white-space:nowrap}
-.bignum small{font-size:.42em;letter-spacing:-.01em;margin-left:10px;color:#A7F3D0}
-.hero .lead{font-size:17px;color:#B9C4D3;max-width:560px;margin:18px 0 0}
-.hstats{display:flex;gap:28px;flex-wrap:wrap;margin-top:28px;padding-top:24px;border-top:1px solid var(--line)}
-.hstats div b{display:block;font-family:var(--display);font-size:26px;font-weight:700;letter-spacing:-.02em}
-.hstats div span{font-size:13px;color:var(--muted)}
-.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.hero{padding:clamp(20px,4.5vh,64px) 0 clamp(16px,3vh,40px)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);gap:clamp(32px,4vw,64px);align-items:center}
+.hero-eyebrow{font:600 12px/1.3 var(--mono);letter-spacing:.06em;color:var(--muted)}
+.hero-eyebrow b{color:var(--mint);font-weight:700}
+.hero h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,min(2.7vw,4.6vh),46px);line-height:1.1;letter-spacing:-.03em;margin:clamp(10px,1.8vh,18px) 0 clamp(4px,1vh,10px);max-width:15em;text-wrap:balance}
+.bignum{font-family:var(--display);font-weight:800;font-size:clamp(52px,min(6.6vw,11.5vh),116px);line-height:1;letter-spacing:-.045em;color:var(--mint);text-shadow:0 0 60px rgba(110,231,183,.3);white-space:nowrap}
+.bignum small{font-size:.36em;letter-spacing:-.01em;margin-left:.3em;color:#A7F3D0}
+.hero .lead{font-size:clamp(15px,1.15vw,17px);line-height:1.55;color:#B9C4D3;max-width:34em;margin:clamp(10px,1.8vh,18px) 0 0;text-wrap:pretty}
+.hstats{display:grid;grid-template-columns:repeat(4,minmax(0,auto));justify-content:start;gap:0;margin-top:clamp(18px,3vh,30px);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:rgba(255,255,255,.015);max-width:100%}
+.hstats>div{padding:12px 18px;border-left:1px solid var(--line);min-width:0}
+.hstats>div:first-child{border-left:0}
+.hstats b{display:block;font-family:var(--display);font-size:clamp(18px,1.6vw,22px);font-weight:700;letter-spacing:-.02em;line-height:1.2;white-space:nowrap}
+.hstats span{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;margin-top:2px}
+.hstats .save{background:rgba(110,231,183,.08)}
+.hstats .save b{color:var(--mint)}
+.hstats .save span{color:#A7F3D0}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:clamp(16px,2.6vh,26px)}
+.hero-copy{container-type:inline-size;min-width:0}
+@container (max-width:640px){.hstats{grid-template-columns:repeat(3,minmax(0,1fr))}.hstats span{white-space:normal;line-height:1.3}.hstats .save{grid-column:1/-1;border-left:0;border-top:1px solid var(--line)}}
 
 /* ---------- receipt (signature) */
 .receipt{position:relative;background:var(--paper);color:var(--ink);font:12.5px/1.75 var(--mono);padding:26px 26px 40px;border-radius:6px 6px 0 0;box-shadow:0 40px 80px -30px rgba(0,0,0,.8),0 0 0 1px rgba(0,0,0,.05);transform:rotate(1.4deg)}
+.hero-rc-wrap .receipt{font-size:12px;line-height:1.62;padding:20px 22px 34px}
+.hero-rc-wrap .rc-note{font-size:20px;margin:0 2px 2px 0}
 .receipt::after{content:"";position:absolute;left:0;right:0;bottom:-14px;height:14px;background:linear-gradient(-45deg,transparent 7px,var(--paper) 7px) 0 0/14px 14px repeat-x,linear-gradient(45deg,transparent 7px,var(--paper) 7px) 0 0/14px 14px repeat-x}
 .receipt.flat{transform:none;box-shadow:none;border-radius:12px;padding:16px 18px 18px;font-size:12px}
 .receipt.flat::after{display:none}
 .rc-head{text-align:center;font-weight:700;letter-spacing:.12em}
 .rc-sub{text-align:center;color:#5B5B5B;font-size:11.5px}
 .rc-sep{border-top:1.5px dashed #9A958A;margin:10px 0}
-.rc-row{display:grid;grid-template-columns:86px minmax(0,1fr) auto;gap:10px;align-items:baseline;position:relative;padding:0 4px;margin:0 -4px}
-.rc-row .d{color:#6A665E}
-.rc-row .w{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rc-row .c{text-align:right;font-weight:700}
+.rc-row{display:grid;grid-template-columns:max-content minmax(0,1fr) max-content;gap:10px;align-items:center;position:relative;padding:0 4px;margin:0 -4px}
+.rc-row>*{min-width:0}
+.rc-row .d{color:#6A665E;white-space:nowrap}
+.rc-row .w{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-height:1.75em;max-height:1lh}
+.rc-row .c{text-align:right;font-weight:700;white-space:nowrap}
 .rc-row.hit{background:linear-gradient(100deg,transparent 0 1%,var(--marker) 2% 97%,transparent 99%);border-radius:3px}
 .rc-row.hit .c{color:#B42318}
 .rc-note{text-align:right;font:700 22px/1 var(--hand);color:var(--pen);transform:rotate(-3deg);margin:1px 2px 4px 0;white-space:nowrap}
@@ -98,12 +124,14 @@ section.block{padding-top:64px}
 .rc-total{display:flex;justify-content:space-between;font-weight:700;font-size:15px}
 .stamp{position:absolute;right:26px;bottom:-26px;z-index:3;border:3px solid var(--pen);color:var(--pen);font:800 15px/1.1 var(--display);letter-spacing:.06em;padding:8px 12px;border-radius:8px;transform:rotate(-12deg);opacity:.85;text-align:center;background:rgba(246,242,232,.6)}
 .stamp small{display:block;font:700 10px/1.3 var(--mono);letter-spacing:.1em}
-.hero-rc-wrap{position:relative;padding:12px 6px 24px}
+.hero-rc-wrap{position:relative;padding:12px 6px 24px;width:100%;max-width:540px;justify-self:center}
+.rc-who{color:#5B5B5B;font-size:11px;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hero-rc-wrap .tape{position:absolute;top:-2px;left:50%;width:120px;height:28px;background:rgba(255,255,255,.18);transform:translateX(-50%) rotate(-3deg);z-index:2;backdrop-filter:blur(2px);border-radius:3px}
 
 /* ---------- members */
 .mcard{position:relative;display:flex;flex-direction:column;gap:14px;text-align:left;cursor:pointer;width:100%;padding:20px;border-radius:var(--r);border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,0)),var(--panel);transition:transform .18s,border-color .18s,box-shadow .18s;color:var(--text)}
 .mcard:hover{transform:translateY(-4px);border-color:var(--line2);box-shadow:0 24px 50px -24px rgba(0,0,0,.9)}
+.mcard:active{transform:translateY(-1px) scale(.99)}
 .mcard .row{display:flex;align-items:center;gap:12px}
 .ava{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font:700 16px var(--display);color:#06121F;flex:none}
 .mname{font-family:var(--display);font-weight:700;font-size:16px;line-height:1.15}
@@ -135,7 +163,7 @@ section.block{padding-top:64px}
 .rule .k{font:700 11.5px var(--mono);letter-spacing:.04em}
 
 /* ---------- drop */
-.drop{position:relative;border-radius:24px;padding:44px 28px;text-align:center;background:var(--panel);border:1.5px dashed var(--line2);transition:.18s}
+.drop{position:relative;border-radius:var(--r);padding:44px 28px;text-align:center;background:var(--panel);border:1.5px dashed var(--line2);transition:.18s}
 .drop.over{border-color:var(--mint);background:rgba(110,231,183,.07);transform:scale(1.01)}
 .drop h3{font-family:var(--display);font-size:22px;margin:16px 0 6px;letter-spacing:-.02em}
 .drop p{margin:0 auto;color:var(--muted);max-width:560px}
@@ -152,7 +180,7 @@ section.block{padding-top:64px}
 .verdict .t{font-family:var(--display);font-weight:700;font-size:18px}
 .verdict .s{font-size:13px;color:var(--muted);max-width:220px}
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:24px}
-.kpi{padding:18px 20px;border-radius:18px;background:var(--panel);border:1px solid var(--line)}
+.kpi{padding:18px 20px;border-radius:var(--r);background:var(--panel);border:1px solid var(--line)}
 .kpi .l{font:700 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .kpi .v{font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:-.03em;margin-top:8px;line-height:1.1}
 .kpi .s{font-size:12.5px;color:var(--muted);margin-top:6px}
@@ -186,7 +214,7 @@ section.block{padding-top:64px}
 .evid-label{font:700 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
 
 /* aside */
-.aside{position:sticky;top:88px;display:flex;flex-direction:column;gap:16px}
+.aside{position:sticky;top:calc(var(--top-h) + 20px);display:flex;flex-direction:column;gap:16px}
 .claim-total{font-family:var(--display);font-weight:800;font-size:44px;letter-spacing:-.03em;color:var(--hot);line-height:1;margin:10px 0 6px}
 .claim-list{list-style:none;margin:14px 0 18px;padding:0;display:flex;flex-direction:column;gap:8px}
 .claim-list li{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;padding-bottom:8px;border-bottom:1px dashed var(--line2)}
@@ -218,7 +246,7 @@ svg text{font-family:var(--mono)}
 .paper textarea{width:100%;min-height:440px;border:0;background:transparent;resize:vertical;color:var(--ink);font:13px/1.75 var(--mono);outline:none}
 .paper .sig{position:absolute;right:40px;bottom:22px;font:700 30px var(--hand);color:#1D3FAF;transform:rotate(-6deg);opacity:.85}
 .field{display:flex;flex-direction:column;gap:7px;font:700 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.field input{border:1px solid var(--line2);border-radius:12px;padding:11px 14px;min-height:46px;background:var(--panel2);font:600 15px var(--font);color:var(--text);letter-spacing:0;text-transform:none}
+.field input{border:1px solid var(--line2);border-radius:var(--r-sm);padding:11px 14px;min-height:46px;background:var(--panel2);font:600 15px var(--font);color:var(--text);letter-spacing:0;text-transform:none}
 
 /* tables */
 table.t{width:100%;border-collapse:collapse;font-size:13px}
@@ -233,7 +261,7 @@ table.t code{font:12px var(--mono);color:#C9D3E0;word-break:break-all}
 .scan.on{display:grid;animation:fade .2s}
 .scan-box{width:min(760px,100%)}
 .scan-title{font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:-.02em;margin:12px 0 22px}
-.scan-feed{height:210px;overflow:hidden;position:relative;border-radius:16px;background:var(--panel);border:1px solid var(--line);padding:14px 18px;font:12.5px/1.75 var(--mono);color:#7F8DA3;mask-image:linear-gradient(transparent,#000 22%,#000 78%,transparent)}
+.scan-feed{height:210px;overflow:hidden;position:relative;border-radius:var(--r-md);background:var(--panel);border:1px solid var(--line);padding:14px 18px;font:12.5px/1.75 var(--mono);color:#7F8DA3;mask-image:linear-gradient(transparent,#000 22%,#000 78%,transparent)}
 .scan-feed .hit{color:var(--hot);font-weight:700}
 .scan-beam{position:absolute;left:0;right:0;top:50%;height:2px;background:var(--mint);box-shadow:0 0 24px 4px rgba(110,231,183,.55)}
 .scan-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
@@ -265,7 +293,7 @@ footer{padding:64px 0 48px;color:var(--dim);font-size:13px}
 .tariff{background:linear-gradient(150deg,rgba(110,231,183,.16),rgba(110,231,183,.02) 55%),var(--panel);border-color:rgba(110,231,183,.32)}
 .tf-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:28px;align-items:start;margin-top:18px}
 .tf-compare{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:12px;align-items:stretch}
-.tf-col{padding:16px 18px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.tf-col{padding:16px 18px;border-radius:var(--r-md);background:rgba(255,255,255,.04);border:1px solid var(--line)}
 .tf-col.good{background:rgba(110,231,183,.1);border-color:rgba(110,231,183,.35)}
 .tf-col .l{font:700 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .tf-col .v{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:-.02em;margin-top:6px}
@@ -301,8 +329,28 @@ body.simple .tf-arrow{display:none}
 .dots i{width:18px;height:18px;border-radius:6px;display:grid;place-items:center;font:700 9px var(--display);color:#06121F;font-style:normal}
 
 /* ---------- режим для родителей: светлый, крупный, только суть */
-body.simple{--bg:#F4F1EA;--bg2:#fff;--panel:#FFFFFF;--panel2:#F4F1EA;--line:rgba(23,25,28,.1);--line2:rgba(23,25,28,.18);--text:#17191C;--muted:#4D5562;--dim:#6B7280;--mint:#047857;--hot:#C2410C;font-size:20px;background:#F4F1EA}
+body.simple{--bg:#F4F1EA;--bg2:#fff;--panel:#FFFFFF;--panel2:#F4F1EA;--line:rgba(23,25,28,.1);--line2:rgba(23,25,28,.18);--text:#17191C;--muted:#4D5562;--dim:#5B6270;--mint:#047857;--hot:#C2410C;--spike:#B45309;--night:#6D28D9;--sub:#BE185D;font-size:20px;background:#F4F1EA}
 body.simple .top{background:rgba(244,241,234,.9)}
+body.simple .hero .lead{color:#2E3440}
+body.simple .bignum small,body.simple .tf-save small,body.simple .hstats .save span{color:var(--mint)}
+body.simple .hstats span{font-size:14.5px;color:var(--muted);white-space:normal;line-height:1.3}
+body.simple .hstats{grid-template-columns:repeat(3,minmax(0,1fr))}
+body.simple .hstats .save{grid-column:1/-1;border-left:0;border-top:1px solid var(--line)}
+body.simple .hstats .save{background:rgba(4,120,87,.08)}
+body.simple .hero-eyebrow{font-size:14px}
+body.simple .kpi .l,body.simple .tf-col .l,body.simple .case .no,body.simple .case .amt span{font-size:13px}
+body.simple .kpi .s,body.simple .tf-col .s,body.simple .tf-note,body.simple .mrole,body.simple .mmoney span{font-size:15px}
+body.simple .btn:hover{background:#E9E4D8}
+body.simple .btn.mint:hover,body.simple .pill.cta:hover{background:#065F46;border-color:#065F46}
+body.simple .btn.hot{color:#fff}
+body.simple .btn.hot:hover{background:#9A3412}
+body.simple .pill:hover{background:rgba(23,25,28,.06)}
+body.simple .chip{filter:brightness(.62) saturate(1.3)}
+body.simple .scan{background:rgba(244,241,234,.97)}
+body.simple .scan-feed{color:#4D5562}
+body.simple .offline::before{background:#B45309}
+body.simple .rc-legend i{filter:brightness(.8)}
+body.simple a:hover{color:#065F46}
 body.simple .tech{display:none!important}
 body.simple .split,body.simple .case-body{grid-template-columns:minmax(0,1fr)}
 body.simple .case p.ex{color:#17191C;font-size:20px}
@@ -316,9 +364,17 @@ body.simple .verdict .t,body.simple .mcard div[style*="font-weight:800"]{filter:
 .simple-only{display:none}
 body.simple .simple-only{display:block}
 
-@media (max-width:1100px){.g5{grid-template-columns:repeat(3,minmax(0,1fr))}.hero-grid,.split,.letter-wrap{grid-template-columns:minmax(0,1fr)}.aside{position:static}.bignum{font-size:68px}}
-@media (max-width:760px){.g5,.g4,.g3,.g2,.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.case-body,.mhead{grid-template-columns:minmax(0,1fr)}.hero h1{font-size:32px}.bignum{font-size:54px}.mhead h1{font-size:32px}.wrap{padding:0 18px}.donut-wrap{grid-template-columns:minmax(0,1fr)}}
-@media (max-width:480px){.g5,.g4,.g3,.g2,.kpis,.scan-stats{grid-template-columns:minmax(0,1fr)}.receipt{transform:none}.hbar{grid-template-columns:110px minmax(0,1fr) 70px}}
+/* шапка: одна строка; на узких экранах подписи прячутся, остаются иконки */
+@media (max-width:1439px){.logo small{display:none}}
+@media (max-width:1279px){.top .pl{display:none}.top .pill:not(.cta):not(.lang){width:var(--h-pill);padding:0}}
+@media (max-width:1100px){.g5{grid-template-columns:repeat(3,minmax(0,1fr))}.hero-grid,.split,.letter-wrap{grid-template-columns:minmax(0,1fr)}.aside{position:static}}
+@media (max-width:760px){.g5,.g4,.g3,.g2,.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.case-body,.mhead{grid-template-columns:minmax(0,1fr)}.mhead h1{font-size:32px}.wrap{padding:0 16px}.donut-wrap{grid-template-columns:minmax(0,1fr)}
+  .top .wrap{gap:10px}.top .pill.cta .pl{display:none}.top .pill.cta{width:var(--h-pill);padding:0}.offline{font-size:0;gap:0;padding:0 4px}
+  .hero h1{font-size:28px}.bignum{font-size:clamp(44px,13vw,60px)}}
+@media (max-width:480px){.g5,.g4,.g3,.g2,.kpis,.scan-stats{grid-template-columns:minmax(0,1fr)}.receipt{transform:none}.hbar{grid-template-columns:110px minmax(0,1fr) 70px}
+  .top .wrap{gap:8px}.top nav{gap:4px}.logo b{font-size:14px}.pill.lang{padding:0 8px}.top{--h-pill:36px}
+  .hstats>div{padding:10px 12px}.hero-actions .btn{flex:1 1 auto}.hero-rc-wrap .receipt{padding:18px 16px 30px}}
+@media (max-width:400px){.logo b{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media print{.top,.no-print,.drawer,.scan{display:none!important}body{background:#fff;color:#000}}
 </style>
@@ -326,20 +382,17 @@ body.simple .simple-only{display:block}
 <body>
 <header class="top">
   <div class="wrap">
-    <button class="logo" id="home" aria-label="Акчам кайда? — на главную">
-      <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="12" fill="#6EE7B7"/><path d="M12 9h16v21l-2.7-1.8-2.6 1.8-2.7-1.8-2.7 1.8-2.6-1.8L12 30z" fill="#06281D"/><path d="M15.5 19.5l3 3 6-6.5" fill="none" stroke="#6EE7B7" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span><b>Акчам кайда?</b><small id="tagline">«Где мои деньги?» — аудитор мобильных расходов</small></span>
+    <button class="logo" id="home" aria-label="Акчам кайда? На главную">
+      <svg width="36" height="36" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="12" fill="#6EE7B7"/><path d="M12 9h16v21l-2.7-1.8-2.6 1.8-2.7-1.8-2.7 1.8-2.6-1.8L12 30z" fill="#06281D"/><path d="M15.5 19.5l3 3 6-6.5" fill="none" stroke="#6EE7B7" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span style="min-width:0"><b>Акчам кайда?</b><small id="tagline">Где мои деньги? Аудитор мобильных расходов</small></span>
     </button>
-    <nav>
-      <span class="offline" id="offline" hidden>демо-снимок</span>
-      <button class="pill" id="btnRadar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6-6"/></svg><span data-i="radar">Радар оператора</span></button>
-      <button class="pill" id="btnLang" aria-label="Язык: русский / кыргызча"><b id="langRu">RU</b><span class="muted">/</span><b id="langKy" class="muted">KY</b></button>
-      <button class="pill" id="btnSimple" aria-pressed="false" title="Светлый крупный режим — только главное">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7V5h16v2M9 19h6M12 5v14"/></svg>Для родителей</button>
-      <button class="pill" id="btnSettings">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>Пороги</button>
-      <button class="pill cta" id="btnUpload">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M6 10l6-6 6 6M4 20h16"/></svg>Проверить детализацию</button>
+    <nav aria-label="Основное меню">
+      <span class="offline" id="offline" title="Данные из вшитого демо-снимка, сервер не запущен" hidden>демо-снимок</span>
+      <button class="pill" id="btnRadar" title="Радар оператора"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6-6"/></svg><span class="pl" data-i="radar">Радар оператора</span></button>
+      <button class="pill lang" id="btnLang" aria-label="Язык: русский / кыргызча"><b id="langRu">RU</b><span class="muted">/</span><b id="langKy" class="muted">KY</b></button>
+      <button class="pill" id="btnSimple" aria-pressed="false" title="Для родителей: светлый крупный режим, только главное"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7V5h16v2M9 19h6M12 5v14"/></svg><span class="pl">Для родителей</span></button>
+      <button class="pill" id="btnSettings" title="Пороги правил"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg><span class="pl">Пороги</span></button>
+      <button class="pill cta" id="btnUpload" title="Проверить детализацию"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M6 10l6-6 6 6M4 20h16"/></svg><span class="pl">Проверить детализацию</span></button>
     </nav>
   </div>
 </header>
@@ -367,8 +420,8 @@ body.simple .simple-only{display:block}
 <div class="drawer-bg" id="drawerBg"></div>
 <aside class="drawer" id="drawer" aria-label="Пороги правил">
   <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
-    <div><div class="eyebrow">Настройка правил</div><div class="h2" style="font-size:24px">Пороги</div>
-    <p class="sub" style="font-size:14px;margin-bottom:22px">По умолчанию — строго как в уточнениях к ТЗ. Двигайте и смотрите, как меняются находки.</p></div>
+    <div><div class="h2" style="font-size:24px">Пороги правил</div>
+    <p class="sub" style="font-size:14px;margin-bottom:22px">По умолчанию строго как в уточнениях к ТЗ. Двигайте и смотрите, как меняются находки.</p></div>
     <button class="btn sm" id="drawerClose" aria-label="Закрыть">✕</button>
   </div>
   <div class="grid" style="gap:20px" id="settingsForm"></div>
@@ -399,13 +452,13 @@ const TYPES = {
                       icon:'<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>'},
 };
 const RULE_TEXT = {
-  night_charge:["Ночные платные списания","Платные SMS и контент с 00:00 до 06:00 — так часто работают скрытые подписки.","вся сумма к возврату"],
+  night_charge:["Ночные платные списания","Платные SMS и контент с 00:00 до 06:00. Так часто работают скрытые подписки.","вся сумма к возврату"],
   new_subscription:["Новая подписка","Первое списание на короткий номер из 3–6 цифр. Дальше продлевается само.","вся сумма к возврату"],
-  duplicate_charge:["Двойное списание","Одинаковая запись дважды за 60 секунд — ошибка биллинга.","второе списание к возврату"],
+  duplicate_charge:["Двойное списание","Одинаковая запись дважды за 60 секунд: ошибка биллинга.","второе списание к возврату"],
   international_rate:["Дорогой звонок за рубеж","Минута дороже 20 сом. Считаем переплату сверх нормы.","разница сверх 20 сом/мин"],
   day_spike:["Всплеск трат","День, где траты выше нормы: z-score > 3 к 7 предыдущим дням.","сумма сверх нормы"],
 };
-const RULE_KY = {night_charge:"00:00–06:00 аралыгында акы төлөнүүчү SMS жана контент — жашыруун жазылуулар көбүнчө ушундай иштейт.",new_subscription:"3–6 сандан турган кыска номерге биринчи төлөм. Андан ары өзү эле узартылат.",duplicate_charge:"60 секунддун ичинде бирдей жазуу эки жолу — биллингдин катасы.",international_rate:"Мүнөтү 20 сомдон кымбат. Нормадан ашык төлөмдү эсептейбиз.",day_spike:"Чыгым нормадан жогору болгон күн: мурунку 7 күнгө карата z-score > 3."};
+const RULE_KY = {night_charge:"00:00–06:00 аралыгында акы төлөнүүчү SMS жана контент. Жашыруун жазылуулар көбүнчө ушундай иштейт.",new_subscription:"3–6 сандан турган кыска номерге биринчи төлөм. Андан ары өзү эле узартылат.",duplicate_charge:"60 секунддун ичинде бирдей жазуу эки жолу: биллингдин катасы.",international_rate:"Мүнөтү 20 сомдон кымбат. Нормадан ашык төлөмдү эсептейбиз.",day_spike:"Чыгым нормадан жогору болгон күн: мурунку 7 күнгө карата z-score > 3."};
 const CATS = {call:["Звонки","#6EE7B7"],sms:["SMS","#60A5FA"],data:["Интернет","#A78BFA"],subscription:["Подписки","#F472B6"],content:["Контент","#FB923C"]};
 const TYPE_RU = {call:"звонок",sms:"SMS",data:"интернет",subscription:"подписка",content:"контент"};
 const AVA = ["#6EE7B7","#A78BFA","#F472B6","#60A5FA","#FBBF24","#FB923C","#5EEAD4"];
@@ -454,7 +507,7 @@ function ring(r,size=64){
   const L=light(r), h=size, w=Math.round(size*0.46), rad=w*0.32, cols=["#FF5A4E","#FBBF24","#6EE7B7"], on=[2,1,0].indexOf(L.lvl);
   let g=`<rect x="1" y="1" width="${w-2}" height="${h-2}" rx="${w/2.4}" fill="#0A0F18" stroke="rgba(148,163,184,.25)"/>`;
   cols.forEach((c,i)=>{ const cy=h*(0.2+0.3*i), act=i===on; g+=`<circle cx="${w/2}" cy="${cy}" r="${rad}" fill="${act?c:c+"22"}" ${act?`filter="url(#lg${size})"`:""}/>`; });
-  return `<span class="ring-wrap" style="width:${w}px;height:${h}px" data-tip="${esc(t("Светофор","Светофор")+": "+L.label+" — "+L.hint)}" role="img" aria-label="${esc(L.label)}">
+  return `<span class="ring-wrap" style="width:${w}px;height:${h}px" data-tip="${esc(t("Светофор","Светофор")+": "+L.label+" ("+L.hint+")")}" role="img" aria-label="${esc(L.label)}">
     <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><defs><filter id="lg${size}" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>${g}</svg></span>`;
 }
 
@@ -484,7 +537,7 @@ async function runScan(title, members, ms){
     $("#scBar").style.width=(p*100)+"%";
     kinds.forEach((k,j)=>{ if(p>0.18+j*0.15) document.querySelector(`#scRules [data-k="${k}"]`)?.classList.add("done"); });
     if(rows.length){ const r=rows[i++%rows.length]; const div=document.createElement("div"); if(r.hit) div.className="hit";
-      div.textContent=`${r.datetime}  ${(TYPE_RU[r.type]||r.type).padEnd(9)} ${(r.number||"—").padEnd(15)} ${fmt(r.cost_som).padStart(8)}${r.hit?"   ← подозрительно":""}`;
+      div.textContent=`${r.datetime}  ${(TYPE_RU[r.type]||r.type).padEnd(9)} ${(r.number||"·").padEnd(15)} ${fmt(r.cost_som).padStart(8)}${r.hit?"   ← подозрительно":""}`;
       feed.appendChild(div); if(feed.children.length>14) feed.firstChild.remove(); }
     if(p>=1) break; await sleep(70);
   }
@@ -501,7 +554,9 @@ function render(){
   $("#btnSimple").lastChild.textContent = t("Для родителей","Ата-энелер үчүн");
   $("#btnSettings").lastChild.textContent = t("Пороги","Чектер");
   $("#btnUpload").lastChild.textContent = t("Проверить детализацию","Детализацияны текшерүү");
-  $("#tagline").textContent = t("«Где мои деньги?» — аудитор мобильных расходов","Мобилдик чыгымдардын аудитору");
+  $("#tagline").textContent = t("Где мои деньги? Аудитор мобильных расходов","Мобилдик чыгымдардын аудитору");
+  $("#btnRadar").title = t("Радар оператора","Оператордун радары"); $("#btnSimple").title = t("Для родителей: светлый крупный режим, только главное","Ата-энелер үчүн: жарык, ири шрифт");
+  $("#btnSettings").title = t("Пороги правил","Эрежелердин чектери"); $("#btnUpload").title = t("Проверить детализацию","Детализацияны текшерүү");
   $("#btnRadar").setAttribute("aria-pressed", S.view==="radar");
   bindDom(); countUp();
 }
@@ -527,10 +582,8 @@ function familyReceipt(){
   const per=S.members[0].report.meta.period;
   let body="";
   picks.slice(0,5).forEach(({m,a})=>{
-    const ctx=a.context||[], hitI=ctx.findIndex(c=>c.hit);
-    const before=ctx[hitI-1], hits=ctx.filter(c=>c.hit);
-    body+=`<div class="rc-sub" style="text-align:left;margin-top:6px">— ${esc(m.name)}, ${esc(role(m).toLowerCase())}</div>`;
-    if(before) body+=rcRow(before);
+    const hits=(a.context||[]).filter(c=>c.hit).slice(-2);
+    body+=`<div class="rc-who">▸ ${esc(m.name)}, ${esc(role(m).toLowerCase())}</div>`;
     hits.forEach((c,j)=>{ body+=rcRow(c, j===hits.length-1?noteFor(a):""); });
   });
   return `<div class="hero-rc-wrap rise" style="animation-delay:.15s"><span class="tape" aria-hidden="true"></span>
@@ -539,7 +592,7 @@ function familyReceipt(){
     <div class="rc-sub">${esc(S.family)} · ${per[0]?dt(per[0]).short+"–"+dt(per[1]).short+"."+per[0].slice(0,4):""}</div>
     <div class="rc-sep"></div>${body}<div class="rc-sep"></div>
     <div class="rc-total"><span>${t("ЛИШНЕГО СПИСАНО","АШЫК АЛЫНДЫ")}</span><span class="num">${fmt(total)}</span></div>
-    <div class="rc-sub" style="text-align:left;margin-top:2px">проверено строк: ${S.members.reduce((s,m)=>s+m.report.valid_rows+m.report.dropped_rows,0).toLocaleString("ru-RU")}</div>
+    <div class="rc-sub" style="text-align:left;margin-top:2px">${t("проверено строк","текшерилген сап")}:${S.members.reduce((s,m)=>s+m.report.valid_rows+m.report.dropped_rows,0).toLocaleString("ru-RU")}</div>
     <div class="stamp">${t("К ВОЗВРАТУ","КАЙТАРУУГА")}<small>Акчам кайда?</small></div>
   </div></div>`;
 }
@@ -561,12 +614,12 @@ function viewFamily(){
   const top=[...S.members].sort((a,b)=>(light(b.report).lvl-light(a.report).lvl)||(b.report.summary.reclaimable_som-a.report.summary.reclaimable_som))[0];
   return `
   <section class="hero"><div class="wrap hero-grid">
-    <div class="rise">
-      <div class="eyebrow">${per?MONTHS_N[per.m-1]+" "+per.y:""} · ${esc(S.family)} · ${S.members.length} ${plural(S.members.length,"номер","номера","номеров")}</div>
+    <div class="rise hero-copy">
+      <div class="hero-eyebrow"><b>${per?MONTHS_N[per.m-1]+" "+per.y:""}</b> · ${esc(S.family)} · ${S.members.length} ${plural(S.members.length,"номер","номера","номеров")}</div>
       <h1>${t("Оператор должен вашей семье","Оператор үй-бүлөңүзгө карыз")}</h1>
-      <div class="bignum num"><span data-count="${reclaim}">0</span><small>сом</small></div>
-      <p class="lead">${t(`Мы прочитали всю детализацию за вас и нашли ${nAn} ${plural(nAn,"подозрительное списание","подозрительных списания","подозрительных списаний")}: ночные подписки, двойные списания и звонки по завышенному тарифу. Претензии оператору уже составлены.`,
-        `Детализацияны сиз үчүн толук окуп чыктык жана ${nAn} шектүү төлөм таптык: түнкү жазылуулар, эки жолу алынган төлөмдөр жана кымбат тарифтеги чалуулар. Операторго доо арыздар даяр.`)}</p>
+      <div class="bignum num"><span data-count="${reclaim}">${fmt(reclaim)}</span><small>сом</small></div>
+      <p class="lead">${t(`Прочитали всю детализацию и нашли ${nAn} ${plural(nAn,"подозрительное списание","подозрительных списания","подозрительных списаний")}. Претензии оператору уже готовы.`,
+        `Детализацияны толук окуп, ${nAn} шектүү төлөм таптык. Операторго доо арыздар даяр.`)}</p>
       <div class="hero-actions">
         <button class="btn mint" data-go="${esc(top.id)}">${t("Разобрать","Карап чыгуу")}: ${esc(top.name)} →</button>
         <button class="btn" data-act="radar">${t("Радар оператора","Оператордун радары")}</button>
@@ -574,8 +627,8 @@ function viewFamily(){
       <div class="hstats">
         <div><b class="num">${lines.toLocaleString("ru-RU")}</b><span>${t("строк проверено","сап текшерилди")}</span></div>
         <div><b class="num">${fmt(total,0)}</b><span>${t("сом потрачено","сом коротулду")}</span></div>
-        <div><b class="num" style="color:var(--spike)">${nSp}</b><span>${t(plural(nSp,"день","дня","дней")+" со всплеском","чыгым секирген күн")}</span></div>
-        ${save>0?`<div data-tip="${esc(t("Тот же месяц на подходящем тарифе INAI Mobile (тарифы и правила ТЗ 2)","Ошол эле ай ылайыктуу INAI Mobile тарифинде (ТЗ 2 тарифтери жана эрежелери)"))}"><b class="num" style="color:var(--mint)">${fmt(save,0)}</b><span>${t("сом в месяц можно не тратить — тариф","сом айына үнөмдөөгө болот — тариф")}</span></div>`:""}
+        <div><b class="num" style="color:var(--spike)">${nSp}</b><span>${t(plural(nSp,"день","дня","дней")+" со всплеском","секирик күн")}</span></div>
+        ${save>0?`<div class="save" data-tip="${esc(t("Тот же месяц на подходящем тарифе INAI Mobile (тарифы и правила ТЗ 2)","Ошол эле ай ылайыктуу INAI Mobile тарифинде (ТЗ 2 тарифтери жана эрежелери)"))}"><b class="num">${fmt(save,0)} ${t("сом/мес","сом/ай")}</b><span>${t("можно сэкономить на тарифе","тарифте үнөмдөөгө болот")}</span></div>`:""}
       </div>
     </div>
     ${familyReceipt()}
@@ -583,21 +636,22 @@ function viewFamily(){
 
   <div class="wrap">
   <section class="block">
-    <div class="sec-head"><div><div class="eyebrow">${t("Семья","Үй-бүлө")}</div><div class="h2">${t("У кого утекают деньги","Акча кимден агып жатат")}</div><p class="sub">${t("Светофор: красный — подписка, ночной контент или дорогой звонок; жёлтый — всплеск или дубль; зелёный — чисто.","Светофор: кызыл — жазылуу, түнкү контент же кымбат чалуу; сары — секирик же дубль; жашыл — таза.")}</p></div></div>
+    <div class="sec-head"><div><div class="h2">${t("У кого утекают деньги","Акча кимден агып жатат")}</div>
+      <p class="sub rc-legend"><span><i style="background:#FF5A4E"></i>${t("подписка, ночной контент или дорогой звонок","жазылуу, түнкү контент же кымбат чалуу")}</span><span><i style="background:#FBBF24"></i>${t("всплеск или дубль","секирик же дубль")}</span><span><i style="background:#6EE7B7"></i>${t("чисто","таза")}</span></p></div></div>
     <div class="grid g5">${S.members.map((m,i)=>memberCard(m,i)).join("")}</div>
   </section>
 
   <section class="block">
     <div class="split" style="align-items:stretch">
-      <div class="panel tech scroll-x" style="padding:18px 20px"><div class="eyebrow">${t("Карта угроз","Коркунуч картасы")}</div><div class="h3" style="margin:8px 0 6px">${t("Какие схемы сработали на каждом номере","Ар бир номерде кайсы схема иштеди")}</div>${matrix()}</div>
-      <div class="panel" style="padding:18px 20px"><div class="eyebrow" style="color:var(--hot)">● ${t("Лента событий","Окуялар тасмасы")}</div><div class="h3" style="margin:8px 0 12px">${t("Что случилось в семье","Үй-бүлөдө эмне болду")}</div>${feed()}</div>
+      <div class="panel tech scroll-x" style="padding:18px 20px"><div class="h3" style="margin:0 0 8px">${t("Какие схемы сработали на каждом номере","Ар бир номерде кайсы схема иштеди")}</div>${matrix()}</div>
+      <div class="panel" style="padding:18px 20px"><div class="h3" style="margin:0 0 12px">${t("Что случилось в семье","Үй-бүлөдө эмне болду")}</div>${feed()}</div>
     </div>
   </section>
 
 
 
   <section class="block">
-    <div class="sec-head"><div><div class="eyebrow">${t("Пять правил ТЗ","ТЗнын беш эрежеси")}</div><div class="h2">${t("Что ловит сканер","Сканер эмнени кармайт")}</div><p class="sub">${t("Каждая находка — с пояснением простыми словами, уликой из детализации и суммой переплаты.","Ар бир табылга — жөнөкөй түшүндүрмө, детализациядан далил жана ашык төлөмдүн суммасы менен.")}</p></div></div>
+    <div class="sec-head"><div><div class="eyebrow">${t("Пять правил ТЗ","ТЗнын беш эрежеси")}</div><div class="h2">${t("Что ловит сканер","Сканер эмнени кармайт")}</div><p class="sub">${t("Каждая находка с пояснением простыми словами, уликой из детализации и суммой переплаты.","Ар бир табылга жөнөкөй түшүндүрмө, детализациядан далил жана ашык төлөмдүн суммасы менен.")}</p></div></div>
     <div class="grid g5">${rulesCards()}</div>
   </section>
 
@@ -623,7 +677,7 @@ function feed(){
     return `<li><button class="back" style="width:100%;justify-content:flex-start;gap:12px;padding:8px 6px;color:var(--text);text-align:left;border-radius:12px" data-go="${esc(m.id)}">
       <span class="mono muted" style="font-size:12px;width:42px;flex:none">${d.short}</span>
       <span class="ava" style="width:30px;height:30px;border-radius:9px;font-size:11px;background:${m.color}">${esc(initials(m.name))}</span>
-      <span style="flex:1;min-width:0;font-weight:600;font-size:14px">${esc(m.name)} <span class="muted">—</span> ${verb[a.anomaly_type]}${a.number?` <span class="mono muted" style="font-size:12px">${esc(a.number)}</span>`:""}</span>
+      <span style="flex:1;min-width:0;font-weight:600;font-size:14px">${esc(m.name)} <span class="muted">·</span> ${verb[a.anomaly_type]}${a.number?` <span class="mono muted" style="font-size:12px">${esc(a.number)}</span>`:""}</span>
       <span class="num" style="font-weight:800;color:${a.reclaimable?"var(--hot)":TYPES[a.anomaly_type].hex};white-space:nowrap">${fmt(a.amount_som)}</span></button></li>`;}).join("")}</ol>`;
 }
 function memberCard(m,i){
@@ -644,7 +698,7 @@ function matrix(){
   return `<table class="matrix"><thead><tr><th scope="col">${t("Номер","Номер")}</th>${keys.map(k=>`<th scope="col"><span style="display:inline-flex;flex-direction:column;align-items:center;gap:6px">${icon(k,18)}${ts(k)}</span></th>`).join("")}<th scope="col">${t("К возврату","Кайтарууга")}</th></tr></thead><tbody>
   ${S.members.map(m=>`<tr><td><button class="back" style="min-height:32px;color:var(--text)" data-go="${esc(m.id)}"><span class="ava" style="width:28px;height:28px;border-radius:9px;font-size:11px;background:${m.color}">${esc(initials(m.name))}</span>${esc(m.name)}</button></td>
     ${keys.map(k=>{ const hits=m.report.anomalies.filter(a=>a.anomaly_type===k), sum=hits.reduce((s,a)=>s+a.amount_som,0), sz=Math.round(18+Math.min(26,Math.sqrt(sum)*2.2));
-      return `<td>${hits.length?`<span class="mx-dot num" style="width:${sz}px;height:${sz}px;background:${TYPES[k].hex};box-shadow:0 0 18px ${TYPES[k].hex}66" data-tip="${esc(`${m.name}: ${TYPES[k].t} — ${som(sum)}`)}">${sz>30?fmt(sum,0):""}</span>`:'<span class="mx-none" aria-label="нет">·</span>'}</td>`;}).join("")}
+      return `<td>${hits.length?`<span class="mx-dot num" style="width:${sz}px;height:${sz}px;background:${TYPES[k].hex};box-shadow:0 0 18px ${TYPES[k].hex}66" data-tip="${esc(`${m.name} · ${TYPES[k].t}: ${som(sum)}`)}">${sz>30?fmt(sum,0):""}</span>`:'<span class="mx-none" aria-label="нет">·</span>'}</td>`;}).join("")}
     <td class="num" style="font-weight:800;color:var(--hot);font-family:var(--display)">${fmt(m.report.summary.reclaimable_som)}</td></tr>`).join("")}
   </tbody></table>`;
 }
@@ -657,8 +711,8 @@ function uploadBlock(){
   return `<div class="drop" id="drop">
     <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true"><rect x="14" y="6" width="36" height="50" rx="4" fill="#F6F2E8"/><path d="M14 52l4 4 4-4 4 4 4-4 4 4 4-4 4 4 4-4 4 4v-4H14z" fill="#F6F2E8"/><g stroke="#9A958A" stroke-width="2" stroke-linecap="round"><path d="M21 17h22M21 23h16M21 35h22M21 41h12"/></g><rect x="19" y="26" width="26" height="6" rx="2" fill="rgba(255,122,89,.55)"/><circle cx="48" cy="46" r="11" fill="#6EE7B7"/><path d="M48 51v-10M43.5 45.5L48 41l4.5 4.5" stroke="#06281D" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <h3>${t("Перетащите сюда свою детализацию","Детализацияңызды бул жерге сүйрөп келиңиз")}</h3>
-    <p>${t("Выгрузка из личного кабинета оператора. Два формата дат, запятые в суммах и битые строки — не проблема. Файл обрабатывается на этом компьютере и никуда не уходит.","Оператордун жеке кабинетинен жүктөлгөн файл. Даталардын эки форматы, суммадагы үтүр жана бузук саптар — көйгөй эмес. Файл ушул компьютерде иштетилет жана эч жакка кетпейт.")}</p>
-    <div class="file-types"><span>.CSV</span><span>.PDF (текстовый)</span><span>+ *_expected.json для сверки</span></div>
+    <p>${t("Выгрузка из личного кабинета оператора. Понимает два формата дат, запятые в суммах и битые строки. Файл обрабатывается на этом компьютере и никуда не уходит.","Оператордун жеке кабинетинен жүктөлгөн файл. Даталардын эки форматы, суммадагы үтүр жана бузук саптар көйгөй эмес. Файл ушул компьютерде иштетилет жана эч жакка кетпейт.")}</p>
+    <div class="file-types"><span>.CSV</span><span>.PDF текстовый</span><span>+ *_expected.json для сверки</span></div>
     <div style="margin-top:22px"><button class="btn mint" data-act="upload" ${S.online?"":"disabled"}>${t("Выбрать файлы","Файлдарды тандоо")}</button></div>
     ${S.online?"":'<p style="margin-top:14px;color:var(--spike);font-size:14px">Это демо-снимок без сервера. Для своих файлов запустите <code>run.bat --serve</code>.</p>'}
   </div>`;
@@ -676,7 +730,7 @@ function viewMember(m){
       <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
         <span class="ava" style="width:68px;height:68px;border-radius:20px;font-size:24px;background:${m.color}">${esc(initials(m.name))}</span>
         <div><div class="eyebrow">${esc(role(m)||"Детализация")} · ${esc(r.meta.source)}</div><h1>${esc(m.name)}</h1>
-        <div class="muted" style="font-size:14px">${m.msisdn?esc(m.msisdn)+" · ":""}${r.meta.period[0]?dt(r.meta.period[0]).label+" — "+dt(r.meta.period[1]).label:""}</div></div>
+        <div class="muted" style="font-size:14px">${m.msisdn?esc(m.msisdn)+" · ":""}${r.meta.period[0]?t(`с ${dt(r.meta.period[0]).label} по ${dt(r.meta.period[1]).label}`,`${dt(r.meta.period[0]).label} – ${dt(r.meta.period[1]).label}`):""}</div></div>
       </div>
       <div class="verdict">${ring(r,84)}<div><div class="t" style="color:${T.color}">${T.label}</div><div class="s">${T.hint}. ${s.reclaimable_som>0?t(`Есть что вернуть: ${som(s.reclaimable_som)}.`,`Кайтарууга: ${som(s.reclaimable_som)}.`):""}</div></div></div>
     </div>
@@ -684,25 +738,25 @@ function viewMember(m){
       <div class="kpi rise"><div class="l">${t("Потрачено","Коротулду")}</div><div class="v num"><span data-count="${r.total_som}">0</span></div><div class="s">≈ ${som(s.avg_day_som)} ${t("в день","күнүнө")}</div></div>
       <div class="kpi hot rise" style="animation-delay:.05s"><div class="l">${t("К возврату","Кайтарууга")}</div><div class="v num"><span data-count="${s.reclaimable_som}">0</span> сом</div><div class="s">${s.reclaimable_share_pct}% ${t("счёта","эсептин")}</div></div>
       <div class="kpi rise" style="animation-delay:.1s"><div class="l">${t("Находок","Табылды")}</div><div class="v num">${r.anomalies.length}</div><div class="s">${[...new Set(r.anomalies.map(a=>a.anomaly_type))].length} ${t(plural([...new Set(r.anomalies.map(a=>a.anomaly_type))].length,"тип","типа","типов")+" схем","түрдүү схема")}</div></div>
-      <div class="kpi ok rise tech" style="animation-delay:.15s"><div class="l">${t("Строк прочитано","Сап окулду")}</div><div class="v num">${r.valid_rows}<span class="muted" style="font-size:18px"> / ${total}</span></div><div class="s">${r.dropped_rows} ${t("битых пропущено","бузук сап өткөрүлдү")} — <a href="#dq">${t("почему","эмне үчүн")}</a></div></div>
+      <div class="kpi ok rise tech" style="animation-delay:.15s"><div class="l">${t("Строк прочитано","Сап окулду")}</div><div class="v num">${r.valid_rows}<span class="muted" style="font-size:18px"> / ${total}</span></div><div class="s">${r.dropped_rows} ${t("битых пропущено","бузук сап өткөрүлдү")} · <a href="#dq">${t("почему","эмне үчүн")}</a></div></div>
     </div>
   </div></section>
 
   <div class="wrap">
-  <section class="block simple-only" style="padding-top:28px"><div class="panel" style="font-size:22px;line-height:1.6">${t(`<b>Коротко:</b> за месяц ${esc(m.name)} потратил(а) ${som(r.total_som,0)}. Из них <b style="color:var(--hot)">${som(s.reclaimable_som)}</b> списаны, скорее всего, по ошибке или без согласия. Что именно и что делать — ниже. Письмо оператору уже готово внизу.${r.tariff&&r.tariff.worth?` А на тарифе ${esc(r.tariff.best_name)} можно платить на <b style="color:var(--mint)">${som(r.tariff.savings_som,0)}</b> меньше каждый месяц.`:""}`,
- `<b>Кыскача:</b> бир айда ${esc(m.name)} ${som(r.total_som,0)} короткон. Анын ичинен <b style="color:var(--hot)">${som(s.reclaimable_som)}</b> ката же макулдуксуз алынган болушу мүмкүн. Эмне жана эмне кылуу керек — төмөндө. Операторго кат ылдыйда даяр.${r.tariff&&r.tariff.worth?` Ал эми ${esc(r.tariff.best_name)} тарифинде ар айда <b style="color:var(--mint)">${som(r.tariff.savings_som,0)}</b> аз төлөөгө болот.`:""}`)}</div></section>
+  <section class="block simple-only" style="padding-top:28px"><div class="panel" style="font-size:22px;line-height:1.6">${t(`<b>Коротко:</b> за месяц ${esc(m.name)} потратил(а) ${som(r.total_som,0)}. Из них <b style="color:var(--hot)">${som(s.reclaimable_som)}</b> списаны, скорее всего, по ошибке или без согласия. Что именно и что делать, смотрите ниже. Письмо оператору уже готово.${r.tariff&&r.tariff.worth?` А на тарифе ${esc(r.tariff.best_name)} можно платить на <b style="color:var(--mint)">${som(r.tariff.savings_som,0)}</b> меньше каждый месяц.`:""}`,
+ `<b>Кыскача:</b> бир айда ${esc(m.name)} ${som(r.total_som,0)} короткон. Анын ичинен <b style="color:var(--hot)">${som(s.reclaimable_som)}</b> ката же макулдуксуз алынган болушу мүмкүн. Эмне жана эмне кылуу керек: төмөндө. Операторго кат ылдыйда даяр.${r.tariff&&r.tariff.worth?` Ал эми ${esc(r.tariff.best_name)} тарифинде ар айда <b style="color:var(--mint)">${som(r.tariff.savings_som,0)}</b> аз төлөөгө болот.`:""}`)}</div></section>
 
   <section class="block" style="padding-top:36px">
     <div class="split">
       <div>
-        <div class="sec-head" style="margin-bottom:16px"><div><div class="eyebrow">${t("Дела","Иштер")}</div><div class="h2" style="font-size:22px">${t("Что нашёл сканер","Сканер эмнени тапты")}</div></div></div>
-        ${r.anomalies.length?r.anomalies.map((a,i)=>caseCard(m,a,i)).join(""):'<div class="panel">Аномалий не найдено — счёт чистый.</div>'}
+        <div class="sec-head" style="margin-bottom:16px"><div><div class="h2" style="font-size:22px">${t("Что нашёл сканер","Сканер эмнени тапты")}</div></div></div>
+        ${r.anomalies.length?r.anomalies.map((a,i)=>caseCard(m,a,i)).join(""):'<div class="panel">Аномалий не найдено, счёт чистый.</div>'}
       </div>
       <div class="aside">
         <div class="panel" style="background:linear-gradient(160deg,rgba(255,122,89,.16),rgba(255,122,89,.02) 60%),var(--panel);border-color:rgba(255,122,89,.3)">
-          <div class="eyebrow" style="color:var(--hot)">${t("Претензия","Доо арыз")}</div>
+          <div class="h3" style="color:var(--hot)">${t("Претензия оператору","Операторго доо арыз")}</div>
           <div class="claim-total num" id="claimTotal">${fmt(claimSum(m))} <span style="font-size:20px">сом</span></div>
-          <div class="muted" style="font-size:13px">${t("отмечено к возврату — переключатели у каждого дела","кайтарууга белгиленди — ар бир иштин которгучу")}</div>
+          <div class="muted" style="font-size:13px">${t("отмечено к возврату. Переключатели у каждого дела.","кайтарууга белгиленди. Которгуч ар бир иште.")}</div>
           <ul class="claim-list" id="claimList">${claimList(m)}</ul>
           <button class="btn hot" style="width:100%" data-act="to-letter">${t("Открыть письмо оператору","Операторго катты ачуу")}</button>
           <div class="tech" style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
@@ -711,8 +765,8 @@ function viewMember(m){
             <button class="btn sm" style="flex:1" data-act="dl-result">result.json</button>
           </div>
         </div>
-        <div class="panel tech"><div class="eyebrow">${t("Календарь трат · нажмите на день","Чыгым календары · күндү басыңыз")}</div><div style="margin-top:14px">${calendar(r)}</div></div>
-        <div class="panel tech"><div class="eyebrow">${t("Сутки","Сутка")}</div><div class="h3" style="margin:8px 0 4px">${t("Когда уходят деньги","Акча качан кетет")}</div><p class="muted" style="font-size:13px;margin:0 0 6px">${t("Фиолетовый сектор — ночь","Кызгылт көк сектор — түн")}, 00:00–0${S.settings.night_end_hour}:00.</p>${clock(r)}</div>
+        <div class="panel tech"><div class="h3">${t("Календарь трат","Чыгым календары")}</div><p class="muted" style="font-size:13px;margin:4px 0 0">${t("Нажмите на день, чтобы увидеть строки","Саптарды көрүү үчүн күндү басыңыз")}</p><div style="margin-top:14px">${calendar(r)}</div></div>
+        <div class="panel tech"><div class="h3" style="margin:0 0 4px">${t("Когда уходят деньги","Акча качан кетет")}</div><p class="muted" style="font-size:13px;margin:0 0 6px">${t("Фиолетовый сектор: ночь","Кызгылт көк сектор: түн")}, 00:00–0${S.settings.night_end_hour}:00.</p>${clock(r)}</div>
       </div>
     </div>
   </section>
@@ -721,7 +775,7 @@ function viewMember(m){
 
   <section class="block tech" style="padding-top:28px">
     <div class="panel chart">
-      <div class="sec-head" style="margin-bottom:10px"><div><div class="eyebrow">${t("Месяц · нажмите на столбец","Ай · мамычаны басыңыз")}</div><div class="h2" style="font-size:22px">${t("Траты по дням","Күндөр боюнча чыгым")}</div><p class="sub" style="font-size:14px">${t(`Пунктир — порог «среднее за ${S.settings.z_window_days} предыдущих дней + ${S.settings.z_threshold}σ». Что выше — всплеск.`,`Пунктир — «мурунку ${S.settings.z_window_days} күндүн орточосу + ${S.settings.z_threshold}σ» чеги. Андан жогору — секирик.`)}</p></div></div>
+      <div class="sec-head" style="margin-bottom:10px"><div><div class="h2" style="font-size:22px">${t("Траты по дням","Күндөр боюнча чыгым")}</div><p class="sub" style="font-size:14px">${t(`Пунктир: порог «среднее за ${S.settings.z_window_days} предыдущих дней + ${S.settings.z_threshold}σ». Выше порога значит всплеск. Нажмите на столбец, чтобы открыть строки дня.`,`Пунктир: «мурунку ${S.settings.z_window_days} күндүн орточосу + ${S.settings.z_threshold}σ» чеги. Андан жогору секирик. Мамычаны басыңыз.`)}</p></div></div>
       ${dayChart(r)}
       <div class="lg"><span><i class="sw" style="background:#3B4A60"></i>обычный день</span><span><i class="sw" style="background:#FBBF24"></i>всплеск</span><span><svg width="22" height="8" aria-hidden="true"><line x1="0" y1="4" x2="22" y2="4" stroke="#6EE7B7" stroke-width="2"/></svg>норма (среднее)</span><span><svg width="22" height="8" aria-hidden="true"><line x1="0" y1="4" x2="22" y2="4" stroke="#FF7A59" stroke-width="2" stroke-dasharray="5 4"/></svg>порог</span>${Object.keys(TYPES).filter(k=>k!=="day_spike").map(k=>`<span><i class="sw" style="background:${TYPES[k].hex};border-radius:50%"></i>${TYPES[k].short}</span>`).join("")}</div>
     </div>
@@ -729,13 +783,13 @@ function viewMember(m){
 
   <section class="block tech" style="padding-top:20px">
     <div class="grid g2">
-      <div class="panel"><div class="eyebrow">${t("Структура","Түзүмү")}</div><div class="h3" style="margin:8px 0 16px">${t("На что уходят деньги","Акча эмнеге кетет")}</div>${donut(r)}</div>
-      <div class="panel"><div class="eyebrow">${t("Топ-5","Топ-5")}</div><div class="h3" style="margin:8px 0 16px">${t("Самые дорогие номера","Эң кымбат номерлер")}</div>${topBars(r)}</div>
+      <div class="panel"><div class="h3" style="margin:0 0 16px">${t("На что уходят деньги","Акча эмнеге кетет")}</div>${donut(r)}</div>
+      <div class="panel"><div class="h3" style="margin:0 0 16px">${t("Топ-5 самых дорогих номеров","Эң кымбат 5 номер")}</div>${topBars(r)}</div>
     </div>
   </section>
 
   <section class="block" id="letter">
-    <div class="sec-head"><div><div class="eyebrow">${t("Готово к отправке","Жөнөтүүгө даяр")}</div><div class="h2">${t("Письмо оператору","Операторго кат")}</div><p class="sub">${t("Собрано из отмеченных дел. Проверьте имя и номер, затем скопируйте в чат поддержки или распечатайте.","Белгиленген иштерден түзүлдү. Атыңызды жана номериңизди текшерип, колдоо чатына көчүрүңүз же басып чыгарыңыз. Кат операторго орус тилинде.")}</p></div></div>
+    <div class="sec-head"><div><div class="h2">${t("Письмо оператору","Операторго кат")}</div><p class="sub">${t("Собрано из отмеченных дел. Проверьте имя и номер, затем скопируйте в чат поддержки или распечатайте.","Белгиленген иштерден түзүлдү. Атыңызды жана номериңизди текшерип, колдоо чатына көчүрүңүз же басып чыгарыңыз. Кат операторго орус тилинде.")}</p></div></div>
     <div class="letter-wrap">
       <div class="grid" style="gap:14px;align-content:start">
         <label class="field">ФИО абонента<input id="sgName" value="${esc(S.signer[m.id]?.name ?? m.name)}" autocomplete="name"></label>
@@ -749,17 +803,17 @@ function viewMember(m){
 
   <section class="block tech" id="dq">
     <div class="grid g2">
-      <div class="panel"><div class="eyebrow">Качество данных</div><div class="h3" style="margin:8px 0 6px">${total} строк: ${r.valid_rows} ✓ · ${r.dropped_rows} пропущено</div><p class="muted" style="font-size:13px;margin:0 0 12px">Каждая пропущенная строка — с причиной. Пустые тоже считаются, заголовок — нет.</p>
+      <div class="panel"><div class="h3" style="margin:0 0 6px">Качество данных: ${total} строк, ${r.valid_rows} ✓, ${r.dropped_rows} пропущено</div><p class="muted" style="font-size:13px;margin:0 0 12px">У каждой пропущенной строки есть причина. Пустые строки тоже считаются, заголовок нет.</p>
         <div class="scroll-x"><table class="t"><thead><tr><th>Стр.</th><th>Причина</th><th>Содержимое</th></tr></thead><tbody>
-        ${r.dropped_log.map(d=>`<tr><td class="num mono">${d.line}</td><td>${esc(d.reason)}</td><td>${d.raw?`<code>${esc(d.raw.slice(0,46))}</code>`:'<span class="muted">—</span>'}</td></tr>`).join("")||'<tr><td colspan="3">Все строки корректны</td></tr>'}</tbody></table></div></div>
-      <div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><div class="eyebrow">Автопроверка</div><div class="h3" style="margin-top:8px">Сверка с эталоном жюри</div></div>
+        ${r.dropped_log.map(d=>`<tr><td class="num mono">${d.line}</td><td>${esc(d.reason)}</td><td>${d.raw?`<code>${esc(d.raw.slice(0,46))}</code>`:'<span class="muted">пусто</span>'}</td></tr>`).join("")||'<tr><td colspan="3">Все строки корректны</td></tr>'}</tbody></table></div></div>
+      <div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><div class="h3">Автопроверка: сверка с эталоном жюри</div></div>
         ${m.checks&&m.checks.length?`<span class="${okC===m.checks.length?"score":"bad"}">${okC===m.checks.length?"✓ ":""}${okC} из ${m.checks.length}</span>`:""}</div>
         ${m.checks&&m.checks.length?`<div class="scroll-x" style="margin-top:12px"><table class="t"><thead><tr><th>Поле</th><th>Получено</th><th>Эталон</th><th></th></tr></thead><tbody>
         ${m.checks.map(c=>`<tr><td>${esc(c.field)}</td><td class="num mono">${esc(Array.isArray(c.got)?c.got.length+" ном.":c.got)}</td><td class="num mono">${esc(Array.isArray(c.expected)?c.expected.length+" ном.":c.expected)}</td><td class="${c.ok?"ok":"bad"}">${c.ok?"✓":"✗"}</td></tr>`).join("")}</tbody></table></div>`:`<p class="muted" style="margin-top:12px">Эталона нет. Загрузите файл вместе с <code>*_expected.json</code>, чтобы увидеть сверку.</p>`}</div>
     </div>
   </section>
   </div>
-  <footer><div class="wrap">Акчам кайда? · правила и пороги — по уточнениям к ТЗ 4, раздел 4.</div></footer>`;
+  <footer><div class="wrap">Акчам кайда? · правила и пороги по уточнениям к ТЗ 4, раздел 4.</div></footer>`;
 }
 /* ---------- M9 совет по тарифу: тот же месяц на пакете (тарифы и правила ТЗ 2) */
 function tariffBlock(r){
@@ -767,19 +821,19 @@ function tariffBlock(r){
   const max=Math.max(T.paid_som,...T.options.map(o=>o.som))||1;
   const opt=(name,v,cls)=>`<div class="tf-opt ${cls}"><span>${esc(name)}</span><span class="t"><i style="width:${(100*v/max).toFixed(1)}%"></i></span><b class="num">${fmt(v)}</b></div>`;
   return `<section class="block" id="tariff" style="padding-top:28px"><div class="panel tariff">
-    <div class="eyebrow">${t("Сверх ТЗ · тарифы и правила ТЗ 2","ТЗдан тышкары · ТЗ 2 тарифтери жана эрежелери")}</div>
+    <div class="eyebrow">${t("Сверх ТЗ · тарифы ТЗ 2","ТЗдан тышкары · ТЗ 2 тарифтери")}</div>
     <div class="h2" style="font-size:24px">${T.worth?t("Можно платить меньше","Азыраак төлөөгө болот"):t("Тариф подобран удачно","Тариф ийгиликтүү тандалган")}</div>
-    <p class="sub" style="font-size:14px">${t(`Тот же месяц — ${T.minutes} мин местных звонков, ${T.sms} SMS и ${fmt(T.gb,1)} ГБ интернета — на пакетном тарифе INAI Mobile.`,`Ошол эле ай — ${T.minutes} мүн жергиликтүү чалуу, ${T.sms} SMS жана ${fmt(T.gb,1)} ГБ интернет — INAI Mobile пакеттик тарифинде.`)}</p>
+    <p class="sub" style="font-size:14px">${t(`Тот же месяц (${T.minutes} мин местных звонков, ${T.sms} SMS и ${fmt(T.gb,1)} ГБ интернета) на пакетном тарифе INAI Mobile.`,`Ошол эле ай (${T.minutes} мүн жергиликтүү чалуу, ${T.sms} SMS жана ${fmt(T.gb,1)} ГБ интернет) INAI Mobile пакеттик тарифинде.`)}</p>
     <div class="tf-grid">
       <div>
         <div class="tf-compare">
-          <div class="tf-col"><div class="l">${t("Сейчас поштучно","Азыр даана менен")}</div><div class="v num">${fmt(T.paid_som)}</div><div class="s">${t("сом за звонки, SMS и интернет","сом чалуу, SMS жана интернет үчүн")}</div></div>
+          <div class="tf-col"><div class="l">${t("Сейчас, поштучно","Азыр, даана менен")}</div><div class="v num">${fmt(T.paid_som)}</div><div class="s">${t("сом за звонки, SMS и интернет","сом чалуу, SMS жана интернет үчүн")}</div></div>
           <div class="tf-arrow" aria-hidden="true">→</div>
           <div class="tf-col good"><div class="l">${esc(T.best_name)}</div><div class="v num">${fmt(T.best_som)}</div><div class="s">${t("сом за то же самое","сом ошол эле үчүн")}</div></div>
         </div>
         ${T.worth?`<div class="tf-save num">−${fmt(T.savings_som)}<small>${t("сом в месяц","сом айына")}</small></div>
-        <div class="tf-year">${t(`≈ ${som(T.year_som,0)} в год. Смена тарифа стоит 50 сом — окупается за ${Math.max(1,Math.ceil(50/(T.savings_som/30)))} ${plural(Math.max(1,Math.ceil(50/(T.savings_som/30))),"день","дня","дней")}.`,`≈ жылына ${som(T.year_som,0)}. Тарифти алмаштыруу 50 сом — ${Math.max(1,Math.ceil(50/(T.savings_som/30)))} күндө актайт.`)}</div>`
-        :`<p class="tf-year">${t("Смена тарифа сэкономит меньше 50 сом за три месяца — менять не стоит.","Тарифти алмаштыруу үч айда 50 сомдон аз үнөмдөйт — алмаштыруунун кереги жок.")}</p>`}
+        <div class="tf-year">${t(`≈ ${som(T.year_som,0)} в год. Смена тарифа стоит 50 сом и окупается за ${Math.max(1,Math.ceil(50/(T.savings_som/30)))} ${plural(Math.max(1,Math.ceil(50/(T.savings_som/30))),"день","дня","дней")}.`,`≈ жылына ${som(T.year_som,0)}. Тарифти алмаштыруу 50 сом, ${Math.max(1,Math.ceil(50/(T.savings_som/30)))} күндө актайт.`)}</div>`
+        :`<p class="tf-year">${t("Смена тарифа сэкономит меньше 50 сом за три месяца, менять не стоит.","Тарифти алмаштыруу үч айда 50 сомдон аз үнөмдөйт, алмаштыруунун кереги жок.")}</p>`}
         ${T.advice_ru?`<p class="adv" style="color:var(--mint);font-weight:700;margin:16px 0 0">→ ${esc(t(T.advice_ru,T.advice_ky||T.advice_ru))}</p>`:""}
       </div>
       <div class="tech">
@@ -790,7 +844,7 @@ function tariffBlock(r){
         ${T.options.map(o=>opt(o.name,o.som,o.best?"best":"")).join("")}
       </div>
     </div>
-    <p class="tf-note">${t(`Оценка по одному месяцу. Тарифы и доппакеты — учебный прайс INAI Mobile из ТЗ 2; каждый звонок округляется вверх до минуты, ночной безлимит снимает только ночной интернет. Международные звонки, подписки и платный контент (${som(T.outside_som)}) стоят одинаково на любом тарифе и в сравнение не входят.`,`Бир ай боюнча баалоо. Тарифтер жана кошумча пакеттер — ТЗ 2деги INAI Mobile окуу прайсы. Эл аралык чалуулар, жазылуулар жана акы төлөнүүчү контент (${som(T.outside_som)}) ар кандай тарифте бирдей турат жана салыштырууга кирбейт.`)}</p>
+    <p class="tf-note">${t(`Оценка по одному месяцу. Тарифы и доппакеты: учебный прайс INAI Mobile из ТЗ 2; каждый звонок округляется вверх до минуты, ночной безлимит снимает только ночной интернет. Международные звонки, подписки и платный контент (${som(T.outside_som)}) стоят одинаково на любом тарифе и в сравнение не входят.`,`Бир ай боюнча баалоо. Тарифтер жана кошумча пакеттер — ТЗ 2деги INAI Mobile окуу прайсы. Эл аралык чалуулар, жазылуулар жана акы төлөнүүчү контент (${som(T.outside_som)}) ар кандай тарифте бирдей турат жана салыштырууга кирбейт.`)}</p>
   </div></section>`;
 }
 const isIncluded=(m,i)=>S.included[m.id+"|"+i] ?? m.report.anomalies[i].reclaimable;
@@ -894,9 +948,9 @@ function viewRadar(){
   return `<section class="mhero"><div class="wrap">
     <button class="back" data-act="home">← ${t("Вся семья","Бүт үй-бүлө")}</button>
     <div class="eyebrow" style="margin-top:6px">M6 · ${t("для антифрод-отдела INAI Mobile","INAI Mobile антифрод бөлүмү үчүн")}</div>
-    <h1 style="font-family:var(--display);font-size:44px;letter-spacing:-.03em;margin:10px 0 8px;line-height:1.08">${t("Кто обирает многих абонентов сразу","Көп абоненттен бир эле учурда ким акча алат")}</h1>
-    <p class="sub" style="font-size:17px;max-width:760px">${t(`Сводим короткие номера из ${n} детализаций. <b style="color:var(--text)">${esc(widest.number)}</b> списывает у ${widest.subscribers} из ${n} абонентов${nightest?`, а <b style="color:var(--night)">${esc(nightest.number)}</b> — только ночью`:""}. По одному файлу этого не увидеть.`,
-      `${n} детализациядагы кыска номерлерди бириктиребиз. <b style="color:var(--text)">${esc(widest.number)}</b> ${n} абоненттин ${widest.subscribers}өөнөн акча алат${nightest?`, ал эми <b style="color:var(--night)">${esc(nightest.number)}</b> — түн ичинде гана`:""}. Бир файлдан муну көрүүгө болбойт.`)}</p>
+    <h1 style="font-family:var(--display);font-size:clamp(28px,4vw,44px);letter-spacing:-.03em;margin:10px 0 8px;line-height:1.08;text-wrap:balance">${t("Кто обирает многих абонентов сразу","Көп абоненттен бир эле учурда ким акча алат")}</h1>
+    <p class="sub" style="font-size:17px;max-width:760px">${t(`Сводим короткие номера из ${n} детализаций. <b style="color:var(--text)">${esc(widest.number)}</b> списывает у ${widest.subscribers} из ${n} абонентов${nightest?`, а <b style="color:var(--night)">${esc(nightest.number)}</b> списывает только ночью`:""}. По одному файлу этого не увидеть.`,
+      `${n} детализациядагы кыска номерлерди бириктиребиз. <b style="color:var(--text)">${esc(widest.number)}</b> ${n} абоненттин ${widest.subscribers}өөнөн акча алат${nightest?`, ал эми <b style="color:var(--night)">${esc(nightest.number)}</b> түн ичинде гана`:""}. Бир файлдан муну көрүүгө болбойт.`)}</p>
     <div class="kpis">
       <div class="kpi"><div class="l">${t("Коротких номеров","Кыска номерлер")}</div><div class="v num">${R.length}</div></div>
       <div class="kpi hot"><div class="l">${t("Списано через них","Алар аркылуу алынды")}</div><div class="v num">${fmt(total)} <span style="font-size:16px">сом</span></div></div>
@@ -906,7 +960,7 @@ function viewRadar(){
   </div></section>
   <div class="wrap">
   <section class="block" style="padding-top:28px"><div class="panel scroll-x">
-    <div class="eyebrow">${t("Рейтинг подозрительности","Шектүүлүк рейтинги")}</div><div class="h3" style="margin:8px 0 4px">${t("Балл = доля абонентов + доля ночных списаний + доля новых подписок","Балл = абоненттердин үлүшү + түнкү төлөмдөрдүн үлүшү + жаңы жазылуулардын үлүшү")}</div>
+    <div class="h3" style="margin:0 0 4px">${t("Рейтинг подозрительности","Шектүүлүк рейтинги")}</div><p class="muted" style="font-size:13px;margin:0 0 4px">${t("Балл = доля абонентов + доля ночных списаний + доля новых подписок.","Балл = абоненттердин үлүшү + түнкү төлөмдөрдүн үлүшү + жаңы жазылуулардын үлүшү.")}</p>
     <p class="muted" style="font-size:13px;margin:0 0 14px">${t("Эвристика для экрана оператора. В anomalies.json не попадает, чтобы не дать ложных срабатываний.","Оператордун экраны үчүн эвристика. Жалган белгилерди бербөө үчүн anomalies.json'го кирбейт.")}</p>
     <table class="t"><thead><tr><th>${t("Номер","Номер")}</th><th>${t("Абоненты","Абоненттер")}</th><th>${t("Списаний","Төлөмдөр")}</th><th>${t("Сом","Сом")}</th><th>${t("Ночью","Түнкү")}</th><th>${t("Новая подписка","Жаңы жазылуу")}</th><th style="width:180px">${t("Балл","Балл")}</th></tr></thead><tbody>
     ${R.map(r=>`<tr><td class="mono" style="font-weight:700;font-size:15px">${esc(r.number)}<div class="muted" style="font-size:11px;font-weight:500">${r.types.map(x=>TYPE_RU[x]||x).join(", ")}</div></td>
@@ -917,8 +971,8 @@ function viewRadar(){
       <td><div class="radar-score"><span style="background:rgba(255,255,255,.06);border-radius:4px"><i style="width:${r.score}%;background:${scoreColor(r.score)}"></i></span><b class="mono" style="color:${scoreColor(r.score)}">${r.score}</b></div></td></tr>`).join("")}
     </tbody></table></div></section>
   <section class="block" style="padding-top:20px"><div class="panel">
-    <div class="eyebrow">${t("Тепловая карта","Жылуулук картасы")}</div><div class="h3" style="margin:8px 0 4px">${t("Час суток × короткий номер","Сутканын сааты × кыска номер")}</div>
-    <p class="muted" style="font-size:13px;margin:0 0 16px">${t("Фиолетовые клетки — ночные списания: их видно сразу.","Кызгылт көк уячалар — түнкү төлөмдөр: дароо көрүнөт.")}</p>${heat}</div></section>
+    <div class="h3" style="margin:0 0 4px">${t("Тепловая карта: час суток × короткий номер","Жылуулук картасы: саат × кыска номер")}</div>
+    <p class="muted" style="font-size:13px;margin:0 0 16px">${t("Фиолетовые клетки: ночные списания. Их видно сразу.","Кызгылт көк уячалар: түнкү төлөмдөр. Дароо көрүнөт.")}</p>${heat}</div></section>
   </div><footer><div class="wrap">Акчам кайда? · ${t("радар оператора","оператордун радары")}</div></footer>`;
 }
 async function refreshRadar(){ if(!S.online) return; try{ S.radar=(await api("/api/radar",{members:S.members.map(m=>({name:m.name,report:m.report})),settings:S.settings})).radar; }catch(e){} }
@@ -1021,7 +1075,7 @@ async function handleFiles(files){
 const SETTINGS_UI=[["night_end_hour","Ночь заканчивается в, ч",1,12,1],["intl_rate_limit","Норма международной минуты, сом",5,60,1],["z_threshold","Порог всплеска, z-score",1.5,5,0.1],["z_window_days","Окно сравнения, дней",3,14,1],["duplicate_window_sec","Окно поиска дублей, сек",10,300,5]];
 function renderSettings(){
   $("#settingsForm").innerHTML=SETTINGS_UI.map(([k,l,mi,ma,st])=>`<label class="field">${l}<span class="range"><input type="range" min="${mi}" max="${ma}" step="${st}" value="${S.settings[k]}" data-set="${k}"><output>${S.settings[k]}</output></span></label>`).join("");
-  $("#settingsNote").textContent=S.online?"Пересчёт делает тот же Python-движок, что проходит автопроверку.":"В демо-снимке без сервера пороги не меняются — запустите run.bat --serve.";
+  $("#settingsNote").textContent=S.online?"Пересчёт делает тот же Python-движок, что проходит автопроверку.":"В демо-снимке без сервера пороги не меняются. Запустите run.bat --serve.";
   $("#applySettings").disabled=!S.online;
 }
 async function applySettings(){
@@ -1055,7 +1109,7 @@ document.addEventListener("click", async e=>{
   if(act==="to-letter") $("#letter").scrollIntoView({behavior:"smooth"});
   if(act==="dl-anom") download(`${m.id}_anomalies.json`,JSON.stringify(m.report.anomalies.map(a=>({datetime:a.datetime,type:a.type,anomaly_type:a.anomaly_type,amount_som:a.amount_som,reason:a.reason,explanation:a.explanation,advice:a.advice,number:a.number})),null,2));
   if(act==="dl-result") download(`${m.id}_result.json`,JSON.stringify(expectedFormat(m.report),null,2));
-  if(act==="copy-letter"){ try{ await navigator.clipboard.writeText($("#letterText").value); }catch{ $("#letterText").select(); document.execCommand("copy"); } toast("Письмо скопировано — вставьте в чат поддержки"); }
+  if(act==="copy-letter"){ try{ await navigator.clipboard.writeText($("#letterText").value); }catch{ $("#letterText").select(); document.execCommand("copy"); } toast(t("Письмо скопировано. Вставьте его в чат поддержки","Кат көчүрүлдү. Колдоо чатына коюңуз")); }
   if(act==="dl-letter") download(`pretenziya_${m.id}.txt`,$("#letterText").value,"text/plain;charset=utf-8");
   if(act==="print-letter"){ const w=window.open("","_blank"); if(!w){ download(`pretenziya_${m.id}.txt`,$("#letterText").value,"text/plain;charset=utf-8"); return; }
     w.document.write(`<html><head><title>Претензия</title><style>body{font:14px/1.7 Georgia,serif;max-width:720px;margin:48px auto;white-space:pre-wrap}</style></head><body>${esc($("#letterText").value)}</body></html>`); w.document.close(); w.print(); }

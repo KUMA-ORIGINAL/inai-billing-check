@@ -4,7 +4,10 @@
 Несколько файлов (или ни одного — тогда все data/billing_*.csv) → out/<имя>/…, out/index.html (приложение
 «Акчам кайда?», работает без сервера) и out/family.html (классическая семейная страница).
 --llm добавляет письмо абоненту от Claude (нужны пакет anthropic и доступ к API; иначе — шаблоны).
-Коды возврата: 0 — успех, 2 — проблема с входным файлом (run.bat / run.sh: 3 — не найден Python).
+--validate [папка] сверяет все billing_XX.csv с эталонами, --bot запускает Telegram-бота,
+--make-pdf CSV PDF печатает детализацию в демо-PDF.
+Коды возврата: 0 — успех, 1 — --validate нашёл незачёт, 2 — проблема с входным файлом или нет токена бота
+(run.bat / run.sh: 3 — не найден Python).
 """
 import argparse
 import os
@@ -127,7 +130,26 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--host", default=os.environ.get("HOST") or "127.0.0.1",
                         help="адрес веб-демо: 127.0.0.1 — только этот компьютер (по умолчанию), 0.0.0.0 — хостинг")
     parser.add_argument("--llm", action="store_true", help="письмо абоненту от Claude по посчитанным числам (бонус)")
+    parser.add_argument("--validate", nargs="?", const=str(DATA_DIR), metavar="ПАПКА",
+                        help="сверить все billing_XX.csv папки с эталонами (по умолчанию data)")
+    parser.add_argument("--bot", action="store_true", help="Telegram-бот (токен в TELEGRAM_BOT_TOKEN)")
+    parser.add_argument("--make-pdf", nargs=2, metavar=("CSV", "PDF"), help="напечатать детализацию в демо-PDF")
     return parser
+
+
+def make_pdf(source: str, target: str) -> int:
+    from billcheck.pdf import csv_to_pdf
+
+    try:
+        data = csv_to_pdf(Path(source).read_text(encoding="utf-8-sig"))
+    except (OSError, UnicodeDecodeError, BillingFileError) as exc:
+        print(f"Ошибка: не удалось прочитать {source} ({exc}).", file=sys.stderr)
+        return EXIT_INPUT
+    path = Path(target)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
+    print(f"PDF: {path.resolve()} ({len(data) // 1024 + 1} КБ)")
+    return EXIT_OK
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -135,6 +157,16 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.serve:
         return serve(args.port, args.open, args.llm, args.host)
+    if args.validate:
+        from billcheck.validate import main as validate
+
+        return validate(args.validate)
+    if args.bot:
+        from billcheck.bot import main as run_bot
+
+        return run_bot()
+    if args.make_pdf:
+        return make_pdf(*args.make_pdf)
     files = resolve_inputs(args.files)
     if not files:
         print("Ошибка: не найдено ни одной детализации (billing_*.csv).", file=sys.stderr)

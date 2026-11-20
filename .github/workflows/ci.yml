@@ -1,0 +1,27 @@
+# CI: тесты и сверка с эталонами организаторов на каждый push (любая ветка) и pull request.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Тесты
+        run: |
+          pip install -r requirements-dev.txt
+          python -m pytest -q
+      - name: Сверка с эталонами (5/5 ЗАЧЁТ)
+        run: python analyze.py --validate data
