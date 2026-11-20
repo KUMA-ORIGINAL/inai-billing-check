@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Где мои деньги? — проверить детализацию</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=PT+Mono&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/*__BASE_CSS__*/
+.page { max-width: 980px; margin: 0 auto; padding: 28px 32px 72px; }
+.title { margin: 24px 0 0; font: 700 clamp(2.2rem, 6vw, 4rem)/1.05 var(--font-display); letter-spacing: -.03em; max-width: 16ch; }
+.intro { margin: 14px 0 0; font-size: 1.15rem; color: var(--ink-2); max-width: 54ch; }
+.slot {
+  margin-top: 34px; position: relative; display: grid; place-items: center; text-align: center; gap: 10px;
+  min-height: 250px; padding: 30px 20px; border-radius: 16px; border: 2.5px dashed var(--ink-3);
+  background: var(--sheet); box-shadow: var(--shadow); cursor: pointer; transition: border-color .15s, transform .15s;
+}
+.slot:hover, .slot.over { border-color: var(--pen); }
+.slot.over { transform: scale(1.01); }
+.slot .lip { width: 62%; height: 10px; border-radius: 999px; background: var(--ink); opacity: .85; }
+.slot .big { font: 700 1.35rem/1.25 var(--font-display); }
+.slot .small { color: var(--ink-2); }
+.slot.busy .big::after { content: " …"; }
+#file { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.error { margin-top: 14px; padding: 12px 14px; border-radius: 8px; background: var(--stamp-wash); color: var(--stamp); font-weight: 600; }
+.profiles { margin-top: 40px; }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.chip {
+  text-decoration: none; color: var(--ink); background: var(--sheet); box-shadow: var(--shadow);
+  border-radius: 999px; padding: 10px 18px; font-weight: 700;
+}
+.chip small { color: var(--ink-3); font-weight: 500; margin-left: 6px; font-family: var(--font-mono); }
+.chip.family { background: var(--ink); color: var(--desk); }
+.privacy { margin-top: 34px; color: var(--ink-2); font-size: .92rem; max-width: 70ch; }
+@media (max-width: 600px) { .page { padding: 16px 16px 56px; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="brand-mark" aria-hidden="true">?</span>Где мои деньги?</div>
+  <div class="tools">
+    <button type="button" class="tool" id="big-toggle" aria-pressed="false"><span class="aa">Аа</span> Крупный шрифт</button>
+  </div>
+</header>
+<main class="page">
+  <h1 class="title">Проверим детализацию за секунду</h1>
+  <p class="intro">Найдём ночные платные SMS, новые подписки, двойные списания и дорогие звонки за границу. Подготовим заявление на перерасчёт в INAI Mobile.</p>
+
+  <label class="slot" id="slot" for="file">
+    <span class="lip" aria-hidden="true"></span>
+    <span class="big" id="slot-big">Перетащите сюда детализацию</span>
+    <span class="small" id="slot-small">или нажмите, чтобы выбрать CSV-файл</span>
+    <input type="file" id="file" accept=".csv,text/csv">
+  </label>
+  <div class="error" id="error" role="alert" hidden></div>
+
+  <section class="profiles" aria-labelledby="profiles-title">
+    <h2 id="profiles-title">Или откройте чек члена семьи</h2>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <p class="privacy">Файл не покидает этот компьютер: сервер работает только на 127.0.0.1, сам файл удаляется сразу после проверки, а готовый отчёт хранится в памяти до остановки сервера.</p>
+</main>
+<script id="bill-data" type="application/json">__BILL_DATA__</script>
+<script>
+"use strict";
+const D = JSON.parse(document.getElementById("bill-data").textContent);
+/*__BASE_JS__*/
+
+for (const p of D.profiles) {
+  $("#chips").append(h("a", { class: "chip", href: "/profile/" + encodeURIComponent(p.file) }, p.name, h("small", { text: p.file })));
+}
+if (D.profiles.length) $("#chips").append(h("a", { class: "chip family", href: "/family", text: "Вся семья →" }));
+
+const slot = $("#slot"), input = $("#file"), error = $("#error");
+function fail(message) { error.textContent = message; error.hidden = false; slot.classList.remove("busy"); $("#slot-big").textContent = "Перетащите сюда детализацию"; }
+async function send(file) {
+  error.hidden = true;
+  if (!file) return;
+  if (file.size > D.limit_mb * 1024 * 1024) { fail(`Файл больше ${D.limit_mb} МБ — это не похоже на детализацию за месяц.`); return; }
+  slot.classList.add("busy");
+  $("#slot-big").textContent = "Проверяем " + file.name;
+  try {
+    const response = await fetch("/api/analyze", { method: "POST", headers: { "X-Filename": encodeURIComponent(file.name) }, body: file });
+    if (!response.ok) {
+      let message = "Не получилось проверить файл.";
+      try { message = (await response.json()).error || message; } catch (e) { /* не JSON */ }
+      fail(message);
+      return;
+    }
+    const url = response.headers.get("X-Report-Url");
+    if (url) { location.assign(url); return; }
+    fail("Сервер не вернул адрес отчёта.");
+  } catch (e) {
+    fail("Сервер не отвечает. Проверьте, что запущен run.bat --serve.");
+  }
+}
+input.addEventListener("change", () => send(input.files[0]));
+["dragenter", "dragover"].forEach(type => slot.addEventListener(type, e => { e.preventDefault(); slot.classList.add("over"); }));
+["dragleave", "drop"].forEach(type => slot.addEventListener(type, e => { e.preventDefault(); slot.classList.remove("over"); }));
+slot.addEventListener("drop", e => send(e.dataTransfer.files[0]));
+window.addEventListener("dragover", e => e.preventDefault());
+window.addEventListener("drop", e => e.preventDefault());
+initBigToggle();
+</script>
+</body>
+</html>

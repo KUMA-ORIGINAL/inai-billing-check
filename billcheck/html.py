@@ -82,7 +82,7 @@ def receipt_days(result: Result, flags: dict[int, list[int]], spike_days: set[st
     return days
 
 
-def checklist(result: Result, llm_text: str | None) -> list[dict]:
+def checklist(result: Result, llm_text: str | None, expected_dir: Path) -> list[dict]:
     report = result.report
     counts = Counter(a.anomaly_type for a in result.anomalies)
     dropped = Counter(d.reason for d in result.dropped)
@@ -111,7 +111,7 @@ def checklist(result: Result, llm_text: str | None) -> list[dict]:
              "value": "не делали: у организаторов нет образцов PDF"},
         ]},
     ]
-    check = self_check([result], result.source.parent)
+    check = self_check([result], expected_dir)
     if check:
         groups.append({"title": "Сверка с эталоном организаторов", "items": [
             {"title": "Эталон организаторов", "ok": check["reports_equal"] == 1 and check["false_positives"] == 0,
@@ -130,7 +130,8 @@ def phone_payload(result: Result) -> dict:
 
 
 def report_payload(result: Result, profile: str | None = None, llm_text: str | None = None,
-                   family_link: str | None = None) -> dict:
+                   back_link: dict | None = None, expected_dir: Path | None = None) -> dict:
+    """Данные страницы отчёта. back_link — {"href", "label"} кнопки «назад»; expected_dir — где искать эталон."""
     report = result.report
     overpay = possible_overpay(result.anomalies)
     flags: dict[int, list[int]] = {}
@@ -163,18 +164,18 @@ def report_payload(result: Result, profile: str | None = None, llm_text: str | N
                   "basis": claim_basis(result),
                   "positions": [{"line": p["line"], "cents": cents(p["amount"]), "text": p["text"]}
                                 for p in positions]},
-        "checklist": checklist(result, llm_text),
+        "checklist": checklist(result, llm_text, expected_dir or result.source.parent),
         "dropped": [{"line": d.line, "reason": d.reason, "reason_ru": DROP_REASONS_RU[d.reason], "raw": d.raw}
                     for d in result.dropped],
         "llm": llm_text,
-        "family_link": family_link,
+        "back_link": back_link,
         "phone": phone_payload(result),
     }
 
 
 def render_report(result: Result, profile: str | None = None, llm_text: str | None = None,
-                  family_link: str | None = None) -> str:
-    return embed("report.html", report_payload(result, profile, llm_text, family_link))
+                  back_link: dict | None = None, expected_dir: Path | None = None) -> str:
+    return embed("report.html", report_payload(result, profile, llm_text, back_link, expected_dir))
 
 
 def family_payload(results: list[Result], profiles: dict[str, str], links: list[str], data_dir: Path) -> dict:

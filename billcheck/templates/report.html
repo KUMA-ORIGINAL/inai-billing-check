@@ -238,7 +238,7 @@ dialog.phone-dialog::backdrop { background: rgba(10, 16, 18, .62); }
 <header class="top">
   <div class="brand"><span class="brand-mark" aria-hidden="true">?</span>Где мои деньги?</div>
   <div class="tools">
-    <a class="tool" id="family-link" href="#" hidden>← Вся семья</a>
+    <a class="tool" id="back-link" href="#" hidden></a>
     <div class="seg" role="group" aria-label="Язык советов">
       <button type="button" data-lang="ru" aria-pressed="true">RU</button>
       <button type="button" data-lang="ky" aria-pressed="false">KY</button>
@@ -371,7 +371,7 @@ subParts.push(disputedCount ? `${disputedCount} ${plural(disputedCount, ["спо
 if (spikeCount) subParts.push(`${spikeCount} ${plural(spikeCount, ["необычный день", "необычных дня", "необычных дней"])}`);
 $("#hero-sub").textContent = subParts.join(" · ");
 if (D.llm) { $("#llm").hidden = false; $("#llm-text").textContent = D.llm; }
-if (D.family_link) { const a = $("#family-link"); a.href = D.family_link; a.hidden = false; }
+if (D.back_link) { const a = $("#back-link"); a.href = D.back_link.href; a.textContent = D.back_link.label; a.hidden = false; }
 $("#to-claim").addEventListener("click", () => {
   $("#claim").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
   setTimeout(() => $("#c-name").focus({ preventScroll: true }), reduceMotion ? 0 : 450);

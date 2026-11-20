@@ -18,6 +18,7 @@ from billcheck.pipeline import Result, analyze, write_outputs
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data"
 EXIT_OK, EXIT_INPUT, EXIT_DEPS = 0, 2, 3
+FAMILY_BACK_LINK = {"href": "../index.html", "label": "← Вся семья"}
 
 
 def utf8_console() -> None:
@@ -61,18 +62,43 @@ def write_family_index(results: list[Result], out_dir: Path) -> Path:
     return path
 
 
+def serve(port: int, open_browser: bool) -> int:
+    from billcheck.server import make_server
+
+    try:
+        server = make_server(DATA_DIR, port)
+    except OSError as exc:
+        print(f"Ошибка: порт {port} занят ({exc}). Запустите с --port 8001.", file=sys.stderr)
+        return EXIT_INPUT
+    url = f"http://127.0.0.1:{server.server_address[1]}"
+    print(f"Веб-демо: {url}  (остановить — Ctrl+C)")
+    if open_browser:
+        webbrowser.open(url)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.server_close()
+    return EXIT_OK
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Расшифровщик детализации: отчёт и аномалии (ТЗ 4).")
     parser.add_argument("files", nargs="*",
                         help="CSV-детализации или папки с ними (по умолчанию data/billing_*.csv)")
     parser.add_argument("--out", default="out", help="папка для результатов (по умолчанию out)")
     parser.add_argument("--open", action="store_true", help="открыть отчёт в браузере")
+    parser.add_argument("--serve", action="store_true", help="веб-демо: загрузка файла и профили семьи")
+    parser.add_argument("--port", type=int, default=8000, help="порт веб-демо (по умолчанию 8000)")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     utf8_console()
     args = build_parser().parse_args(argv)
+    if args.serve:
+        return serve(args.port, args.open)
     files = resolve_inputs(args.files)
     if not files:
         print("Ошибка: не найдено ни одной детализации (billing_*.csv).", file=sys.stderr)
@@ -91,7 +117,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         for result in results:
             name = profile_name(load_profiles(result.source.parent), result.source)
-            write_outputs(result, out / result.source.stem, name, family_link="../index.html")
+            write_outputs(result, out / result.source.stem, name, back_link=FAMILY_BACK_LINK)
             print_summary(result, out / result.source.stem)
         page = write_family_index(results, out)
         print(f"Сводка: {page}")

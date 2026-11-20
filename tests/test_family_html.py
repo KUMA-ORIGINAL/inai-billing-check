@@ -49,4 +49,4 @@ def test_cli_index_is_family_page(tmp_path):
     data = _payload((out / "index.html").read_text(encoding="utf-8"))
     assert len(data["members"]) == 5 and data["members"][0]["link"] == "billing_01/report.html"
     report = _payload((out / "billing_03" / "report.html").read_text(encoding="utf-8"))
-    assert report["family_link"] == "../index.html"
+    assert report["back_link"] == {"href": "../index.html", "label": "← Вся семья"}

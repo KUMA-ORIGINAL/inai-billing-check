@@ -6,7 +6,7 @@ import subprocess
 import pytest
 
 from billcheck.family import load_profiles
-from billcheck.html import render_family, render_report
+from billcheck.html import embed, render_family, render_report
 from billcheck.pipeline import analyze
 from helpers import DATA_DIR
 
@@ -21,7 +21,8 @@ def _scripts(page: str) -> list[str]:
 def test_pages_javascript_parses(tmp_path):
     results = [analyze(p) for p in sorted(DATA_DIR.glob("billing_0*.csv"))]
     pages = {"report": render_report(results[2], "Бабушка"),
-             "family": render_family(results, load_profiles(DATA_DIR), ["#"] * 5, DATA_DIR)}
+             "family": render_family(results, load_profiles(DATA_DIR), ["#"] * 5, DATA_DIR),
+             "upload": embed("upload.html", {"profiles": [], "limit_mb": 5})}
     for name, page in pages.items():
         for i, script in enumerate(_scripts(page)):
             path = tmp_path / f"{name}_{i}.js"
