@@ -6,23 +6,30 @@
 <title>Где мои деньги? — вся семья</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=PT+Mono&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&family=PT+Mono&family=Rubik+Mono+One&display=swap" rel="stylesheet">
 <style>
 /*__BASE_CSS__*/
-.page { max-width: 1180px; margin: 0 auto; padding: 20px 32px 72px; }
-.page > section { margin-top: 48px; }
-.page > section:first-child { margin-top: 12px; }
-.eyebrow-line { margin: 0; color: var(--ink-2); font-weight: 600; }
-.hero-label { display: block; margin-top: 18px; font: 600 .85rem/1 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--stamp); }
-.hero-num { display: block; margin: 6px 0 0; font: 700 clamp(3rem, 8vw, 6rem)/1.02 var(--font-display); letter-spacing: -.035em; }
-.hero-num small { font-size: .38em; color: var(--ink-2); font-weight: 500; letter-spacing: 0; }
-.hero-sub { margin: 10px 0 0; font-size: 1.1rem; color: var(--ink-2); }
-.verified {
-  display: inline-flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; margin-top: 22px; padding: 10px 16px;
-  border: 2.5px solid var(--pen); border-radius: 8px; color: var(--pen); font-weight: 700; transform: rotate(-1deg);
-  box-shadow: inset 0 0 0 2px var(--desk), inset 0 0 0 3.5px var(--pen);
+.page { max-width: 1180px; margin: 0 auto; padding: 18px 32px 80px; }
+.page > section { margin-top: 64px; }
+.page > section:first-child { margin-top: 18px; }
+.hero {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 48px; align-items: center;
+  grid-template-areas: "line line" "title stamp" "sub stamp" "seal stamp";
 }
-.verified b { font-family: var(--font-display); font-size: .78rem; letter-spacing: .12em; }
+.hero .printed { grid-area: line; }
+.hero h1 { grid-area: title; font-size: clamp(2.1rem, 4.4vw, 3.4rem); line-height: 1.04; max-width: 17ch; }
+.hero-sub { grid-area: sub; margin: 0; font-size: 1.1rem; color: var(--ink-2); max-width: 52ch; }
+.hero-sub b { font-family: var(--font-mono); font-weight: 400; color: var(--ink); }
+.hero-stamp { grid-area: stamp; justify-self: center; font-size: .78rem; padding: 1em 1.3em; --tilt: -6deg; }
+.hero-stamp .sum { font-size: 3.4em; letter-spacing: -.02em; line-height: 1; margin: .12em 0 .08em; }
+.seal-box { grid-area: seal; justify-self: start; margin-top: 10px; }
+.seal-box .ink { font-size: .68rem; padding: .8em 1.1em; --tilt: -2deg; --delay: .7s; }
+.seal-box .ink .small { font-size: .82em; letter-spacing: .02em; }
+.check-note { grid-area: seal; margin: 0; color: var(--ink-2); }
+@media (max-width: 760px) {
+  .hero { grid-template-columns: 1fr; grid-template-areas: "line" "title" "stamp" "sub" "seal"; }
+  .hero-stamp { justify-self: start; margin: 10px 0 6px 8px; }
+}
 
 /* members */
 .members { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 34px 18px; margin-top: 26px; }
@@ -36,26 +43,22 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='M0 0h16L8 10z' fill='%23FBFBF7'/%3E%3C/svg%3E");
 }
 .member:hover { transform: translateY(-3px); }
-.member .name { font: 700 1.35rem/1.1 var(--font-display); letter-spacing: -.01em; color: var(--r-ink); }
+.member .name { font: 800 1.4rem/1.1 var(--font-body); letter-spacing: -.02em; color: var(--r-ink); }
 .member .meta { color: var(--r-faded); font-size: .78rem; margin-top: 4px; }
 .member hr { border: 0; border-top: 1.5px dashed var(--r-rule); margin: 10px 0; }
 .member .row { display: flex; justify-content: space-between; gap: 8px; }
 .member .row.red { color: #C62F2A; font-weight: 700; }
 .member .open { display: block; margin-top: 12px; color: #2B37D0; font-family: var(--font-body); font-weight: 700; }
-.member .flag {
-  position: absolute; top: -13px; right: 8px; transform: rotate(4deg); font: 700 .62rem/1 var(--font-display);
-  letter-spacing: .12em; color: #C62F2A; padding: 4px 6px; border: 2px solid currentColor; border-radius: 4px;
-  background: var(--r-paper); box-shadow: inset 0 0 0 2px var(--r-paper), inset 0 0 0 3.5px currentColor;
-}
+.member .flag { position: absolute; top: -14px; right: 10px; font-size: .58rem; padding: .55em .75em; --tilt: 4deg; color: #C42B26; mix-blend-mode: multiply; }
 
 /* reputation */
 .feature {
   display: grid; grid-template-columns: auto 1fr; gap: 6px 28px; align-items: center; margin-top: 18px;
-  background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 24px;
-  border-left: 6px solid var(--stamp);
+  background: var(--sheet); border-radius: 4px; box-shadow: var(--shadow); padding: 26px 26px 22px; position: relative;
 }
+.feature .ink { position: absolute; top: -15px; right: 22px; font-size: .7rem; padding: .55em .85em; --tilt: 4deg; }
 .feature .num { font: 700 clamp(3rem, 9vw, 5.6rem)/1 var(--font-mono); letter-spacing: -.02em; grid-row: span 2; }
-.feature .facts { font-size: 1.15rem; font-weight: 600; }
+.feature .facts { font-size: 1.15rem; font-weight: 700; letter-spacing: -.01em; }
 .feature .why { margin: 0; color: var(--ink-2); max-width: 62ch; }
 .matrix-box { margin-top: 18px; background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow); padding: 6px 4px; overflow-x: auto; }
 .matrix { width: 100%; border-collapse: collapse; font-size: .95rem; }
@@ -79,17 +82,18 @@
 <body>
 <a class="skip" href="#members">К профилям</a>
 <header class="top">
-  <div class="brand"><span class="brand-mark" aria-hidden="true">?</span>Где мои деньги?</div>
+  <a class="brand" href="#members"><span class="ink">Где мои деньги?</span></a>
   <div class="tools">
     <button type="button" class="tool" id="big-toggle" aria-pressed="false"><span class="aa">Аа</span> Крупный шрифт</button>
   </div>
 </header>
 <main class="page">
-  <section aria-labelledby="hero-title">
-    <p class="eyebrow-line" id="eyebrow"></p>
-    <h1 id="hero-title" style="margin:0;font-weight:400"><span class="hero-label">Возможно лишнее у всей семьи</span><span class="hero-num"><span id="overpay"></span> <small>сом</small></span></h1>
+  <section class="hero" aria-labelledby="hero-title">
+    <p class="printed" id="eyebrow"></p>
+    <h1 id="hero-title"></h1>
+    <div class="ink thunk hero-stamp" id="hero-stamp" role="img"></div>
     <p class="hero-sub" id="hero-sub"></p>
-    <div class="verified" id="verified" hidden></div>
+    <div class="seal-box" id="verified" hidden></div>
   </section>
 
   <section id="members" aria-labelledby="members-title">
@@ -115,14 +119,27 @@
 const D = JSON.parse(document.getElementById("bill-data").textContent);
 /*__BASE_JS__*/
 
-$("#eyebrow").textContent = "Семья" + (D.period ? " · " + D.period : "");
-$("#overpay").textContent = D.totals.overpay_text;
-$("#hero-sub").textContent = `${D.totals.count} ${plural(D.totals.count, ["номер", "номера", "номеров"])} · потрачено ${D.totals.total_text} сом · ${D.totals.anomalies} ${plural(D.totals.anomalies, ["находка", "находки", "находок"])}`;
+$("#eyebrow").textContent = ["Семья", D.period, `${D.totals.count} ${plural(D.totals.count, ["детализация", "детализации", "детализаций"])}`].filter(Boolean).join(" · ");
+$("#hero-title").textContent = `Проверили ${D.totals.count} ${plural(D.totals.count, ["номер", "номера", "номеров"])} семьи — ${D.totals.anomalies} ${plural(D.totals.anomalies, ["находка", "находки", "находок"])}`;
+(function heroStamp() {
+  const stamp = $("#hero-stamp");
+  stamp.append(h("span", { text: "возможно лишнее" }), h("span", { class: "sum", text: D.totals.overpay_text }), h("span", { text: "сом" }));
+  stamp.setAttribute("aria-label", `Возможно лишнее у всей семьи: ${D.totals.overpay_text} сом`);
+})();
+const featuredNumber = D.reputation.find(r => r.unseen_by_rules);
+$("#hero-sub").append("Потрачено за месяц: ", h("b", { text: D.totals.total_text }), " сом.",
+  featuredNumber ? ` Самое неприятное — номер ${featuredNumber.number}: он списывает деньги ${featuredNumber.members_text} членов семьи, и ни одно правило ТЗ этого не замечает.` : "");
 if (D.self_check) {
-  const s = D.self_check, v = $("#verified");
-  v.hidden = false;
-  v.append(h("b", { text: "ПРОВЕРЕНО НА ЭТАЛОНАХ ОРГАНИЗАТОРОВ" }),
-    h("span", { text: `отчёты: ${s.reports_equal} из ${s.files} · аномалии: ${s.found} из ${s.anomalies_expected} · ложных: ${s.false_positives}` }));
+  const s = D.self_check, box = $("#verified");
+  const clean = s.reports_equal === s.files && s.found === s.anomalies_expected && s.false_positives === 0;
+  box.hidden = false;
+  const line = `отчёты ${s.reports_equal}/${s.files} · аномалии ${s.found}/${s.anomalies_expected} · ложных ${s.false_positives}`;
+  if (clean) {
+    box.append(h("span", { class: "ink seal thunk", role: "img", "aria-label": "Проверено на эталонах организаторов: " + line },
+      h("span", { text: "проверено на эталонах" }), h("span", { class: "small", text: line })));
+  } else {
+    box.append(h("p", { class: "check-note", text: "Сверка с эталонами организаторов: " + line }));
+  }
 }
 
 for (const m of D.members) {
@@ -134,17 +151,25 @@ for (const m of D.members) {
     h("div", { class: "row red" }, h("span", { text: "возможно лишнее" }), h("span", { text: m.overpay_text })),
     h("div", { class: "row" }, h("span", { text: "находок" }), h("span", { text: String(m.anomalies) })),
     h("span", { class: "open", text: "Открыть чек →" }));
-  if (m.new_subscription) card.append(h("span", { class: "flag", text: "НОВАЯ ПОДПИСКА!" }));
+  if (m.new_subscription) card.append(h("span", { class: "ink flag", text: "новая подписка" }));
   $("#member-list").append(card);
 }
 
 const rep = D.reputation;
+function unseenReason(r) {
+  const why = [];
+  if (r.night === 0) why.push("списания дневные");
+  if (!r.types.includes("subscription")) why.push("это не подписка");
+  why.push("одинаковые списания не повторяются в пределах минуты");
+  return `Ни одно из пяти правил ТЗ этого не видит: ${why.join(", ")}. Схема заметна, только если смотреть на семью целиком.`;
+}
 const featured = rep.find(r => r.unseen_by_rules);
 if (featured) {
   $("#feature").append(h("div", { class: "feature" },
     h("div", { class: "num", text: featured.number }),
     h("div", { class: "facts", text: `списывает ${featured.members_text} · ${featured.charges} ${plural(featured.charges, ["списание", "списания", "списаний"])} · ${featured.total_text} сом · ${featured.when} · ${featured.types_text}` }),
-    h("p", { class: "why", text: "Ни одно из пяти правил ТЗ этого не видит: списания дневные, это не подписка и они не повторяются в пределах минуты. Схема заметна, только если смотреть на семью целиком." })));
+    h("p", { class: "why", text: unseenReason(featured) }),
+    h("span", { class: "ink", "aria-hidden": "true", text: featured.members === featured.members_total ? "у всех" : featured.members_text })));
 }
 if (rep.length) {
   const head = h("tr", null, h("th", { scope: "col", text: "номер" }), D.names.map(n => h("th", { scope: "col", text: n })),

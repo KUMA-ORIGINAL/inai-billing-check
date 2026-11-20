@@ -6,65 +6,68 @@
 <title>Где мои деньги? — проверка детализации</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=PT+Mono&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&family=PT+Mono&family=Rubik+Mono+One&display=swap" rel="stylesheet">
 <style>
 /*__BASE_CSS__*/
 /* layout */
 .layout {
-  max-width: 1320px; margin: 0 auto; padding: 20px 32px 72px;
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(330px, 410px); gap: 44px; align-items: start;
+  max-width: 1320px; margin: 0 auto; padding: 18px 32px 80px;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(330px, 410px); gap: 48px; align-items: start;
 }
-.desk > section { margin-top: 44px; }
-.desk > section:first-child { margin-top: 12px; }
+.desk { container-type: inline-size; }
+.desk > section { margin-top: 64px; }
+.desk > section:first-child { margin-top: 18px; }
 
-/* hero */
-.who { margin: 0; color: var(--ink-2); font-weight: 500; }
-.who b { color: var(--ink); }
-.spent { margin: 18px 0 0; font-size: 1.1rem; }
-.spent b { font-family: var(--font-mono); font-size: 1.2rem; }
-.overpay { margin: 6px 0 0; font-weight: 400; }
-.eyebrow { display: block; font: 600 .85rem/1 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--stamp); }
-.big-num {
-  display: block; font: 700 clamp(3.2rem, 8.5vw, 6.4rem)/1.02 var(--font-display); letter-spacing: -.035em;
-  margin-top: 6px; font-variant-numeric: tabular-nums;
+/* hero: заголовок-находка и штамп с суммой */
+.hero {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 40px; align-items: center;
+  grid-template-areas: "line line" "title stamp" "sub stamp" "actions stamp" "llm llm";
 }
-.big-num small { font-size: .38em; letter-spacing: 0; color: var(--ink-2); font-weight: 500; }
-.sub { margin: 10px 0 0; font-size: 1.05rem; color: var(--ink-2); }
-.actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 22px; align-items: center; }
+.hero .printed { grid-area: line; }
+.hero h1 { grid-area: title; font-size: clamp(2.1rem, 4.1vw, 3.35rem); line-height: 1.04; max-width: 16ch; }
+.hero .sub { grid-area: sub; margin: 0; font-size: 1.08rem; color: var(--ink-2); max-width: 46ch; }
+.hero .sub b { font-family: var(--font-mono); font-weight: 400; color: var(--ink); }
+.hero .actions { grid-area: actions; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
+.hero-stamp { grid-area: stamp; justify-self: center; font-size: .78rem; padding: 1em 1.3em; --tilt: -6deg; }
+.hero-stamp .sum { font-size: 3.6em; letter-spacing: -.02em; line-height: 1; margin: .12em 0 .08em; }
+.hero-stamp.long .sum { font-size: 2.7em; }
 .llm {
-  margin-top: 22px; background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow);
-  padding: 16px 18px; max-width: 62ch; border-left: 4px solid var(--pen);
+  grid-area: llm; margin-top: 10px; background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 16px 18px; max-width: 64ch; border-left: 3px solid var(--pen);
+}
+@container (max-width: 720px) {
+  .hero { grid-template-columns: 1fr; grid-template-areas: "line" "title" "stamp" "sub" "actions" "llm"; }
+  .hero-stamp { justify-self: start; margin: 10px 0 6px 8px; }
 }
 .llm p { margin: 6px 0 0; white-space: pre-line; }
 .llm .note { font-size: .85rem; color: var(--ink-3); }
 
-/* cards */
-#cards { display: grid; gap: 14px; }
+/* находки — полоски чека: печатная строка, своя печать, пояснение и что делать */
+#cards { display: grid; gap: 22px; }
 .card {
-  background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow);
-  padding: 18px 20px; display: grid; grid-template-columns: 1fr auto; gap: 4px 18px; position: relative;
+  position: relative; background: var(--sheet); border-radius: 4px; box-shadow: var(--shadow);
+  padding: 18px 22px 16px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 20px;
 }
+.card .printed { grid-column: 1 / -1; padding-right: 120px; }
+.card .tag { grid-column: 1; font-size: 1.2rem; line-height: 1.25; letter-spacing: -.015em; font-weight: 700; margin: 4px 0 0; }
+.card .amount { grid-column: 2; grid-row: 2 / span 2; align-self: start; text-align: right; font: 400 1.75rem/1 var(--font-mono); white-space: nowrap; margin-top: 4px; }
+.card .amount small { font-size: .5em; color: var(--ink-2); }
+.card .amount .of { display: block; font-size: .46em; color: var(--ink-3); margin-top: 8px; }
+.card.kind-day_spike .amount .num { background: linear-gradient(transparent 52%, var(--marker) 52%, var(--marker) 92%, transparent 92%); color: var(--ink); }
+.card .explain { grid-column: 1; margin: 6px 0 0; font-size: 1.02rem; max-width: 62ch; }
+.card .todo { grid-column: 1 / -1; margin: 12px 0 0; padding-left: 12px; border-left: 3px solid var(--pen); color: var(--ink-2); max-width: 70ch; }
+.card .todo b { color: var(--pen); font-weight: 700; margin-right: .3em; }
+.card footer { grid-column: 1 / -1; display: flex; gap: 10px 20px; flex-wrap: wrap; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1.5px dashed var(--rule); }
+.card-stamp { position: absolute; top: -14px; right: 20px; font-size: .7rem; padding: .55em .85em; --tilt: 5deg; }
 .card.flash { animation: flash 1.4s ease-out; }
 @keyframes flash { 0% { box-shadow: 0 0 0 4px var(--pen); } 100% { box-shadow: var(--shadow); } }
-.card .tag { font: 700 1rem/1.25 var(--font-display); letter-spacing: -.005em; }
-.card time { display: block; color: var(--ink-3); font-family: var(--font-mono); font-size: .9rem; margin-top: 2px; }
-.card .amount { grid-column: 2; grid-row: 1 / span 2; text-align: right; font: 400 1.6rem/1 var(--font-mono); white-space: nowrap; }
-.card .amount small { font-size: .55em; color: var(--ink-2); }
-.card .amount .of { display: block; font-size: .5em; color: var(--ink-3); margin-top: 6px; }
-.card .explain { grid-column: 1 / -1; margin: 10px 0 0; font-size: 1.02rem; max-width: 64ch; }
-.card .advice { grid-column: 1 / -1; margin-top: 10px; padding: 10px 12px; background: var(--pen-wash); border-radius: 8px; }
-.card .advice b { font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
-.card .advice p { margin: 2px 0 0; }
-.card footer { grid-column: 1 / -1; display: flex; gap: 10px 18px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
-.card.kind-day_spike { background: linear-gradient(90deg, var(--marker) 0 6px, var(--sheet) 6px); }
-.card:not(.kind-day_spike) { background: linear-gradient(90deg, var(--stamp) 0 6px, var(--sheet) 6px); }
 .check { display: inline-flex; gap: 8px; align-items: center; font-weight: 600; cursor: pointer; }
 .check input { width: 20px; height: 20px; accent-color: var(--pen); }
 .link { border: 0; background: none; padding: 4px 0; color: var(--pen); font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-.mini-note { color: var(--ink-3); font-size: .9rem; margin: 0; }
+.mini-note { color: var(--ink-3); font-size: .92rem; margin: 0; max-width: 52ch; }
 .off-btn {
   border: 1.5px solid var(--stamp); color: var(--stamp); background: transparent; border-radius: 999px;
-  padding: 6px 14px; font-weight: 700; cursor: pointer;
+  padding: 6px 14px; font-weight: 700; cursor: pointer; margin-left: auto;
 }
 .off-btn:hover { background: var(--stamp-wash); }
 
@@ -119,7 +122,7 @@
 
 /* checklist & quality */
 details.box { background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow); padding: 4px 18px; }
-details.box > summary { cursor: pointer; padding: 14px 0; font: 700 1.1rem/1.2 var(--font-display); list-style-position: outside; }
+details.box > summary { cursor: pointer; padding: 14px 0; font: 800 1.15rem/1.2 var(--font-body); letter-spacing: -.015em; list-style-position: outside; }
 .tz-group h3 { margin: 12px 0 4px; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
 .tz-item { display: grid; grid-template-columns: 26px 1fr; gap: 2px 8px; padding: 9px 0; border-top: 1px dashed var(--rule); }
 .tz-item .mark { font: 700 1rem/1.4 var(--font-mono); color: var(--pen); }
@@ -139,7 +142,7 @@ td code { font-family: var(--font-mono); word-break: break-all; }
 
 /* receipt */
 .receipt-wrap {
-  position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; padding: 12px 8px 24px;
+  position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; overflow-x: hidden; padding: 12px 8px 24px;
   scrollbar-width: thin; filter: drop-shadow(0 10px 18px rgba(20, 35, 32, .20));
 }
 .receipt {
@@ -178,19 +181,9 @@ td code { font-family: var(--font-mono); word-break: break-all; }
 .r-line.pulse { animation: pulse 1.6s ease-out; }
 @keyframes pulse { 0%, 30% { background: var(--marker); } 100% { background: rgba(198, 47, 42, .08); } }
 .r-raw { margin: 0 0 4px; padding: 6px 8px; background: #EEF0EC; font-size: .8rem; overflow-wrap: anywhere; color: #3D4247; }
-.r-line.flagged { padding-bottom: 30px; }
-.stamp {
-  position: absolute; right: 8px; bottom: 5px; transform: rotate(-4deg);
-  font: 700 .68rem/1 var(--font-display); letter-spacing: .14em; color: #C62F2A; padding: 4px 7px;
-  border: 2px solid currentColor; border-radius: 4px; box-shadow: inset 0 0 0 2px var(--r-paper), inset 0 0 0 3.5px currentColor;
-  opacity: .88; mix-blend-mode: multiply; pointer-events: none; white-space: nowrap;
-  animation: thunk .42s cubic-bezier(.2, .9, .3, 1.35) both; animation-delay: calc(var(--i, 0) * 260ms + 500ms);
-}
-@keyframes thunk {
-  0% { opacity: 0; transform: rotate(3deg) scale(2.2); }
-  70% { opacity: .95; }
-  100% { opacity: .88; transform: rotate(-4deg) scale(1); }
-}
+.r-line.flagged { padding-bottom: 32px; }
+.r-stamp { position: absolute; right: 8px; bottom: 5px; font-size: .58rem; padding: .5em .7em; border-width: 2px; color: #C42B26; mix-blend-mode: multiply; }
+.r-stamp::before { inset: 3px; border-width: 1px; }
 .r-sum { display: flex; justify-content: space-between; gap: 10px; }
 .r-sum.strong { font-weight: 700; font-size: 1rem; }
 .r-sum.red { color: #C62F2A; font-weight: 700; }
@@ -205,7 +198,7 @@ dialog.phone-dialog::backdrop { background: rgba(10, 16, 18, .62); }
 .phone-wrap { display: grid; grid-template-columns: 300px 1fr; gap: 28px; align-items: center; background: var(--sheet); border-radius: 18px; padding: 26px; box-shadow: var(--shadow); }
 .phone-frame { background: #15191C; border-radius: 38px; padding: 14px; box-shadow: inset 0 0 0 2px #2D3438; }
 .phone-screen { background: #0E1A16; border-radius: 26px; min-height: 470px; padding: 18px 16px; color: #CFEFD9; font: .95rem/1.5 var(--font-mono); display: flex; flex-direction: column; gap: 12px; }
-.demo-badge { align-self: center; text-align: center; font: 700 .66rem/1.35 var(--font-display); letter-spacing: .12em; text-transform: uppercase; color: #0E1A16; background: var(--marker); padding: 6px 10px; border-radius: 999px; }
+.demo-badge { align-self: center; text-align: center; font: 800 .7rem/1.35 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: #0E1A16; background: var(--marker); padding: 6px 10px; border-radius: 999px; }
 .ussd { background: #F4F6F2; color: #1D2124; border-radius: 12px; padding: 14px; white-space: pre-line; min-height: 220px; }
 .ussd .reply { margin-top: 10px; padding-top: 8px; border-top: 1px solid #D5DAD6; color: #2B37D0; font-weight: 700; }
 .ussd-steps { margin: 0; padding: 0 0 0 18px; color: #9FC8AE; font-size: .8rem; }
@@ -216,14 +209,16 @@ dialog.phone-dialog::backdrop { background: rgba(10, 16, 18, .62); }
 @media (max-width: 760px) { .phone-wrap { grid-template-columns: 1fr; padding: 18px; } .phone-screen { min-height: 380px; } }
 
 @media (max-width: 980px) {
-  .layout { grid-template-columns: 1fr; gap: 28px; padding: 12px 16px 56px; }
+  .layout { grid-template-columns: 1fr; gap: 36px; padding: 12px 16px 56px; }
   .top { padding: 14px 16px 0; }
   .receipt-wrap { position: static; max-height: none; overflow: visible; }
   .fields { grid-template-columns: 1fr; }
 }
 @media (max-width: 520px) {
-  .card { grid-template-columns: 1fr; }
+  .card { grid-template-columns: 1fr; padding: 18px 16px 14px; }
+  .card .printed { padding-right: 0; margin-top: 8px; }
   .card .amount { grid-column: 1; grid-row: auto; text-align: left; margin-top: 6px; }
+  .off-btn { margin-left: 0; }
 }
 @media print {
   body { background: #fff; }
@@ -236,7 +231,7 @@ dialog.phone-dialog::backdrop { background: rgba(10, 16, 18, .62); }
 <body>
 <a class="skip" href="#found">К находкам</a>
 <header class="top">
-  <div class="brand"><span class="brand-mark" aria-hidden="true">?</span>Где мои деньги?</div>
+  <a class="brand" href="#hero"><span class="ink">Где мои деньги?</span></a>
   <div class="tools">
     <a class="tool" id="back-link" href="#" hidden></a>
     <div class="seg" role="group" aria-label="Язык советов">
@@ -249,10 +244,10 @@ dialog.phone-dialog::backdrop { background: rgba(10, 16, 18, .62); }
 
 <main class="layout">
   <div class="desk">
-    <section id="hero" aria-labelledby="hero-title">
-      <p class="who"><b id="profile"></b> · <span id="period"></span> · <span id="file"></span></p>
-      <p class="spent">Потрачено за месяц: <b id="total"></b> сом</p>
-      <h1 class="overpay" id="hero-title"><span class="eyebrow">Возможно лишнее</span><span class="big-num"><span id="overpay"></span> <small>сом</small></span></h1>
+    <section id="hero" class="hero" aria-labelledby="hero-title">
+      <p class="printed" id="hero-line"></p>
+      <h1 id="hero-title"></h1>
+      <div class="ink thunk hero-stamp" id="hero-stamp" role="img"></div>
       <p class="sub" id="hero-sub"></p>
       <div class="actions">
         <button type="button" class="pen" id="to-claim">Подготовить возврат <span id="claim-sum"></span> сом</button>
@@ -359,17 +354,29 @@ const state = {
 };
 
 /* ---------- hero ---------- */
-$("#profile").textContent = D.profile;
-$("#period").textContent = D.period.label;
-$("#file").textContent = D.file;
-$("#total").textContent = D.total_text;
-$("#overpay").textContent = D.overpay_text;
+const STAMP_WORDS = { night_charge: "ночь", new_subscription: "подписка", duplicate_charge: "дубль",
+  international_rate: "дорого" };
 const disputedCount = D.claim.positions.length;
 const spikeCount = D.anomalies.filter(a => a.anomaly_type === "day_spike").length;
-const subParts = [];
-subParts.push(disputedCount ? `${disputedCount} ${plural(disputedCount, ["спорное списание", "спорных списания", "спорных списаний"])}` : "спорных списаний нет");
-if (spikeCount) subParts.push(`${spikeCount} ${plural(spikeCount, ["необычный день", "необычных дня", "необычных дней"])}`);
-$("#hero-sub").textContent = subParts.join(" · ");
+$("#hero-line").textContent = [D.profile, D.period.label, D.file].join(" · ");
+$("#hero-title").textContent = disputedCount
+  ? `Нашли ${disputedCount} ${plural(disputedCount, ["списание, которое", "списания, которые", "списаний, которые"])} стоит оспорить`
+  : spikeCount ? "Спорных списаний нет, но был необычно дорогой день" : "Ничего подозрительного: счёт выглядит честно";
+(function heroStamp() {
+  const stamp = $("#hero-stamp");
+  if (D.overpay_cents > 0) {
+    stamp.append(h("span", { text: "возможно лишнее" }), h("span", { class: "sum", text: D.overpay_text }), h("span", { text: "сом" }));
+    stamp.classList.toggle("long", D.overpay_text.length > 6);
+    stamp.setAttribute("aria-label", `Возможно лишнее: ${D.overpay_text} сом`);
+  } else {
+    stamp.classList.add("seal");
+    stamp.append(h("span", { text: "спорных" }), h("span", { class: "sum", text: "нет" }));
+    stamp.setAttribute("aria-label", "Спорных списаний нет");
+  }
+})();
+const heroSub = $("#hero-sub");
+heroSub.append(`Потрачено за ${D.period.label}: `, h("b", { text: D.total_text }), ` сом, ${D.valid_rows} ${plural(D.valid_rows, ["списание", "списания", "списаний"])}.`);
+if (spikeCount) heroSub.append(` ${spikeCount === 1 ? "Один день" : spikeCount + " " + plural(spikeCount, ["день", "дня", "дней"])} был необычно дорогим — ${spikeCount === 1 ? "он показан" : "они показаны"} отдельно и в сумму возврата не входит.`);
 if (D.llm) { $("#llm").hidden = false; $("#llm-text").textContent = D.llm; }
 if (D.back_link) { const a = $("#back-link"); a.href = D.back_link.href; a.textContent = D.back_link.label; a.hidden = false; }
 $("#to-claim").addEventListener("click", () => {
@@ -403,36 +410,39 @@ const cards = $("#cards");
 const adviceNodes = [];
 for (const a of D.anomalies) {
   const isSpike = a.anomaly_type === "day_spike";
-  const amount = h("div", { class: "amount" }, a.amount_text, " ", h("small", { text: "сом" }),
+  const amount = h("div", { class: "amount" }, h("span", { class: "num", text: a.amount_text }), " ", h("small", { text: "сом" }),
     a.cost_text && a.cost_text !== a.amount_text ? h("span", { class: "of", text: `списано ${a.cost_text} сом` }) : null);
-  const adviceP = h("p");
-  adviceNodes.push([adviceP, a]);
+  const adviceText = h("span");
+  const adviceLabel = h("b");
+  adviceNodes.push([adviceText, adviceLabel, a]);
   const footer = h("footer");
   if (isSpike) {
-    footer.append(h("p", { class: "mini-note", text: "Не входит в сумму возврата: этот день складывается из обычных трат и тех же спорных списаний." }),
+    footer.append(h("p", { class: "mini-note", text: "Не входит в сумму возврата: день складывается из обычных трат и тех же спорных списаний." }),
       h("button", { type: "button", class: "link", onclick: () => gotoDay(a.date), text: "Показать день в чеке" }));
   } else {
     const box = h("input", { type: "checkbox", "data-line": a.line });
     box.checked = state.selected.has(a.line);
     box.addEventListener("change", () => { setSelected(a.line, box.checked); });
     footer.append(h("label", { class: "check" }, box, "В заявление"),
-      h("button", { type: "button", class: "link", onclick: () => gotoLine(a.line), text: `Показать в чеке · строка ${a.line}` }));
+      h("button", { type: "button", class: "link", onclick: () => gotoLine(a.line), text: "Показать в чеке" }));
     if (D.phone.numbers.length && (a.anomaly_type === "new_subscription" || a.anomaly_type === "night_charge")) {
       footer.append(h("button", { type: "button", class: "off-btn", onclick: openPhone, text: "Отключить подписки" }));
     }
   }
   cards.append(h("article", { class: "card kind-" + a.anomaly_type, id: "a-" + a.id },
-    h("header", null, h("span", { class: "tag", text: a.title }), h("time", { datetime: a.datetime, text: isSpike ? dtRu(a.datetime).slice(0, 10) : dtRu(a.datetime) })),
+    h("p", { class: "printed", text: a.printed }),
+    h("h3", { class: "tag", text: a.title }),
     amount,
     h("p", { class: "explain", text: a.explanation }),
-    h("div", { class: "advice" }, h("b", { text: state.lang === "ky" ? "Оператордун кеңеши" : "Совет оператора" }), adviceP),
-    footer));
+    h("p", { class: "todo" }, adviceLabel, adviceText),
+    footer,
+    isSpike ? null : h("span", { class: "ink card-stamp", "aria-hidden": "true", text: STAMP_WORDS[a.anomaly_type] })));
 }
 function renderAdvice() {
-  for (const [p, a] of adviceNodes) {
-    p.textContent = (state.lang === "ky" ? a.advice_ky : a.advice_ru) || a.advice_ru;
-    p.lang = state.lang === "ky" ? "ky" : "ru";
-    p.previousElementSibling.textContent = state.lang === "ky" ? "Оператордун кеңеши" : "Совет оператора";
+  for (const [text, label, a] of adviceNodes) {
+    text.textContent = (state.lang === "ky" ? a.advice_ky : a.advice_ru) || a.advice_ru;
+    text.lang = state.lang === "ky" ? "ky" : "ru";
+    label.textContent = state.lang === "ky" ? "Оператордун кеңеши:" : "Что делать:";
   }
   document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === state.lang)));
 }
@@ -502,8 +512,6 @@ paper.append(
     h("dt", { text: "файл" }), h("dd", { text: D.file })),
   h("hr", { class: "r-rule" }));
 let stampIndex = 0;
-const STAMP_WORDS = { night_charge: "НОЧЬ", new_subscription: "ПОДПИСКА", duplicate_charge: "ДУБЛЬ",
-  international_rate: "ДОРОГО" };
 for (const day of D.days) {
   const summary = h("summary", null, h("span", { text: day.label }),
     day.flagged ? h("span", { class: "d-flag", title: "есть спорное списание", text: "●" }) : null,
@@ -529,7 +537,7 @@ for (const day of D.days) {
     const li = h("li", { class: "r-line" + (flagged ? " flagged" : ""), id: "line-" + ln.line }, btn);
     if (flagged) {
       const kinds = [...new Set(ln.flags.map(id => STAMP_WORDS[D.anomalies[id].anomaly_type]))].join(", ");
-      li.append(h("span", { class: "stamp", style: `--i:${stampIndex++}`, text: "ПРОВЕРИТЬ: " + kinds }));
+      li.append(h("span", { class: "ink thunk r-stamp", style: `--delay:${(0.9 + 0.25 * stampIndex++).toFixed(2)}s;--tilt:-4deg`, text: "проверить: " + kinds }));
     }
     li.append(raw);
     list.append(li);

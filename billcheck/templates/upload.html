@@ -6,22 +6,31 @@
 <title>Где мои деньги? — проверить детализацию</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=PT+Mono&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&family=PT+Mono&family=Rubik+Mono+One&display=swap" rel="stylesheet">
 <style>
 /*__BASE_CSS__*/
-.page { max-width: 980px; margin: 0 auto; padding: 28px 32px 72px; }
-.title { margin: 24px 0 0; font: 700 clamp(2.2rem, 6vw, 4rem)/1.05 var(--font-display); letter-spacing: -.03em; max-width: 16ch; }
-.intro { margin: 14px 0 0; font-size: 1.15rem; color: var(--ink-2); max-width: 54ch; }
+.page { max-width: 980px; margin: 0 auto; padding: 28px 32px 80px; }
+.title { margin: 10px 0 0; font-size: clamp(2.3rem, 6vw, 4rem); line-height: 1.02; max-width: 15ch; }
+.intro { margin: 16px 0 0; font-size: 1.15rem; color: var(--ink-2); max-width: 54ch; }
+/* Принтер чеков: файл «проходит» через щель и выходит лентой */
+.printer { margin-top: 40px; height: 40px; border-radius: 16px 16px 8px 8px; background: var(--ink); position: relative; z-index: 2; box-shadow: var(--shadow); }
+.printer::after { content: ""; position: absolute; left: 7%; right: 7%; top: 18px; height: 6px; border-radius: 6px; background: rgba(0, 0, 0, .55); }
+.printer .led { position: absolute; right: 18px; top: 10px; width: 8px; height: 8px; border-radius: 50%; background: #5BD18B; }
 .slot {
-  margin-top: 34px; position: relative; display: grid; place-items: center; text-align: center; gap: 10px;
-  min-height: 250px; padding: 30px 20px; border-radius: 16px; border: 2.5px dashed var(--ink-3);
-  background: var(--sheet); box-shadow: var(--shadow); cursor: pointer; transition: border-color .15s, transform .15s;
+  position: relative; display: grid; place-items: center; text-align: center; gap: 8px; margin: -16px 9% 0;
+  min-height: 250px; padding: 46px 24px 34px; background: var(--r-paper); color: var(--r-ink); cursor: pointer;
+  filter: drop-shadow(0 10px 16px rgba(20, 35, 32, .18)); transition: transform .2s;
 }
-.slot:hover, .slot.over { border-color: var(--pen); }
-.slot.over { transform: scale(1.01); }
-.slot .lip { width: 62%; height: 10px; border-radius: 999px; background: var(--ink); opacity: .85; }
-.slot .big { font: 700 1.35rem/1.25 var(--font-display); }
-.slot .small { color: var(--ink-2); }
+.slot::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -10px; height: 10px; background-size: 16px 10px; background-repeat: repeat-x;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='M0 0h16L8 10z' fill='%23FBFBF7'/%3E%3C/svg%3E");
+}
+.slot .frame { position: absolute; inset: 26px 18px 16px; border: 2px dashed var(--r-rule); border-radius: 6px; pointer-events: none; transition: border-color .15s; }
+.slot:hover .frame, .slot.over .frame, .slot:focus-within .frame { border-color: #2B37D0; }
+.slot.over { transform: translateY(6px); }
+.slot .printed { color: var(--r-faded); }
+.slot .big { font-size: 1.45rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.2; }
+.slot .small { color: var(--r-faded); }
 .slot.busy .big::after { content: " …"; }
 #file { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .error { margin-top: 14px; padding: 12px 14px; border-radius: 8px; background: var(--stamp-wash); color: var(--stamp); font-weight: 600; }
@@ -33,23 +42,27 @@
 }
 .chip small { color: var(--ink-3); font-weight: 500; margin-left: 6px; font-family: var(--font-mono); }
 .chip.family { background: var(--ink); color: var(--desk); }
+.chip:hover { transform: translateY(-1px); }
 .privacy { margin-top: 34px; color: var(--ink-2); font-size: .92rem; max-width: 70ch; }
-@media (max-width: 600px) { .page { padding: 16px 16px 56px; } }
+@media (max-width: 600px) { .page { padding: 16px 16px 56px; } .slot { margin: -16px 4% 0; } }
 </style>
 </head>
 <body>
 <header class="top">
-  <div class="brand"><span class="brand-mark" aria-hidden="true">?</span>Где мои деньги?</div>
+  <a class="brand" href="/"><span class="ink">Где мои деньги?</span></a>
   <div class="tools">
     <button type="button" class="tool" id="big-toggle" aria-pressed="false"><span class="aa">Аа</span> Крупный шрифт</button>
   </div>
 </header>
 <main class="page">
+  <p class="printed">INAI Mobile · детализация расходов в CSV</p>
   <h1 class="title">Проверим детализацию за секунду</h1>
   <p class="intro">Найдём ночные платные SMS, новые подписки, двойные списания и дорогие звонки за границу. Подготовим заявление на перерасчёт в INAI Mobile.</p>
 
+  <div class="printer" aria-hidden="true"><span class="led"></span></div>
   <label class="slot" id="slot" for="file">
-    <span class="lip" aria-hidden="true"></span>
+    <span class="frame" aria-hidden="true"></span>
+    <span class="printed">файл · .csv · до 5 МБ</span>
     <span class="big" id="slot-big">Перетащите сюда детализацию</span>
     <span class="small" id="slot-small">или нажмите, чтобы выбрать CSV-файл</span>
     <input type="file" id="file" accept=".csv,text/csv">
@@ -75,7 +88,7 @@ for (const p of D.profiles) {
 if (D.profiles.length) $("#chips").append(h("a", { class: "chip family", href: "/family", text: "Вся семья →" }));
 
 const slot = $("#slot"), input = $("#file"), error = $("#error");
-function fail(message) { error.textContent = message; error.hidden = false; slot.classList.remove("busy"); $("#slot-big").textContent = "Перетащите сюда детализацию"; }
+function fail(message) { error.textContent = message; error.hidden = false; slot.classList.remove("busy"); input.value = ""; $("#slot-big").textContent = "Перетащите сюда детализацию"; }
 async function send(file) {
   error.hidden = true;
   if (!file) return;

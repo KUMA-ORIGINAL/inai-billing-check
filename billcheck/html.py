@@ -44,6 +44,14 @@ def spike_label(a) -> str:
     return f"в {ratio_text((a.baseline + a.amount) / a.baseline)} раза больше обычного"
 
 
+def printed_line(a) -> str:
+    """Строка «как в чеке» над карточкой: день недели, дата, время, тип, номер и строка файла."""
+    day = f"{WEEKDAYS[a.dt.weekday()]} {a.dt:%d.%m.%Y}"
+    if a.charge is None:
+        return f"{day} · за весь день"
+    return f"{day} · {a.dt:%H:%M:%S} · {TYPE_NAMES[a.charge.type]} · {a.charge.number or 'без номера'} · строка {a.line}"
+
+
 def cents(value: Decimal) -> int:
     return int(round(money(value) * 100))
 
@@ -147,7 +155,7 @@ def report_payload(result: Result, profile: str | None = None, llm_text: str | N
                           "raw": a.charge.raw if a.charge else "", "number": a.charge.number if a.charge else "",
                           "cost_text": format_som(a.charge.cost) if a.charge else "",
                           "explanation": explain(a), "advice_ru": advice(a, "ru"), "advice_ky": advice(a, "ky"),
-                          "date": a.dt.date().isoformat(), "label": spike_label(a)})
+                          "date": a.dt.date().isoformat(), "label": spike_label(a), "printed": printed_line(a)})
     spike_days = {a["date"] for a in anomalies if a["anomaly_type"] == "day_spike"}
     positions = claim_positions(result)
     return {

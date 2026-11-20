@@ -37,3 +37,7 @@ function initBigToggle() {
   btn.addEventListener("click", () => setBig(!document.documentElement.classList.contains("big")));
   setBig(store.get("gmd-big") === "1");
 }
+// Штамп «впечатался» — снимаем анимацию: конечное состояние совпадает с обычным, а браузер точно перерисует оттиск.
+document.addEventListener("animationend", event => {
+  if (event.target.classList && event.target.classList.contains("thunk")) event.target.classList.remove("thunk");
+});

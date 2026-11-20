@@ -1,17 +1,20 @@
-/* Общие токены и элементы управления страниц «Где мои деньги?». Встраивается в HTML при сборке. */
+/* Общие токены и элементы страниц «Где мои деньги?». Встраивается в HTML при сборке.
+   Три «чернила» = три источника правды:
+   печать (моно, --print*) — данные оператора; красный штамп (--stamp) — что нашли правила;
+   синяя ручка (--pen) — что делаете вы. Фиолетовый штамп (--seal) — сверка с эталонами. */
 :root {
-  --desk: #D6DEDB;
-  --desk-line: #CDD6D2;
+  --desk: #CFD9D5;
   --sheet: #FDFDFB;
   --ink: #1E2227;
-  --ink-2: #545C64;
-  --ink-3: #7A828A;
-  --rule: #D3D8DA;
-  --stamp: #C62F2A;
-  --stamp-wash: rgba(198, 47, 42, .07);
+  --ink-2: #4F5860;
+  --ink-3: #737C84;
+  --rule: #D5DADC;
+  --stamp: #C42B26;
+  --stamp-wash: rgba(196, 43, 38, .08);
+  --seal: #5A3FA6;
   --pen: #2B37D0;
-  --pen-hover: #2029A8;
-  --pen-wash: rgba(43, 55, 208, .08);
+  --pen-hover: #1F288F;
+  --pen-wash: rgba(43, 55, 208, .07);
   --pen-ink: #FFFFFF;
   --marker: #F3DD5E;
   --spike: #C99400;
@@ -20,68 +23,85 @@
   --r-ink: #24272B;
   --r-faded: #6E757C;
   --r-rule: #BFC4C7;
-  --shadow: 0 1px 2px rgba(20, 35, 32, .08), 0 8px 24px rgba(20, 35, 32, .10);
+  --shadow: 0 1px 1px rgba(20, 35, 32, .06), 0 10px 26px -8px rgba(20, 35, 32, .22);
   --radius: 10px;
-  --font-display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --blend: multiply;
+  --font-stamp: "Rubik Mono One", "Arial Black", Impact, sans-serif;
   --font-body: "Golos Text", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-mono: "PT Mono", "Consolas", "Courier New", monospace;
+  /* Неровный оттиск: PNG-маска 128×128 (пятна + зерно) выбивает краску, как у резинового штампа.
+     Готовая картинка, а не SVG-фильтр: SVG-шум в маске рисовался с задержкой и штамп мог не появиться. */
+  --ink-texture: url("data:image/png;base64,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");
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --desk: #141A1D; --desk-line: #222B2F; --sheet: #1E2629; --ink: #E7EAE8; --ink-2: #B3BBBF; --ink-3: #8C959A;
-    --rule: #334045; --stamp: #E5534B; --stamp-wash: rgba(229, 83, 75, .12); --pen: #8F96FF; --pen-hover: #B2B7FF;
-    --pen-wash: rgba(143, 150, 255, .14); --pen-ink: #10123A; --spike: #E0B53A; --bar: #6F7A80;
-    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 28px rgba(0, 0, 0, .35); color-scheme: dark;
+    --desk: #12181B; --sheet: #1C2427; --ink: #E7EAE8; --ink-2: #B3BBBF; --ink-3: #8C959A; --rule: #2F3B40;
+    --stamp: #F0605A; --stamp-wash: rgba(240, 96, 90, .12); --seal: #A993F2; --pen: #8F96FF; --pen-hover: #B2B7FF;
+    --pen-wash: rgba(143, 150, 255, .12); --pen-ink: #10123A; --spike: #E0B53A; --bar: #6F7A80;
+    --shadow: 0 1px 1px rgba(0, 0, 0, .3), 0 12px 30px -8px rgba(0, 0, 0, .6); --blend: normal; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --desk: #141A1D; --desk-line: #222B2F; --sheet: #1E2629; --ink: #E7EAE8; --ink-2: #B3BBBF; --ink-3: #8C959A;
-  --rule: #334045; --stamp: #E5534B; --stamp-wash: rgba(229, 83, 75, .12); --pen: #8F96FF; --pen-hover: #B2B7FF;
-  --pen-wash: rgba(143, 150, 255, .14); --pen-ink: #10123A; --spike: #E0B53A; --bar: #6F7A80;
-  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 28px rgba(0, 0, 0, .35); color-scheme: dark;
+  --desk: #12181B; --sheet: #1C2427; --ink: #E7EAE8; --ink-2: #B3BBBF; --ink-3: #8C959A; --rule: #2F3B40;
+  --stamp: #F0605A; --stamp-wash: rgba(240, 96, 90, .12); --seal: #A993F2; --pen: #8F96FF; --pen-hover: #B2B7FF;
+  --pen-wash: rgba(143, 150, 255, .12); --pen-ink: #10123A; --spike: #E0B53A; --bar: #6F7A80;
+  --shadow: 0 1px 1px rgba(0, 0, 0, .3), 0 12px 30px -8px rgba(0, 0, 0, .6); --blend: normal; color-scheme: dark;
 }
 html.big { font-size: 125%; }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-body {
-  margin: 0; background: var(--desk); color: var(--ink);
-  font: 400 1rem/1.5 var(--font-body);
-  background-image: linear-gradient(var(--desk-line) 1px, transparent 1px);
-  background-size: 100% 28px;
-}
+body { margin: 0; background: var(--desk); color: var(--ink); font: 400 1rem/1.5 var(--font-body); }
 button, input { font: inherit; color: inherit; }
 :focus-visible { outline: 3px solid var(--pen); outline-offset: 2px; border-radius: 4px; }
 .skip { position: absolute; left: -999px; top: 8px; background: var(--sheet); padding: 8px 12px; }
 .skip:focus { left: 8px; z-index: 10; }
 
+/* Штамп — единственный яркий приём страниц: заголовок-сумма, строки чека, карточки, семья */
+.ink {
+  display: inline-flex; flex-direction: column; align-items: center; gap: .15em; position: relative;
+  font-family: var(--font-stamp); font-weight: 400; text-transform: uppercase; letter-spacing: .04em; line-height: 1.05;
+  color: var(--stamp); border: 3px solid currentColor; border-radius: 7px; padding: .5em .8em;
+  transform: rotate(var(--tilt, -4deg)); mix-blend-mode: var(--blend);
+  -webkit-mask-image: var(--ink-texture); mask-image: var(--ink-texture);
+  -webkit-mask-size: 128px; mask-size: 128px;
+}
+.ink::before { content: ""; position: absolute; inset: 4px; border: 1.5px solid currentColor; border-radius: 4px; pointer-events: none; }
+.ink.seal { color: var(--seal); }
+.ink.thunk { animation: thunk .5s cubic-bezier(.2, .9, .3, 1.3) both; animation-delay: var(--delay, .25s); }
+@keyframes thunk {
+  0% { opacity: 0; transform: rotate(calc(var(--tilt, -4deg) + 7deg)) scale(1.9); }
+  65% { opacity: 1; }
+  100% { opacity: 1; transform: rotate(var(--tilt, -4deg)) scale(1); }
+}
+
 /* top bar */
 .top {
-  max-width: 1320px; margin: 0 auto; padding: 18px 32px 0;
+  max-width: 1320px; margin: 0 auto; padding: 20px 32px 0;
   display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
 }
-.brand { font: 700 1.05rem/1 var(--font-display); letter-spacing: -.01em; display: flex; align-items: center; gap: 10px; }
-.brand-mark {
-  width: 28px; height: 28px; border-radius: 50%; border: 2.5px solid var(--stamp); color: var(--stamp);
-  display: grid; place-items: center; font: 700 .8rem/1 var(--font-display); transform: rotate(-12deg);
-}
-.tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.brand { display: inline-flex; align-items: center; text-decoration: none; }
+.brand .ink { font-size: .74rem; padding: .55em .8em; --tilt: -3deg; }
+.tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .seg { display: inline-flex; border: 1.5px solid var(--ink-3); border-radius: 999px; overflow: hidden; }
 .seg button { border: 0; background: transparent; padding: 6px 14px; cursor: pointer; font-weight: 600; }
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--desk); }
 .tool {
-  border: 1.5px solid var(--ink-3); background: transparent; border-radius: 999px; padding: 6px 14px;
+  border: 1.5px solid var(--ink-3); background: transparent; border-radius: 999px; padding: 6px 14px; color: var(--ink);
   cursor: pointer; font-weight: 600; text-decoration: none; display: inline-flex; gap: 6px; align-items: center;
 }
+.tool:hover, .seg:hover { border-color: var(--ink); }
 .tool[aria-pressed="true"] { background: var(--ink); color: var(--desk); border-color: var(--ink); }
-.tool .aa { font-family: var(--font-display); font-size: .8em; }
+.tool .aa { font-weight: 800; letter-spacing: -.02em; }
 
-h2 { font: 700 1.25rem/1.2 var(--font-display); margin: 0 0 6px; letter-spacing: -.01em; }
-.lead { margin: 0 0 16px; color: var(--ink-2); max-width: 60ch; }
+h1, h2 { font-family: var(--font-body); font-weight: 800; letter-spacing: -.025em; margin: 0; }
+h2 { font-size: 1.55rem; line-height: 1.15; margin-bottom: 6px; }
+.lead { margin: 0 0 18px; color: var(--ink-2); max-width: 62ch; }
+.printed { font: .8rem/1.4 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); margin: 0; }
 
 .pen {
   background: var(--pen); color: var(--pen-ink); border: 0; border-radius: 999px; padding: 14px 24px;
-  font-weight: 700; font-size: 1.05rem; cursor: pointer; box-shadow: 0 6px 18px -6px var(--pen);
+  font-weight: 700; font-size: 1.05rem; cursor: pointer; box-shadow: 0 8px 20px -10px var(--pen);
 }
 .pen:hover { background: var(--pen-hover); }
 .ghost {

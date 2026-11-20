@@ -60,3 +60,10 @@ def test_report_html_survives_html_comment_in_data(tmp_path):
     data = _payload(page)  # json.loads не падает — значит и JSON.parse в браузере не упадёт
     assert [line["number"] for line in data["days"][0]["lines"]] == ["<!--x", "<script>"]
     assert "<!--x" not in page and "<script>," not in page
+
+
+def test_cards_have_printed_receipt_line(data_dir):
+    data = report_payload(analyze(data_dir / "billing_03.csv"))
+    by_type = {a["anomaly_type"]: a["printed"] for a in data["anomalies"]}
+    assert by_type["international_rate"] == "ПН 07.09.2026 · 17:54:43 · звонок · +971517547668 · строка 111"
+    assert by_type["day_spike"] == "ВТ 29.09.2026 · за весь день"
