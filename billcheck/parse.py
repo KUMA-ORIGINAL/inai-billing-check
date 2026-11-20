@@ -1,7 +1,7 @@
 """Разбор грязной детализации: каждая плохая строка отбрасывается целиком с причиной."""
 import csv
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
@@ -35,6 +35,7 @@ class Charge:
     duration_sec: Decimal
     mb: Decimal
     cost: Decimal
+    raw: str = field(default="", compare=False)  # исходная строка детализации
 
 
 @dataclass(frozen=True)
@@ -121,7 +122,7 @@ def read_billing(path: str | Path) -> tuple[list[Charge], list[Dropped]]:
                 if reason:
                     dropped.append(Dropped(line_no, reason, raw))
                 else:
-                    charges.append(Charge(line_no, *fields))
+                    charges.append(Charge(line_no, *fields, raw=raw))
     except UnicodeDecodeError as exc:
         raise BillingFileError(f"Файл {path.name} — не текст в UTF-8. Нужна детализация в CSV.") from exc
     except csv.Error as exc:

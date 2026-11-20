@@ -22,6 +22,11 @@ def round_money(value: Decimal) -> Decimal:
     return value.quantize(CENT, rounding=ROUND_HALF_UP)
 
 
+def format_som(value: Decimal) -> str:
+    """Сумма для человека по-русски: 2 106,02 (неразрывный пробел между разрядами)."""
+    return f"{round_money(value):,.2f}".replace(",", " ").replace(".", ",")
+
+
 def money(value: Decimal) -> float:
     """Сумма для JSON: float с двумя знаками."""
     return float(round_money(value))

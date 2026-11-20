@@ -15,21 +15,21 @@ def _faq(data_dir, faq_id):
 def test_explain_has_numbers():
     [a] = find_international([ch("2026-09-27 10:40:38", "call", "+971007731297", 99, 0, "66")])
     text = explain(a)
-    assert "+971007731297" in text and "40.00 сом/мин" in text and "33.00 сом" in text
+    assert "+971007731297" in text and "40,00 сом/мин" in text and "33,00 сом" in text
 
 
 def test_explain_duplicate_gap():
     [a] = find_duplicates([ch("2026-09-12 16:55:01", "call", "+996700395431", 214, 0, "6"),
                            ch("2026-09-12 16:55:54", "call", "+996700395431", 214, 0, "6.00")])
     text = explain(a)
-    assert "12.09" in text and "16:55:54" in text and "53 с" in text and "6.00 сом" in text
+    assert "12.09" in text and "16:55:54" in text and "53 с" in text and "6,00 сом" in text
 
 
 def test_explain_day_spike_ratio():
     days = [ch(f"2026-09-0{d} 12:00:00", "call", "+996700000001", 60, 0, "10") for d in range(1, 8)]
     [a] = find_day_spikes(days + [ch("2026-09-08 12:00:00", "call", "+996700000001", 60, 0, "50")])
     text = explain(a)
-    assert "08.09" in text and "50.00 сом" in text and "в 5.0 раза" in text and "10.00 сом" in text
+    assert "08.09" in text and "50,00 сом" in text and "в 5,0 раза" in text and "10,00 сом" in text
 
 
 def test_every_open_anomaly_is_explained(data_dir):

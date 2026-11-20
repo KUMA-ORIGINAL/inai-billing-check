@@ -3,7 +3,7 @@ from decimal import Decimal
 
 import pytest
 
-from billcheck.money import money, parse_amount
+from billcheck.money import format_som, money, parse_amount
 from billcheck.parse import BillingFileError, read_billing
 from helpers import write_csv
 
@@ -40,6 +40,7 @@ def test_each_broken_kind(tmp_path):
     good = charges[0]
     assert good.cost == Decimal("1.20") and good.dt == datetime(2026, 9, 1, 13, 3, 21)
     assert (good.line, good.type, good.number, good.duration_sec) == (11, "call", "+996700188574", Decimal(43))
+    assert good.raw == '01.09.2026 13:03:21,call,+996700188574,43,0,"1,20"'
 
 
 def test_crlf_and_bom(tmp_path):
@@ -91,6 +92,12 @@ def test_parse_amount_ok(text, value):
 @pytest.mark.parametrize("text", ["", "  ", "abc", "NaN", "nan", "Infinity", "-inf", "-1", "-0.01", "1,2,3"])
 def test_parse_amount_rejects(text):
     assert parse_amount(text) is None
+
+
+def test_format_som_russian():
+    assert format_som(Decimal("2106.02")) == "2 106,02"
+    assert format_som(Decimal("0.125")) == "0,13"
+    assert format_som(Decimal("8285.42")) == "8 285,42"
 
 
 def test_money_rounds_half_up():

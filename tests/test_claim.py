@@ -11,7 +11,7 @@ def test_claim_billing_03(data_dir):
     for position in ("1. ", "2. ", "3. ", "4. "):
         assert f"\n{position}" in text
     assert "\n5. " not in text
-    assert "Итого к проверке: 65.00 сом" in text
+    assert "Итого к проверке: 65,00 сом" in text
     assert "z-score" not in text and "29.09.2026" not in text
     assert "строка 243" in text and "62626" in text
     assert "Дата составления: 21.11.2026" in text
@@ -20,7 +20,7 @@ def test_claim_billing_03(data_dir):
 
 def test_claim_selected_lines(data_dir):
     text = build_claim(analyze(data_dir / "billing_03.csv"), selected_lines={243})
-    assert "Итого к проверке: 10.00 сом" in text and "\n2. " not in text
+    assert "Итого к проверке: 10,00 сом" in text and "\n2. " not in text
 
 
 def test_claim_fills_name_and_number(data_dir):
@@ -31,4 +31,4 @@ def test_claim_fills_name_and_number(data_dir):
 def test_claim_international_shows_cost_and_overpay(data_dir):
     text = build_claim(analyze(data_dir / "billing_03.csv"))
     line = next(row for row in text.splitlines() if "+971" in row)
-    assert "к перерасчёту 41.00 сом" in line
+    assert "к перерасчёту 41,00 сом" in line

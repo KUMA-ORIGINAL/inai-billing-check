@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Где мои деньги? — проверка детализации</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=PT+Mono&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --desk: #D6DEDB;
+  --desk-line: #CDD6D2;
+  --sheet: #FDFDFB;
+  --ink: #1E2227;
+  --ink-2: #545C64;
+  --ink-3: #7A828A;
+  --rule: #D3D8DA;
+  --stamp: #C62F2A;
+  --stamp-wash: rgba(198, 47, 42, .07);
+  --pen: #2B37D0;
+  --pen-hover: #2029A8;
+  --pen-wash: rgba(43, 55, 208, .08);
+  --pen-ink: #FFFFFF;
+  --marker: #F3DD5E;
+  --spike: #C99400;
+  --bar: #9AA3AB;
+  --r-paper: #FBFBF7;
+  --r-ink: #24272B;
+  --r-faded: #6E757C;
+  --r-rule: #BFC4C7;
+  --shadow: 0 1px 2px rgba(20, 35, 32, .08), 0 8px 24px rgba(20, 35, 32, .10);
+  --radius: 10px;
+  --font-display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --font-body: "Golos Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "PT Mono", "Consolas", "Courier New", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --desk: #141A1D; --desk-line: #222B2F; --sheet: #1E2629; --ink: #E7EAE8; --ink-2: #B3BBBF; --ink-3: #8C959A;
+    --rule: #334045; --stamp: #E5534B; --stamp-wash: rgba(229, 83, 75, .12); --pen: #8F96FF; --pen-hover: #B2B7FF;
+    --pen-wash: rgba(143, 150, 255, .14); --pen-ink: #10123A; --spike: #E0B53A; --bar: #6F7A80;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 28px rgba(0, 0, 0, .35); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --desk: #141A1D; --desk-line: #222B2F; --sheet: #1E2629; --ink: #E7EAE8; --ink-2: #B3BBBF; --ink-3: #8C959A;
+  --rule: #334045; --stamp: #E5534B; --stamp-wash: rgba(229, 83, 75, .12); --pen: #8F96FF; --pen-hover: #B2B7FF;
+  --pen-wash: rgba(143, 150, 255, .14); --pen-ink: #10123A; --spike: #E0B53A; --bar: #6F7A80;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 28px rgba(0, 0, 0, .35); color-scheme: dark;
+}
+html.big { font-size: 125%; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0; background: var(--desk); color: var(--ink);
+  font: 400 1rem/1.5 var(--font-body);
+  background-image: linear-gradient(var(--desk-line) 1px, transparent 1px);
+  background-size: 100% 28px;
+}
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--pen); outline-offset: 2px; border-radius: 4px; }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--sheet); padding: 8px 12px; }
+.skip:focus { left: 8px; z-index: 10; }
+
+/* top bar */
+.top {
+  max-width: 1320px; margin: 0 auto; padding: 18px 32px 0;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.brand { font: 700 1.05rem/1 var(--font-display); letter-spacing: -.01em; display: flex; align-items: center; gap: 10px; }
+.brand-mark {
+  width: 28px; height: 28px; border-radius: 50%; border: 2.5px solid var(--stamp); color: var(--stamp);
+  display: grid; place-items: center; font: 700 .8rem/1 var(--font-display); transform: rotate(-12deg);
+}
+.tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1.5px solid var(--ink-3); border-radius: 999px; overflow: hidden; }
+.seg button { border: 0; background: transparent; padding: 6px 14px; cursor: pointer; font-weight: 600; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--desk); }
+.tool {
+  border: 1.5px solid var(--ink-3); background: transparent; border-radius: 999px; padding: 6px 14px;
+  cursor: pointer; font-weight: 600; text-decoration: none; display: inline-flex; gap: 6px; align-items: center;
+}
+.tool[aria-pressed="true"] { background: var(--ink); color: var(--desk); border-color: var(--ink); }
+.tool .aa { font-family: var(--font-display); font-size: .8em; }
+
+/* layout */
+.layout {
+  max-width: 1320px; margin: 0 auto; padding: 20px 32px 72px;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(330px, 410px); gap: 44px; align-items: start;
+}
+.desk > section { margin-top: 44px; }
+.desk > section:first-child { margin-top: 12px; }
+h2 { font: 700 1.25rem/1.2 var(--font-display); margin: 0 0 6px; letter-spacing: -.01em; }
+.lead { margin: 0 0 16px; color: var(--ink-2); max-width: 60ch; }
+
+/* hero */
+.who { margin: 0; color: var(--ink-2); font-weight: 500; }
+.who b { color: var(--ink); }
+.spent { margin: 18px 0 0; font-size: 1.1rem; }
+.spent b { font-family: var(--font-mono); font-size: 1.2rem; }
+.overpay { margin: 6px 0 0; font-weight: 400; }
+.eyebrow { display: block; font: 600 .85rem/1 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--stamp); }
+.big-num {
+  display: block; font: 700 clamp(3.2rem, 8.5vw, 6.4rem)/1.02 var(--font-display); letter-spacing: -.035em;
+  margin-top: 6px; font-variant-numeric: tabular-nums;
+}
+.big-num small { font-size: .38em; letter-spacing: 0; color: var(--ink-2); font-weight: 500; }
+.sub { margin: 10px 0 0; font-size: 1.05rem; color: var(--ink-2); }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 22px; align-items: center; }
+.pen {
+  background: var(--pen); color: var(--pen-ink); border: 0; border-radius: 999px; padding: 14px 24px;
+  font-weight: 700; font-size: 1.05rem; cursor: pointer; box-shadow: 0 6px 18px -6px var(--pen);
+}
+.pen:hover { background: var(--pen-hover); }
+.ghost {
+  border: 1.5px solid var(--ink-3); border-radius: 999px; padding: 12px 20px; background: transparent;
+  cursor: pointer; font-weight: 600; text-decoration: none; color: var(--ink);
+}
+.ghost:hover { border-color: var(--ink); }
+.llm {
+  margin-top: 22px; background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 16px 18px; max-width: 62ch; border-left: 4px solid var(--pen);
+}
+.llm p { margin: 6px 0 0; white-space: pre-line; }
+.llm .note { font-size: .85rem; color: var(--ink-3); }
+
+/* cards */
+#cards { display: grid; gap: 14px; }
+.card {
+  background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 18px 20px; display: grid; grid-template-columns: 1fr auto; gap: 4px 18px; position: relative;
+}
+.card.flash { animation: flash 1.4s ease-out; }
+@keyframes flash { 0% { box-shadow: 0 0 0 4px var(--pen); } 100% { box-shadow: var(--shadow); } }
+.card .tag { font: 700 1rem/1.25 var(--font-display); letter-spacing: -.005em; }
+.card time { display: block; color: var(--ink-3); font-family: var(--font-mono); font-size: .9rem; margin-top: 2px; }
+.card .amount { grid-column: 2; grid-row: 1 / span 2; text-align: right; font: 400 1.6rem/1 var(--font-mono); white-space: nowrap; }
+.card .amount small { font-size: .55em; color: var(--ink-2); }
+.card .amount .of { display: block; font-size: .5em; color: var(--ink-3); margin-top: 6px; }
+.card .explain { grid-column: 1 / -1; margin: 10px 0 0; font-size: 1.02rem; max-width: 64ch; }
+.card .advice { grid-column: 1 / -1; margin-top: 10px; padding: 10px 12px; background: var(--pen-wash); border-radius: 8px; }
+.card .advice b { font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.card .advice p { margin: 2px 0 0; }
+.card footer { grid-column: 1 / -1; display: flex; gap: 10px 18px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.card.kind-day_spike { background: linear-gradient(90deg, var(--marker) 0 6px, var(--sheet) 6px); }
+.card:not(.kind-day_spike) { background: linear-gradient(90deg, var(--stamp) 0 6px, var(--sheet) 6px); }
+.check { display: inline-flex; gap: 8px; align-items: center; font-weight: 600; cursor: pointer; }
+.check input { width: 20px; height: 20px; accent-color: var(--pen); }
+.link { border: 0; background: none; padding: 4px 0; color: var(--pen); font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.mini-note { color: var(--ink-3); font-size: .9rem; margin: 0; }
+.off-btn {
+  border: 1.5px solid var(--stamp); color: var(--stamp); background: transparent; border-radius: 999px;
+  padding: 6px 14px; font-weight: 700; cursor: pointer;
+}
+.off-btn:hover { background: var(--stamp-wash); }
+
+/* chart */
+.chart-box { background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 16px 10px; position: relative; }
+.chart-box svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart-box .grid line { stroke: var(--rule); stroke-width: 1; }
+.chart-box .axis text { fill: var(--ink-3); font: 11px var(--font-mono); }
+.chart-box .bar { fill: var(--bar); }
+.chart-box .bar.spike { fill: var(--spike); }
+.chart-box .dot { fill: var(--stamp); stroke: var(--sheet); stroke-width: 2; }
+.chart-box .hit { fill: transparent; cursor: pointer; }
+.chart-box .hit:hover + .bar, .chart-box .hit:focus + .bar { opacity: .75; }
+.chart-box .label { fill: var(--ink); font: 600 12px var(--font-body); }
+.chart-key { display: flex; gap: 18px; flex-wrap: wrap; margin: 10px 0 0; color: var(--ink-2); font-size: .92rem; padding: 0 4px; }
+.key-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--stamp); margin-right: 6px; vertical-align: 1px; }
+.key-bar { display: inline-block; width: 10px; height: 14px; border-radius: 3px 3px 0 0; background: var(--spike); margin-right: 6px; vertical-align: -2px; }
+.tip {
+  position: absolute; pointer-events: none; background: var(--ink); color: var(--desk); padding: 8px 10px;
+  border-radius: 8px; font-size: .88rem; line-height: 1.35; max-width: 240px; transform: translate(-50%, -100%);
+  opacity: 0; transition: opacity .12s;
+}
+.tip.on { opacity: 1; }
+.tip b { font-family: var(--font-mono); }
+
+/* claim */
+.claim-sheet { background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fields label { display: grid; gap: 4px; font-weight: 600; font-size: .92rem; color: var(--ink-2); }
+.fields input { border: 1.5px solid var(--rule); background: transparent; border-radius: 8px; padding: 10px 12px; font-size: 1rem; }
+.fields input:focus { border-color: var(--pen); outline: none; }
+#claim-text {
+  margin: 16px 0 0; padding: 18px; background: var(--desk); border-radius: 8px; white-space: pre-wrap;
+  font: .92rem/1.55 var(--font-mono); max-height: 460px; overflow: auto; color: var(--ink);
+}
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+.row .pen { padding: 11px 20px; font-size: 1rem; }
+.row .ghost { padding: 9px 16px; }
+#copied { color: var(--ink-2); font-weight: 600; }
+
+/* spend */
+.spend { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.panel { background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 18px; }
+.panel h3 { margin: 0 0 10px; font-size: 1rem; }
+.cat { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: baseline; margin: 10px 0; }
+.cat .track { grid-column: 1 / -1; height: 8px; background: var(--rule); border-radius: 999px; overflow: hidden; }
+.cat .fill { height: 100%; background: var(--ink-2); border-radius: 999px; }
+.cat .v, .top li span { font-family: var(--font-mono); white-space: nowrap; }
+.top { margin: 0; padding-left: 1.6em; }
+.top li { margin: 8px 0; }
+.top li div { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+
+/* checklist & quality */
+details.box { background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow); padding: 4px 18px; }
+details.box > summary { cursor: pointer; padding: 14px 0; font: 700 1.1rem/1.2 var(--font-display); list-style-position: outside; }
+.tz-group h3 { margin: 12px 0 4px; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.tz-item { display: grid; grid-template-columns: 26px 1fr; gap: 2px 8px; padding: 9px 0; border-top: 1px dashed var(--rule); }
+.tz-item .mark { font: 700 1rem/1.4 var(--font-mono); color: var(--pen); }
+.tz-item.no .mark { color: var(--ink-3); }
+.tz-item .t { font-weight: 600; }
+.tz-item .v { grid-column: 2; color: var(--ink-2); font-size: .95rem; }
+.tz-item button { grid-column: 2; justify-self: start; }
+.badge {
+  display: inline-flex; gap: 8px; align-items: center; margin: 4px 0 14px; padding: 8px 12px; border-radius: 8px;
+  background: var(--pen-wash); font-weight: 600;
+}
+table { width: 100%; border-collapse: collapse; font-size: .92rem; margin-bottom: 14px; }
+th, td { text-align: left; padding: 7px 8px; border-top: 1px solid var(--rule); vertical-align: top; }
+th { color: var(--ink-3); font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; }
+td code { font-family: var(--font-mono); word-break: break-all; }
+.honest { margin-top: 44px; color: var(--ink-2); font-size: .92rem; max-width: 70ch; }
+
+/* receipt */
+.receipt-wrap {
+  position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; padding: 12px 8px 24px;
+  scrollbar-width: thin; filter: drop-shadow(0 10px 18px rgba(20, 35, 32, .20));
+}
+.receipt {
+  background: var(--r-paper); color: var(--r-ink); font: .9rem/1.45 var(--font-mono); padding: 22px 20px 18px;
+  position: relative;
+}
+.receipt::before, .receipt::after {
+  content: ""; position: absolute; left: 0; right: 0; height: 10px; background-repeat: repeat-x; background-size: 16px 10px;
+}
+.receipt::before { top: -10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='M0 10L8 0l8 10z' fill='%23FBFBF7'/%3E%3C/svg%3E"); }
+.receipt::after { bottom: -10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='M0 0h16L8 10z' fill='%23FBFBF7'/%3E%3C/svg%3E"); }
+.r-head { text-align: center; letter-spacing: .12em; line-height: 1.35; }
+.r-head b { font-size: 1.05rem; }
+.r-meta { margin: 12px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 0 10px; color: var(--r-faded); }
+.r-meta dd { margin: 0; color: var(--r-ink); text-align: right; overflow-wrap: anywhere; }
+.r-rule { border: 0; border-top: 1.5px dashed var(--r-rule); margin: 12px 0; }
+.r-day > summary { list-style: none; display: flex; align-items: baseline; gap: 6px; cursor: pointer; padding: 3px 0; }
+.r-day > summary::-webkit-details-marker { display: none; }
+.r-day > summary::before { content: "▸"; color: var(--r-faded); width: 1ch; }
+.r-day[open] > summary::before { content: "▾"; }
+.r-day .dots { flex: 1; border-bottom: 1.5px dotted var(--r-rule); transform: translateY(-4px); }
+.r-day .d-total { white-space: nowrap; }
+.r-day.spike .d-total { background: var(--marker); padding: 0 4px; border-radius: 2px; color: #24272B; }
+.r-day .d-flag { color: #C62F2A; font-weight: 700; }
+.r-note { margin: 0 0 4px 1.6ch; color: var(--r-faded); font-size: .82rem; }
+.r-lines { list-style: none; margin: 0 0 6px; padding: 0 0 0 1.6ch; }
+.r-line { position: relative; }
+.r-line > button {
+  width: 100%; display: grid; grid-template-columns: 5.2ch 1fr auto; gap: 8px; border: 0; background: none;
+  padding: 2px 0; text-align: left; cursor: pointer; font: inherit; color: inherit;
+}
+.r-line > button:hover { background: rgba(0, 0, 0, .04); }
+.r-line .what { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--r-faded); }
+.r-line.flagged { background: rgba(198, 47, 42, .08); }
+.r-line.flagged .what { color: var(--r-ink); }
+.r-line.pulse { animation: pulse 1.6s ease-out; }
+@keyframes pulse { 0%, 30% { background: var(--marker); } 100% { background: rgba(198, 47, 42, .08); } }
+.r-raw { margin: 0 0 4px; padding: 6px 8px; background: #EEF0EC; font-size: .8rem; overflow-wrap: anywhere; color: #3D4247; }
+.r-line.flagged { padding-bottom: 30px; }
+.stamp {
+  position: absolute; right: 8px; bottom: 5px; transform: rotate(-4deg);
+  font: 700 .68rem/1 var(--font-display); letter-spacing: .14em; color: #C62F2A; padding: 4px 7px;
+  border: 2px solid currentColor; border-radius: 4px; box-shadow: inset 0 0 0 2px var(--r-paper), inset 0 0 0 3.5px currentColor;
+  opacity: .88; mix-blend-mode: multiply; pointer-events: none; white-space: nowrap;
+  animation: thunk .42s cubic-bezier(.2, .9, .3, 1.35) both; animation-delay: calc(var(--i, 0) * 260ms + 500ms);
+}
+@keyframes thunk {
+  0% { opacity: 0; transform: rotate(3deg) scale(2.2); }
+  70% { opacity: .95; }
+  100% { opacity: .88; transform: rotate(-4deg) scale(1); }
+}
+.r-sum { display: flex; justify-content: space-between; gap: 10px; }
+.r-sum.strong { font-weight: 700; font-size: 1rem; }
+.r-sum.red { color: #C62F2A; font-weight: 700; }
+.r-foot { text-align: center; margin-top: 14px; color: var(--r-faded); letter-spacing: .08em; font-size: .8rem; }
+
+@media (max-width: 980px) {
+  .layout { grid-template-columns: 1fr; gap: 28px; padding: 12px 16px 56px; }
+  .top { padding: 14px 16px 0; }
+  .receipt-wrap { position: static; max-height: none; overflow: visible; }
+  .fields { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .card { grid-template-columns: 1fr; }
+  .card .amount { grid-column: 1; grid-row: auto; text-align: left; margin-top: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+@media print {
+  body { background: #fff; }
+  body * { visibility: hidden; }
+  #claim-text, #claim-text * { visibility: visible; }
+  #claim-text { position: absolute; left: 0; top: 0; max-height: none; background: #fff; color: #000; font-size: 11pt; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#found">К находкам</a>
+<header class="top">
+  <div class="brand"><span class="brand-mark" aria-hidden="true">?</span>Где мои деньги?</div>
+  <div class="tools">
+    <a class="tool" id="family-link" href="#" hidden>← Вся семья</a>
+    <div class="seg" role="group" aria-label="Язык советов">
+      <button type="button" data-lang="ru" aria-pressed="true">RU</button>
+      <button type="button" data-lang="ky" aria-pressed="false">KY</button>
+    </div>
+    <button type="button" class="tool" id="big-toggle" aria-pressed="false"><span class="aa">Аа</span> Крупный шрифт</button>
+  </div>
+</header>
+
+<main class="layout">
+  <div class="desk">
+    <section id="hero" aria-labelledby="hero-title">
+      <p class="who"><b id="profile"></b> · <span id="period"></span> · <span id="file"></span></p>
+      <p class="spent">Потрачено за месяц: <b id="total"></b> сом</p>
+      <h1 class="overpay" id="hero-title"><span class="eyebrow">Возможно лишнее</span><span class="big-num"><span id="overpay"></span> <small>сом</small></span></h1>
+      <p class="sub" id="hero-sub"></p>
+      <div class="actions">
+        <button type="button" class="pen" id="to-claim">Подготовить возврат <span id="claim-sum"></span> сом</button>
+        <a class="ghost" href="#receipt">Открыть чек</a>
+      </div>
+      <aside class="llm" id="llm" hidden><b>Письмо абоненту</b><p id="llm-text"></p><p class="note">Текст подготовлен ИИ по посчитанным числам. Суммы и номера — из детализации.</p></aside>
+    </section>
+
+    <section id="found" aria-labelledby="found-title">
+      <h2 id="found-title">Что мы нашли</h2>
+      <p class="lead" id="found-lead"></p>
+      <div id="cards"></div>
+    </section>
+
+    <section id="chart" aria-labelledby="chart-title">
+      <h2 id="chart-title">Траты по дням</h2>
+      <p class="lead">Сколько ушло каждый день месяца. Наведите на столбик, чтобы увидеть сумму и находки.</p>
+      <div class="chart-box" id="chart-box"><div class="tip" id="tip" role="status"></div></div>
+      <p class="chart-key"><span><span class="key-dot"></span>день со спорным списанием</span><span><span class="key-bar"></span>необычный день: z-score &gt; 3 к семи предыдущим дням</span></p>
+    </section>
+
+    <section id="claim" aria-labelledby="claim-title">
+      <h2 id="claim-title">Заявление на перерасчёт</h2>
+      <p class="lead">Отметьте списания в карточках выше — текст и сумма меняются сразу. Заполните ФИО и номер, затем скопируйте или распечатайте.</p>
+      <div class="claim-sheet">
+        <div class="fields">
+          <label>ФИО абонента<input id="c-name" autocomplete="name" placeholder="Иванова Анна Петровна"></label>
+          <label>Номер телефона<input id="c-msisdn" inputmode="tel" autocomplete="tel" placeholder="+996 ___ ___ ___"></label>
+        </div>
+        <pre id="claim-text" tabindex="0" aria-label="Текст заявления"></pre>
+        <div class="row">
+          <button type="button" class="pen" id="copy">Скопировать</button>
+          <button type="button" class="ghost" id="download">Скачать .txt</button>
+          <button type="button" class="ghost" id="print">Печать / PDF</button>
+          <span id="copied" role="status" aria-live="polite"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="spend" aria-labelledby="spend-title">
+      <h2 id="spend-title">Куда ушли деньги</h2>
+      <p class="lead">Дубли не вычитаются: это реальные списания, поэтому их и стоит вернуть.</p>
+      <div class="spend">
+        <div class="panel"><h3>По категориям</h3><div id="cats"></div></div>
+        <div class="panel"><h3>Топ-5 номеров по стоимости</h3><ol class="top" id="top5"></ol></div>
+      </div>
+    </section>
+
+    <section id="tz">
+      <details class="box" open>
+        <summary>ТЗ 4: что сделано</summary>
+        <div id="tz-list"></div>
+      </details>
+    </section>
+
+    <section id="quality">
+      <details class="box">
+        <summary id="quality-title">Качество данных</summary>
+        <p class="lead">Каждая отброшенная строка — с номером в файле и причиной. Корректные строки в двух форматах даты и с запятой в суммах разобраны.</p>
+        <div id="dropped"></div>
+      </details>
+    </section>
+
+    <p class="honest" id="honest"></p>
+  </div>
+
+  <aside class="receipt-wrap" id="receipt" aria-label="Чек: детализация по дням" tabindex="-1">
+    <div class="receipt" id="receipt-paper"></div>
+  </aside>
+</main>
+
+<script id="bill-data" type="application/json">__BILL_DATA__</script>
+<script>
+"use strict";
+const D = JSON.parse(document.getElementById("bill-data").textContent);
+const $ = (sel, root = document) => root.querySelector(sel);
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v === false || v === null || v === undefined) continue;
+    if (k === "class") el.className = v;
+    else if (k === "text") el.textContent = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else if (k === "style") el.setAttribute("style", v);
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat()) {
+    if (kid === null || kid === undefined || kid === false) continue;
+    el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  }
+  return el;
+}
+const fmt = cents => (cents / 100).toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const plural = (n, forms) => {
+  const m10 = n % 10, m100 = n % 100;
+  return forms[m10 === 1 && m100 !== 11 ? 0 : m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20) ? 1 : 2];
+};
+const dtRu = iso => iso.slice(8, 10) + "." + iso.slice(5, 7) + "." + iso.slice(0, 4) + " " + iso.slice(11);
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* приватный режим */ } }
+};
+
+const state = {
+  lang: store.get("gmd-lang") === "ky" ? "ky" : "ru",
+  selected: new Set(D.claim.positions.map(p => p.line))
+};
+
+/* ---------- hero ---------- */
+$("#profile").textContent = D.profile;
+$("#period").textContent = D.period.label;
+$("#file").textContent = D.file;
+$("#total").textContent = D.total_text;
+$("#overpay").textContent = D.overpay_text;
+const disputedCount = D.claim.positions.length;
+const spikeCount = D.anomalies.filter(a => a.anomaly_type === "day_spike").length;
+const subParts = [];
+subParts.push(disputedCount ? `${disputedCount} ${plural(disputedCount, ["спорное списание", "спорных списания", "спорных списаний"])}` : "спорных списаний нет");
+if (spikeCount) subParts.push(`${spikeCount} ${plural(spikeCount, ["необычный день", "необычных дня", "необычных дней"])}`);
+$("#hero-sub").textContent = subParts.join(" · ");
+if (D.llm) { $("#llm").hidden = false; $("#llm-text").textContent = D.llm; }
+if (D.family_link) { const a = $("#family-link"); a.href = D.family_link; a.hidden = false; }
+$("#to-claim").addEventListener("click", () => {
+  $("#claim").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  setTimeout(() => $("#c-name").focus({ preventScroll: true }), reduceMotion ? 0 : 450);
+});
+$("#honest").textContent = "INAI Mobile — учебный оператор хакатона. Мы не возвращаем деньги сами: готовим заявление с точными строками детализации, решение принимает оператор. Все числа на странице посчитаны из файла " + D.file + ".";
+
+/* ---------- cards ---------- */
+const lead = D.anomalies.length
+  ? `${D.anomalies.length} ${plural(D.anomalies.length, ["находка", "находки", "находок"])} по пяти правилам ТЗ. В сумму «возможно лишнее» входят только спорные списания; необычный день показан отдельно, чтобы не считать деньги дважды.`
+  : "По пяти правилам ТЗ ничего подозрительного не нашлось.";
+$("#found-lead").textContent = lead;
+
+function gotoLine(line) {
+  const el = document.getElementById("line-" + line);
+  if (!el) return;
+  const day = el.closest("details");
+  if (day) day.open = true;
+  el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+  el.classList.remove("pulse"); void el.offsetWidth; el.classList.add("pulse");
+}
+function gotoDay(date) {
+  const el = document.getElementById("day-" + date);
+  if (!el) return;
+  el.open = true;
+  el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+}
+
+const cards = $("#cards");
+const adviceNodes = [];
+for (const a of D.anomalies) {
+  const isSpike = a.anomaly_type === "day_spike";
+  const amount = h("div", { class: "amount" }, a.amount_text, " ", h("small", { text: "сом" }),
+    a.cost_text && a.cost_text !== a.amount_text ? h("span", { class: "of", text: `списано ${a.cost_text} сом` }) : null);
+  const adviceP = h("p");
+  adviceNodes.push([adviceP, a]);
+  const footer = h("footer");
+  if (isSpike) {
+    footer.append(h("p", { class: "mini-note", text: "Не входит в сумму возврата: этот день складывается из обычных трат и тех же спорных списаний." }),
+      h("button", { type: "button", class: "link", onclick: () => gotoDay(a.date), text: "Показать день в чеке" }));
+  } else {
+    const box = h("input", { type: "checkbox", "data-line": a.line });
+    box.checked = state.selected.has(a.line);
+    box.addEventListener("change", () => { setSelected(a.line, box.checked); });
+    footer.append(h("label", { class: "check" }, box, "В заявление"),
+      h("button", { type: "button", class: "link", onclick: () => gotoLine(a.line), text: `Показать в чеке · строка ${a.line}` }));
+    if (window.PhoneDemo && (a.anomaly_type === "new_subscription" || a.anomaly_type === "night_charge")) {
+      footer.append(h("button", { type: "button", class: "off-btn", onclick: () => window.PhoneDemo.open(), text: "Отключить подписки" }));
+    }
+  }
+  cards.append(h("article", { class: "card kind-" + a.anomaly_type, id: "a-" + a.id },
+    h("header", null, h("span", { class: "tag", text: a.title }), h("time", { datetime: a.datetime, text: isSpike ? dtRu(a.datetime).slice(0, 10) : dtRu(a.datetime) })),
+    amount,
+    h("p", { class: "explain", text: a.explanation }),
+    h("div", { class: "advice" }, h("b", { text: state.lang === "ky" ? "Оператордун кеңеши" : "Совет оператора" }), adviceP),
+    footer));
+}
+function renderAdvice() {
+  for (const [p, a] of adviceNodes) {
+    p.textContent = (state.lang === "ky" ? a.advice_ky : a.advice_ru) || a.advice_ru;
+    p.lang = state.lang === "ky" ? "ky" : "ru";
+    p.previousElementSibling.textContent = state.lang === "ky" ? "Оператордун кеңеши" : "Совет оператора";
+  }
+  document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === state.lang)));
+}
+document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => {
+  state.lang = b.dataset.lang; store.set("gmd-lang", state.lang); renderAdvice();
+}));
+renderAdvice();
+
+/* ---------- claim ---------- */
+function today() {
+  const d = new Date();
+  return String(d.getDate()).padStart(2, "0") + "." + String(d.getMonth() + 1).padStart(2, "0") + "." + d.getFullYear();
+}
+function selectedPositions() { return D.claim.positions.filter(p => state.selected.has(p.line)); }
+function claimText() {
+  const name = $("#c-name").value.trim() || D.claim.blank;
+  const msisdn = $("#c-msisdn").value.trim() || D.claim.blank;
+  const pos = selectedPositions();
+  const total = pos.reduce((s, p) => s + p.cents, 0);
+  const lines = [...D.claim.head, "от абонента: " + name, "номер телефона: " + msisdn, "",
+    "ЗАЯВЛЕНИЕ о проверке и перерасчёте списаний", "", D.claim.intro, ""];
+  if (pos.length) pos.forEach((p, i) => lines.push(`${i + 1}. ${p.text}`));
+  else lines.push("— спорные списания не выбраны —");
+  lines.push("", `Итого к проверке: ${fmt(total)} сом`, "", D.claim.basis, "Дата составления: " + today(), "Подпись: " + D.claim.blank);
+  return lines.join("\n") + "\n";
+}
+function renderClaim() {
+  $("#claim-text").textContent = claimText();
+  const total = selectedPositions().reduce((s, p) => s + p.cents, 0);
+  $("#claim-sum").textContent = fmt(total);
+  $("#to-claim").disabled = false;
+}
+function setSelected(line, on) {
+  if (on) state.selected.add(line); else state.selected.delete(line);
+  document.querySelectorAll(`input[data-line="${line}"]`).forEach(b => { b.checked = on; });
+  renderClaim();
+}
+$("#c-name").addEventListener("input", renderClaim);
+$("#c-msisdn").addEventListener("input", renderClaim);
+function flash(msg) { const s = $("#copied"); s.textContent = msg; setTimeout(() => { s.textContent = ""; }, 2500); }
+$("#copy").addEventListener("click", async () => {
+  const text = claimText();
+  try { await navigator.clipboard.writeText(text); flash("Скопировано"); }
+  catch (e) {
+    const r = document.createRange(); r.selectNodeContents($("#claim-text"));
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    flash("Текст выделен — нажмите Ctrl+C");
+  }
+});
+$("#download").addEventListener("click", () => {
+  const blob = new Blob(["﻿" + claimText()], { type: "text/plain;charset=utf-8" });
+  const a = h("a", { href: URL.createObjectURL(blob), download: "zayavlenie_" + D.file.replace(/\.csv$/i, "") + ".txt" });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  flash("Файл сохранён");
+});
+$("#print").addEventListener("click", () => window.print());
+renderClaim();
+
+/* ---------- receipt ---------- */
+const paper = $("#receipt-paper");
+paper.append(
+  h("div", { class: "r-head" }, h("b", { text: "INAI MOBILE" }), h("br"), "ДЕТАЛИЗАЦИЯ РАСХОДОВ"),
+  h("dl", { class: "r-meta" },
+    h("dt", { text: "абонент" }), h("dd", { text: D.profile }),
+    h("dt", { text: "период" }), h("dd", { text: D.period.from ? D.period.from + "–" + D.period.to : "—" }),
+    h("dt", { text: "файл" }), h("dd", { text: D.file })),
+  h("hr", { class: "r-rule" }));
+let stampIndex = 0;
+const STAMP_WORDS = { night_charge: "НОЧЬ", new_subscription: "ПОДПИСКА", duplicate_charge: "ДУБЛЬ",
+  international_rate: "ДОРОГО" };
+for (const day of D.days) {
+  const summary = h("summary", null, h("span", { text: day.label }),
+    day.flagged ? h("span", { class: "d-flag", title: "есть спорное списание", text: "●" }) : null,
+    h("span", { class: "dots" }), h("span", { class: "d-total", text: day.total }));
+  const details = h("details", { class: "r-day" + (day.spike ? " spike" : ""), id: "day-" + day.date }, summary);
+  if (day.flagged || day.spike) details.open = true;
+  if (day.spike) {
+    const a = D.anomalies.find(x => x.date === day.date && x.anomaly_type === "day_spike");
+    details.append(h("p", { class: "r-note", text: "необычный день" + (a ? `: +${a.amount_text} к обычному` : "") }));
+  }
+  const list = h("ol", { class: "r-lines" });
+  for (const ln of day.lines) {
+    const flagged = ln.flags.length > 0;
+    const raw = h("p", { class: "r-raw", hidden: true, text: `строка ${ln.line}: ${ln.raw}` });
+    const btn = h("button", { type: "button", "aria-expanded": "false",
+      "aria-label": `${ln.time} ${ln.type_ru} ${ln.number || "без номера"} ${ln.cost} сом — показать исходную строку` },
+      h("span", { text: ln.time.slice(0, 5) }),
+      h("span", { class: "what", text: ln.type_ru + " " + (ln.number || "—") }),
+      h("span", { text: ln.cost }));
+    btn.addEventListener("click", () => {
+      raw.hidden = !raw.hidden; btn.setAttribute("aria-expanded", String(!raw.hidden));
+    });
+    const li = h("li", { class: "r-line" + (flagged ? " flagged" : ""), id: "line-" + ln.line }, btn);
+    if (flagged) {
+      const kinds = [...new Set(ln.flags.map(id => STAMP_WORDS[D.anomalies[id].anomaly_type]))].join(", ");
+      li.append(h("span", { class: "stamp", style: `--i:${stampIndex++}`, text: "ПРОВЕРИТЬ: " + kinds }));
+    }
+    li.append(raw);
+    list.append(li);
+  }
+  details.append(list);
+  paper.append(details);
+}
+paper.append(h("hr", { class: "r-rule" }),
+  h("div", { class: "r-sum strong" }, h("span", { text: "ИТОГО" }), h("span", { text: D.total_text })),
+  h("div", { class: "r-sum red" }, h("span", { text: "ВОЗМОЖНО ЛИШНЕЕ" }), h("span", { text: D.overpay_text })),
+  h("div", { class: "r-sum" }, h("span", { text: "списаний" }), h("span", { text: String(D.valid_rows) })),
+  h("div", { class: "r-sum" }, h("span", { text: "отброшено строк" }), h("span", { text: String(D.dropped_rows) })),
+  h("div", { class: "r-foot", text: "*** ПРОВЕРЕНО: ГДЕ МОИ ДЕНЬГИ? ***" }));
+
+/* ---------- chart ---------- */
+(function chart() {
+  const box = $("#chart-box"), tip = $("#tip");
+  const days = D.days;
+  if (!days.length) { box.append(h("p", { class: "mini-note", text: "Нет списаний — нечего рисовать." })); return; }
+  const W = 720, H = 250, m = { l: 46, r: 8, t: 34, b: 26 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const max = Math.max(...days.map(d => d.total_cents), 1);
+  const step = [1000, 2000, 2500, 5000, 10000, 20000, 25000, 50000, 100000, 200000].find(s => max / s <= 4) || 500000;
+  const top = Math.ceil(max / step) * step;
+  const y = v => m.t + ih - (v / top) * ih;
+  const band = iw / days.length, bw = Math.max(2, band - 2);
+  const ns = "http://www.w3.org/2000/svg";
+  const s = (tag, attrs) => { const el = document.createElementNS(ns, tag); for (const k in attrs) el.setAttribute(k, attrs[k]); return el; };
+  const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Траты по дням месяца" });
+  const grid = s("g", { class: "grid" }), axis = s("g", { class: "axis" });
+  for (let v = 0; v <= top; v += step) {
+    grid.append(s("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v) }));
+    const t = s("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end" }); t.textContent = (v / 100).toLocaleString("ru-RU"); axis.append(t);
+  }
+  svg.append(grid, axis);
+  const dayAnoms = {};
+  for (const a of D.anomalies) (dayAnoms[a.date] = dayAnoms[a.date] || []).push(a);
+  days.forEach((d, i) => {
+    const x = m.l + i * band + (band - bw) / 2, top_ = y(d.total_cents), hgt = m.t + ih - top_;
+    const r = Math.min(4, bw / 2, hgt);
+    const g = s("g", {});
+    const hit = s("rect", { class: "hit", x: m.l + i * band, y: m.t, width: band, height: ih, tabindex: 0,
+      "aria-label": `${d.label}: ${d.total} сом` });
+    const path = hgt > 0
+      ? `M${x},${m.t + ih} V${top_ + r} Q${x},${top_} ${x + r},${top_} H${x + bw - r} Q${x + bw},${top_} ${x + bw},${top_ + r} V${m.t + ih} Z`
+      : `M${x},${m.t + ih} h${bw}`;
+    const bar = s("path", { class: "bar" + (d.spike ? " spike" : ""), d: path });
+    g.append(hit, bar);
+    if (d.flagged) g.append(s("circle", { class: "dot", cx: x + bw / 2, cy: top_ - 9, r: 4 }));
+    const dayNum = Number(d.date.slice(8, 10));
+    const nearSpike = days.some((o, j) => o.spike && j !== i && Math.abs(j - i) <= 2);
+    if (d.spike || ((dayNum === 1 || dayNum % 5 === 0) && !nearSpike)) {
+      const t = s("text", { x: x + bw / 2, y: H - 8, "text-anchor": "middle" }); t.textContent = d.date.slice(8, 10) + "." + d.date.slice(5, 7);
+      axis.append(t);
+    }
+    if (d.spike) {
+      const a = (dayAnoms[d.date] || []).find(x => x.anomaly_type === "day_spike");
+      const label = s("text", { class: "label", x: Math.min(x + bw / 2, W - 150), y: top_ - (d.flagged ? 20 : 10), "text-anchor": x > W - 160 ? "end" : "middle" });
+      label.textContent = a && a.label ? a.label : "необычный день";
+      if (x > W - 160) label.setAttribute("x", x + bw);
+      svg.append(label);
+    }
+    const show = () => {
+      const list = (dayAnoms[d.date] || []).map(a => "• " + a.title + " — " + a.amount_text + " сом").join("\n");
+      tip.replaceChildren(h("div", null, d.label + ": ", h("b", { text: d.total + " сом" })), list ? h("div", { style: "white-space:pre-line;margin-top:4px", text: list }) : "");
+      const rect = svg.getBoundingClientRect(), scale = rect.width / W;
+      tip.style.left = (16 + (x + bw / 2) * scale) + "px";
+      tip.style.top = (16 + (top_ - 14) * scale) + "px";
+      tip.classList.add("on");
+    };
+    const hide = () => tip.classList.remove("on");
+    hit.addEventListener("mouseenter", show); hit.addEventListener("focus", show);
+    hit.addEventListener("mouseleave", hide); hit.addEventListener("blur", hide);
+    hit.addEventListener("click", () => gotoDay(d.date));
+    svg.append(g);
+  });
+  box.append(svg);
+})();
+
+/* ---------- spend ---------- */
+const maxCat = Math.max(...D.by_category.map(c => c.value), 0.01);
+for (const c of D.by_category) {
+  $("#cats").append(h("div", { class: "cat" }, h("span", { text: c.label }), h("span", { class: "v", text: c.text }),
+    h("div", { class: "track" }, h("div", { class: "fill", style: `width:${(100 * c.value / maxCat).toFixed(1)}%` }))));
+}
+if (!D.top5.length) $("#top5").append(h("li", { text: "нет номеров" }));
+for (const t of D.top5) $("#top5").append(h("li", null, h("div", null, h("span", { text: t.number }), h("span", { text: t.text + " сом" }))));
+
+/* ---------- checklist ---------- */
+const tz = $("#tz-list");
+for (const group of D.checklist) {
+  const g = h("div", { class: "tz-group" }, h("h3", { text: group.title }));
+  for (const item of group.items) {
+    g.append(h("div", { class: "tz-item" + (item.ok ? "" : " no") },
+      h("span", { class: "mark", "aria-label": item.ok ? "сделано" : "не сделано", text: item.ok ? "✓" : "—" }),
+      h("span", { class: "t", text: item.title }),
+      h("span", { class: "v", text: item.value }),
+      item.where ? h("button", { type: "button", class: "link", text: "Показать", onclick: () => {
+        const target = document.getElementById(item.where);
+        if (target) { if (target.tagName === "SECTION") { const det = target.querySelector("details"); if (det) det.open = true; } target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" }); }
+      } }) : null));
+  }
+  tz.append(g);
+}
+
+/* ---------- data quality ---------- */
+$("#quality-title").textContent = `Качество данных: отброшено ${D.dropped_rows} ${plural(D.dropped_rows, ["строка", "строки", "строк"])}`;
+if (D.dropped.length) {
+  const tbody = h("tbody");
+  for (const d of D.dropped) tbody.append(h("tr", null, h("td", { text: String(d.line) }), h("td", { text: d.reason_ru }),
+    h("td", null, h("code", { text: d.raw || "(пусто)" }))));
+  $("#dropped").append(h("table", null, h("thead", null, h("tr", null, h("th", { text: "строка" }), h("th", { text: "причина" }), h("th", { text: "как в файле" }))), tbody));
+} else {
+  $("#dropped").append(h("p", { class: "mini-note", text: "Все строки файла разобраны." }));
+}
+
+/* ---------- large font ---------- */
+const bigBtn = $("#big-toggle");
+function setBig(on) { document.documentElement.classList.toggle("big", on); bigBtn.setAttribute("aria-pressed", String(on)); store.set("gmd-big", on ? "1" : "0"); }
+bigBtn.addEventListener("click", () => setBig(!document.documentElement.classList.contains("big")));
+setBig(store.get("gmd-big") === "1");
+</script>
+</body>
+</html>

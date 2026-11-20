@@ -39,10 +39,14 @@ def write_json(path: Path, data) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def write_outputs(result: Result, out_dir: Path) -> dict[str, Path]:
+def write_outputs(result: Result, out_dir: Path, profile: str | None = None, llm_text: str | None = None,
+                  family_link: str | None = None) -> dict[str, Path]:
+    from .html import render_report  # html импортирует Result отсюда
+
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    paths = {name: out_dir / name for name in ("report.json", "anomalies.json", "dropped_rows.csv")}
+    paths = {name: out_dir / name for name in ("report.json", "anomalies.json", "dropped_rows.csv", "report.html")}
+    paths["report.html"].write_text(render_report(result, profile, llm_text, family_link), encoding="utf-8")
     write_json(paths["report.json"], result.report)
     write_json(paths["anomalies.json"], anomaly_records(result))
     with paths["dropped_rows.csv"].open("w", encoding="utf-8-sig", newline="") as handle:

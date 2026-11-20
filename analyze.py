@@ -7,9 +7,11 @@
 import argparse
 import html
 import sys
+import webbrowser
 from pathlib import Path
 
 from billcheck.explain import possible_overpay
+from billcheck.family import load_profiles, profile_name
 from billcheck.parse import BillingFileError
 from billcheck.pipeline import Result, analyze, write_outputs
 
@@ -51,7 +53,7 @@ def print_summary(result: Result, out_dir: Path) -> None:
 
 
 def write_index(results: list[Result], out_dir: Path) -> Path:
-    links = "\n".join(f'<li><a href="{html.escape(r.source.stem)}/report.json">{html.escape(r.source.name)}</a>'
+    links = "\n".join(f'<li><a href="{html.escape(r.source.stem)}/report.html">{html.escape(r.source.name)}</a>'
                       f" — {len(r.anomalies)} аномалий</li>" for r in results)
     path = out_dir / "index.html"
     path.write_text(f'<!doctype html><meta charset="utf-8"><title>Детализации</title><ul>{links}</ul>\n',
@@ -64,6 +66,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("files", nargs="*",
                         help="CSV-детализации или папки с ними (по умолчанию data/billing_*.csv)")
     parser.add_argument("--out", default="out", help="папка для результатов (по умолчанию out)")
+    parser.add_argument("--open", action="store_true", help="открыть отчёт в браузере")
     return parser
 
 
@@ -81,13 +84,20 @@ def main(argv: list[str] | None = None) -> int:
         return EXIT_INPUT
     out = Path(args.out)
     if len(results) == 1:
-        write_outputs(results[0], out)
-        print_summary(results[0], out)
+        result = results[0]
+        write_outputs(result, out, profile_name(load_profiles(result.source.parent), result.source))
+        print_summary(result, out)
+        page = out / "report.html"
     else:
         for result in results:
-            write_outputs(result, out / result.source.stem)
+            name = profile_name(load_profiles(result.source.parent), result.source)
+            write_outputs(result, out / result.source.stem, name, family_link="../index.html")
             print_summary(result, out / result.source.stem)
-        print(f"Сводка: {write_index(results, out)}")
+        page = write_index(results, out)
+        print(f"Сводка: {page}")
+    print(f"Отчёт: {page.resolve()}")
+    if args.open:
+        webbrowser.open(page.resolve().as_uri())
     return EXIT_OK
 
 

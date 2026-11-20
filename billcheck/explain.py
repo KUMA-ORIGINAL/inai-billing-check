@@ -5,7 +5,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from .anomalies import Anomaly
-from .money import round_money
+from .money import format_som, round_money
 
 FAQ_PATH = Path(__file__).resolve().parent.parent / "data" / "faq.json"
 
@@ -16,7 +16,7 @@ ADVICE_FAQ_ID = {"night_charge": 8, "new_subscription": 8,
 
 
 def som(value: Decimal) -> str:
-    return f"{round_money(value):.2f} сом"
+    return f"{format_som(value)} сом"
 
 
 def number_text(number: str) -> str:
@@ -26,6 +26,10 @@ def number_text(number: str) -> str:
 def duration_text(seconds: Decimal) -> str:
     minutes, rest = divmod(int(seconds), 60)
     return f"{minutes} мин {rest} с" if rest else f"{minutes} мин"
+
+
+def ratio_text(ratio: Decimal) -> str:
+    return f"{ratio:.1f}".replace(".", ",")
 
 
 def explain(a: Anomaly) -> str:
@@ -50,7 +54,7 @@ def explain(a: Anomaly) -> str:
         mean = a.baseline if a.baseline is not None else Decimal(0)
         spent = mean + a.amount
         if mean > 0:
-            ratio = f"в {spent / mean:.1f} раза больше обычного ({som(mean)} в день за предыдущую неделю)"
+            ratio = f"в {ratio_text(spent / mean)} раза больше обычного ({som(mean)} в день за предыдущую неделю)"
         else:
             ratio = "хотя за предыдущую неделю расходов не было"
         return f"{day} вы потратили {som(spent)} — {ratio}."
