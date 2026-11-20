@@ -5,13 +5,13 @@
 Коды возврата: 0 — успех, 2 — проблема с входным файлом, 3 — не хватает зависимостей.
 """
 import argparse
-import html
 import sys
 import webbrowser
 from pathlib import Path
 
 from billcheck.explain import possible_overpay
 from billcheck.family import load_profiles, profile_name
+from billcheck.html import render_family
 from billcheck.parse import BillingFileError
 from billcheck.pipeline import Result, analyze, write_outputs
 
@@ -52,12 +52,12 @@ def print_summary(result: Result, out_dir: Path) -> None:
     print(f"  → {out_dir / 'anomalies.json'}")
 
 
-def write_index(results: list[Result], out_dir: Path) -> Path:
-    links = "\n".join(f'<li><a href="{html.escape(r.source.stem)}/report.html">{html.escape(r.source.name)}</a>'
-                      f" — {len(r.anomalies)} аномалий</li>" for r in results)
+def write_family_index(results: list[Result], out_dir: Path) -> Path:
+    """index.html — семейный экран со ссылками на отчёт каждого профиля."""
+    data_dir = results[0].source.parent
+    links = [f"{r.source.stem}/report.html" for r in results]
     path = out_dir / "index.html"
-    path.write_text(f'<!doctype html><meta charset="utf-8"><title>Детализации</title><ul>{links}</ul>\n',
-                    encoding="utf-8")
+    path.write_text(render_family(results, load_profiles(data_dir), links, data_dir), encoding="utf-8")
     return path
 
 
@@ -93,7 +93,7 @@ def main(argv: list[str] | None = None) -> int:
             name = profile_name(load_profiles(result.source.parent), result.source)
             write_outputs(result, out / result.source.stem, name, family_link="../index.html")
             print_summary(result, out / result.source.stem)
-        page = write_index(results, out)
+        page = write_family_index(results, out)
         print(f"Сводка: {page}")
     print(f"Отчёт: {page.resolve()}")
     if args.open:

@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Где мои деньги? — вся семья</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=PT+Mono&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/*__BASE_CSS__*/
+.page { max-width: 1180px; margin: 0 auto; padding: 20px 32px 72px; }
+.page > section { margin-top: 48px; }
+.page > section:first-child { margin-top: 12px; }
+.eyebrow-line { margin: 0; color: var(--ink-2); font-weight: 600; }
+.hero-label { display: block; margin-top: 18px; font: 600 .85rem/1 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--stamp); }
+.hero-num { display: block; margin: 6px 0 0; font: 700 clamp(3rem, 8vw, 6rem)/1.02 var(--font-display); letter-spacing: -.035em; }
+.hero-num small { font-size: .38em; color: var(--ink-2); font-weight: 500; letter-spacing: 0; }
+.hero-sub { margin: 10px 0 0; font-size: 1.1rem; color: var(--ink-2); }
+.verified {
+  display: inline-flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; margin-top: 22px; padding: 10px 16px;
+  border: 2.5px solid var(--pen); border-radius: 8px; color: var(--pen); font-weight: 700; transform: rotate(-1deg);
+  box-shadow: inset 0 0 0 2px var(--desk), inset 0 0 0 3.5px var(--pen);
+}
+.verified b { font-family: var(--font-display); font-size: .78rem; letter-spacing: .12em; }
+
+/* members */
+.members { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 34px 18px; margin-top: 26px; }
+.member {
+  position: relative; background: var(--r-paper); color: var(--r-ink); padding: 18px 16px 16px; text-decoration: none;
+  font: .9rem/1.45 var(--font-mono); filter: drop-shadow(0 8px 14px rgba(20, 35, 32, .18)); display: block;
+  transition: transform .15s;
+}
+.member::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -10px; height: 10px; background-size: 16px 10px; background-repeat: repeat-x;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='M0 0h16L8 10z' fill='%23FBFBF7'/%3E%3C/svg%3E");
+}
+.member:hover { transform: translateY(-3px); }
+.member .name { font: 700 1.35rem/1.1 var(--font-display); letter-spacing: -.01em; color: var(--r-ink); }
+.member .meta { color: var(--r-faded); font-size: .78rem; margin-top: 4px; }
+.member hr { border: 0; border-top: 1.5px dashed var(--r-rule); margin: 10px 0; }
+.member .row { display: flex; justify-content: space-between; gap: 8px; }
+.member .row.red { color: #C62F2A; font-weight: 700; }
+.member .open { display: block; margin-top: 12px; color: #2B37D0; font-family: var(--font-body); font-weight: 700; }
+.member .flag {
+  position: absolute; top: -13px; right: 8px; transform: rotate(4deg); font: 700 .62rem/1 var(--font-display);
+  letter-spacing: .12em; color: #C62F2A; padding: 4px 6px; border: 2px solid currentColor; border-radius: 4px;
+  background: var(--r-paper); box-shadow: inset 0 0 0 2px var(--r-paper), inset 0 0 0 3.5px currentColor;
+}
+
+/* reputation */
+.feature {
+  display: grid; grid-template-columns: auto 1fr; gap: 6px 28px; align-items: center; margin-top: 18px;
+  background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 24px;
+  border-left: 6px solid var(--stamp);
+}
+.feature .num { font: 700 clamp(3rem, 9vw, 5.6rem)/1 var(--font-mono); letter-spacing: -.02em; grid-row: span 2; }
+.feature .facts { font-size: 1.15rem; font-weight: 600; }
+.feature .why { margin: 0; color: var(--ink-2); max-width: 62ch; }
+.matrix-box { margin-top: 18px; background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow); padding: 6px 4px; overflow-x: auto; }
+.matrix { width: 100%; border-collapse: collapse; font-size: .95rem; }
+.matrix th, .matrix td { padding: 10px 12px; text-align: center; border-top: 1px solid var(--rule); white-space: nowrap; }
+.matrix thead th { border-top: 0; color: var(--ink-3); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
+.matrix th[scope="row"] { text-align: left; font: 700 1.05rem var(--font-mono); }
+.matrix td.num { font-family: var(--font-mono); text-align: right; }
+.cell { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; font: .78rem var(--font-mono); color: var(--ink-2); }
+.cell i { width: 16px; height: 16px; border-radius: 50%; background: var(--stamp); display: block; }
+.cell.none { color: var(--rule); font-size: 1.1rem; }
+.rules-0 { color: var(--stamp); font-weight: 700; }
+.next { margin-top: 18px; padding: 14px 18px; border: 1.5px dashed var(--ink-3); border-radius: var(--radius); max-width: 70ch; color: var(--ink-2); }
+.honest { margin-top: 44px; color: var(--ink-2); font-size: .92rem; max-width: 70ch; }
+@media (max-width: 700px) {
+  .page { padding: 12px 16px 56px; }
+  .feature { grid-template-columns: 1fr; }
+  .feature .num { grid-row: auto; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#members">К профилям</a>
+<header class="top">
+  <div class="brand"><span class="brand-mark" aria-hidden="true">?</span>Где мои деньги?</div>
+  <div class="tools">
+    <button type="button" class="tool" id="big-toggle" aria-pressed="false"><span class="aa">Аа</span> Крупный шрифт</button>
+  </div>
+</header>
+<main class="page">
+  <section aria-labelledby="hero-title">
+    <p class="eyebrow-line" id="eyebrow"></p>
+    <h1 id="hero-title" style="margin:0;font-weight:400"><span class="hero-label">Возможно лишнее у всей семьи</span><span class="hero-num"><span id="overpay"></span> <small>сом</small></span></h1>
+    <p class="hero-sub" id="hero-sub"></p>
+    <div class="verified" id="verified" hidden></div>
+  </section>
+
+  <section id="members" aria-labelledby="members-title">
+    <h2 id="members-title">Чеки семьи</h2>
+    <p class="lead">Откройте чек, чтобы увидеть каждое спорное списание и подготовить заявление.</p>
+    <div class="members" id="member-list"></div>
+  </section>
+
+  <section id="reputation" aria-labelledby="rep-title">
+    <h2 id="rep-title">Номера, которые списывают у всей семьи</h2>
+    <p class="lead">Короткие номера платных SMS, контента и подписок по всем детализациям сразу. Это наблюдение, а не аномалия: в anomalies.json оно не попадает.</p>
+    <div id="feature"></div>
+    <div class="matrix-box"><table class="matrix" id="matrix"></table></div>
+    <p class="next">Следующий шаг продукта: проверять детализации семьи раз в неделю и присылать уведомление в Telegram. Сейчас проверка запускается вручную.</p>
+  </section>
+
+  <p class="honest">INAI Mobile — учебный оператор хакатона. Мы не возвращаем деньги сами: готовим заявление с точными строками детализации, решение принимает оператор. Все числа посчитаны из файлов детализации.</p>
+</main>
+
+<script id="bill-data" type="application/json">__BILL_DATA__</script>
+<script>
+"use strict";
+const D = JSON.parse(document.getElementById("bill-data").textContent);
+/*__BASE_JS__*/
+
+$("#eyebrow").textContent = "Семья" + (D.period ? " · " + D.period : "");
+$("#overpay").textContent = D.totals.overpay_text;
+$("#hero-sub").textContent = `${D.totals.count} ${plural(D.totals.count, ["номер", "номера", "номеров"])} · потрачено ${D.totals.total_text} сом · ${D.totals.anomalies} ${plural(D.totals.anomalies, ["находка", "находки", "находок"])}`;
+if (D.self_check) {
+  const s = D.self_check, v = $("#verified");
+  v.hidden = false;
+  v.append(h("b", { text: "ПРОВЕРЕНО НА ЭТАЛОНАХ ОРГАНИЗАТОРОВ" }),
+    h("span", { text: `отчёты: ${s.reports_equal} из ${s.files} · аномалии: ${s.found} из ${s.anomalies_expected} · ложных: ${s.false_positives}` }));
+}
+
+for (const m of D.members) {
+  const card = h("a", { class: "member", href: m.link },
+    h("div", { class: "name", text: m.name }),
+    h("div", { class: "meta", text: m.file + (m.period ? " · " + m.period : "") }),
+    h("hr"),
+    h("div", { class: "row" }, h("span", { text: "потрачено" }), h("span", { text: m.total_text })),
+    h("div", { class: "row red" }, h("span", { text: "возможно лишнее" }), h("span", { text: m.overpay_text })),
+    h("div", { class: "row" }, h("span", { text: "находок" }), h("span", { text: String(m.anomalies) })),
+    h("span", { class: "open", text: "Открыть чек →" }));
+  if (m.new_subscription) card.append(h("span", { class: "flag", text: "НОВАЯ ПОДПИСКА!" }));
+  $("#member-list").append(card);
+}
+
+const rep = D.reputation;
+const featured = rep.find(r => r.unseen_by_rules);
+if (featured) {
+  $("#feature").append(h("div", { class: "feature" },
+    h("div", { class: "num", text: featured.number }),
+    h("div", { class: "facts", text: `списывает ${featured.members_text} · ${featured.charges} ${plural(featured.charges, ["списание", "списания", "списаний"])} · ${featured.total_text} сом · ${featured.when} · ${featured.types_text}` }),
+    h("p", { class: "why", text: "Ни одно из пяти правил ТЗ этого не видит: списания дневные, это не подписка и они не повторяются в пределах минуты. Схема заметна, только если смотреть на семью целиком." })));
+}
+if (rep.length) {
+  const head = h("tr", null, h("th", { scope: "col", text: "номер" }), D.names.map(n => h("th", { scope: "col", text: n })),
+    h("th", { scope: "col", text: "итого" }), h("th", { scope: "col", text: "попало под правила ТЗ" }));
+  const body = h("tbody");
+  for (const r of rep) {
+    body.append(h("tr", null, h("th", { scope: "row", text: r.number }),
+      r.by_member.map((v, i) => h("td", null, v > 0
+        ? h("span", { class: "cell", "aria-label": `${D.names[i]}: ${fmt(Math.round(v * 100))} сом` }, h("i"), fmt(Math.round(v * 100)))
+        : h("span", { class: "cell none", "aria-label": `${D.names[i]}: нет`, text: "·" }))),
+      h("td", { class: "num", text: r.total_text }),
+      h("td", { class: r.in_rules === 0 ? "rules-0" : "", text: `${r.in_rules} из ${r.charges}` })));
+  }
+  $("#matrix").append(h("thead", null, head), body);
+} else {
+  $("#matrix").append(h("tbody", null, h("tr", null, h("td", { text: "Платных коротких номеров нет." }))));
+}
+initBigToggle();
+</script>
+</body>
+</html>

@@ -8,83 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=PT+Mono&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --desk: #D6DEDB;
-  --desk-line: #CDD6D2;
-  --sheet: #FDFDFB;
-  --ink: #1E2227;
-  --ink-2: #545C64;
-  --ink-3: #7A828A;
-  --rule: #D3D8DA;
-  --stamp: #C62F2A;
-  --stamp-wash: rgba(198, 47, 42, .07);
-  --pen: #2B37D0;
-  --pen-hover: #2029A8;
-  --pen-wash: rgba(43, 55, 208, .08);
-  --pen-ink: #FFFFFF;
-  --marker: #F3DD5E;
-  --spike: #C99400;
-  --bar: #9AA3AB;
-  --r-paper: #FBFBF7;
-  --r-ink: #24272B;
-  --r-faded: #6E757C;
-  --r-rule: #BFC4C7;
-  --shadow: 0 1px 2px rgba(20, 35, 32, .08), 0 8px 24px rgba(20, 35, 32, .10);
-  --radius: 10px;
-  --font-display: "Unbounded", "Arial Black", system-ui, sans-serif;
-  --font-body: "Golos Text", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --font-mono: "PT Mono", "Consolas", "Courier New", monospace;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --desk: #141A1D; --desk-line: #222B2F; --sheet: #1E2629; --ink: #E7EAE8; --ink-2: #B3BBBF; --ink-3: #8C959A;
-    --rule: #334045; --stamp: #E5534B; --stamp-wash: rgba(229, 83, 75, .12); --pen: #8F96FF; --pen-hover: #B2B7FF;
-    --pen-wash: rgba(143, 150, 255, .14); --pen-ink: #10123A; --spike: #E0B53A; --bar: #6F7A80;
-    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 28px rgba(0, 0, 0, .35); color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --desk: #141A1D; --desk-line: #222B2F; --sheet: #1E2629; --ink: #E7EAE8; --ink-2: #B3BBBF; --ink-3: #8C959A;
-  --rule: #334045; --stamp: #E5534B; --stamp-wash: rgba(229, 83, 75, .12); --pen: #8F96FF; --pen-hover: #B2B7FF;
-  --pen-wash: rgba(143, 150, 255, .14); --pen-ink: #10123A; --spike: #E0B53A; --bar: #6F7A80;
-  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 28px rgba(0, 0, 0, .35); color-scheme: dark;
-}
-html.big { font-size: 125%; }
-* { box-sizing: border-box; }
-[hidden] { display: none !important; }
-body {
-  margin: 0; background: var(--desk); color: var(--ink);
-  font: 400 1rem/1.5 var(--font-body);
-  background-image: linear-gradient(var(--desk-line) 1px, transparent 1px);
-  background-size: 100% 28px;
-}
-button, input { font: inherit; color: inherit; }
-:focus-visible { outline: 3px solid var(--pen); outline-offset: 2px; border-radius: 4px; }
-.skip { position: absolute; left: -999px; top: 8px; background: var(--sheet); padding: 8px 12px; }
-.skip:focus { left: 8px; z-index: 10; }
-
-/* top bar */
-.top {
-  max-width: 1320px; margin: 0 auto; padding: 18px 32px 0;
-  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-}
-.brand { font: 700 1.05rem/1 var(--font-display); letter-spacing: -.01em; display: flex; align-items: center; gap: 10px; }
-.brand-mark {
-  width: 28px; height: 28px; border-radius: 50%; border: 2.5px solid var(--stamp); color: var(--stamp);
-  display: grid; place-items: center; font: 700 .8rem/1 var(--font-display); transform: rotate(-12deg);
-}
-.tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.seg { display: inline-flex; border: 1.5px solid var(--ink-3); border-radius: 999px; overflow: hidden; }
-.seg button { border: 0; background: transparent; padding: 6px 14px; cursor: pointer; font-weight: 600; }
-.seg button[aria-pressed="true"] { background: var(--ink); color: var(--desk); }
-.tool {
-  border: 1.5px solid var(--ink-3); background: transparent; border-radius: 999px; padding: 6px 14px;
-  cursor: pointer; font-weight: 600; text-decoration: none; display: inline-flex; gap: 6px; align-items: center;
-}
-.tool[aria-pressed="true"] { background: var(--ink); color: var(--desk); border-color: var(--ink); }
-.tool .aa { font-family: var(--font-display); font-size: .8em; }
-
+/*__BASE_CSS__*/
 /* layout */
 .layout {
   max-width: 1320px; margin: 0 auto; padding: 20px 32px 72px;
@@ -92,8 +16,6 @@ button, input { font: inherit; color: inherit; }
 }
 .desk > section { margin-top: 44px; }
 .desk > section:first-child { margin-top: 12px; }
-h2 { font: 700 1.25rem/1.2 var(--font-display); margin: 0 0 6px; letter-spacing: -.01em; }
-.lead { margin: 0 0 16px; color: var(--ink-2); max-width: 60ch; }
 
 /* hero */
 .who { margin: 0; color: var(--ink-2); font-weight: 500; }
@@ -109,16 +31,6 @@ h2 { font: 700 1.25rem/1.2 var(--font-display); margin: 0 0 6px; letter-spacing:
 .big-num small { font-size: .38em; letter-spacing: 0; color: var(--ink-2); font-weight: 500; }
 .sub { margin: 10px 0 0; font-size: 1.05rem; color: var(--ink-2); }
 .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 22px; align-items: center; }
-.pen {
-  background: var(--pen); color: var(--pen-ink); border: 0; border-radius: 999px; padding: 14px 24px;
-  font-weight: 700; font-size: 1.05rem; cursor: pointer; box-shadow: 0 6px 18px -6px var(--pen);
-}
-.pen:hover { background: var(--pen-hover); }
-.ghost {
-  border: 1.5px solid var(--ink-3); border-radius: 999px; padding: 12px 20px; background: transparent;
-  cursor: pointer; font-weight: 600; text-decoration: none; color: var(--ink);
-}
-.ghost:hover { border-color: var(--ink); }
 .llm {
   margin-top: 22px; background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow);
   padding: 16px 18px; max-width: 62ch; border-left: 4px solid var(--pen);
@@ -294,9 +206,6 @@ td code { font-family: var(--font-mono); word-break: break-all; }
   .card { grid-template-columns: 1fr; }
   .card .amount { grid-column: 1; grid-row: auto; text-align: left; margin-top: 6px; }
 }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-}
 @media print {
   body { background: #fff; }
   body * { visibility: hidden; }
@@ -400,35 +309,8 @@ td code { font-family: var(--font-mono); word-break: break-all; }
 <script>
 "use strict";
 const D = JSON.parse(document.getElementById("bill-data").textContent);
-const $ = (sel, root = document) => root.querySelector(sel);
-const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-function h(tag, props, ...kids) {
-  const el = document.createElement(tag);
-  for (const [k, v] of Object.entries(props || {})) {
-    if (v === false || v === null || v === undefined) continue;
-    if (k === "class") el.className = v;
-    else if (k === "text") el.textContent = v;
-    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
-    else if (k === "style") el.setAttribute("style", v);
-    else el.setAttribute(k, v === true ? "" : v);
-  }
-  for (const kid of kids.flat()) {
-    if (kid === null || kid === undefined || kid === false) continue;
-    el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
-  }
-  return el;
-}
-const fmt = cents => (cents / 100).toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const plural = (n, forms) => {
-  const m10 = n % 10, m100 = n % 100;
-  return forms[m10 === 1 && m100 !== 11 ? 0 : m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20) ? 1 : 2];
-};
+/*__BASE_JS__*/
 const dtRu = iso => iso.slice(8, 10) + "." + iso.slice(5, 7) + "." + iso.slice(0, 4) + " " + iso.slice(11);
-const store = {
-  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
-  set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* приватный режим */ } }
-};
 
 const state = {
   lang: store.get("gmd-lang") === "ky" ? "ky" : "ru",
@@ -723,11 +605,7 @@ if (D.dropped.length) {
   $("#dropped").append(h("p", { class: "mini-note", text: "Все строки файла разобраны." }));
 }
 
-/* ---------- large font ---------- */
-const bigBtn = $("#big-toggle");
-function setBig(on) { document.documentElement.classList.toggle("big", on); bigBtn.setAttribute("aria-pressed", String(on)); store.set("gmd-big", on ? "1" : "0"); }
-bigBtn.addEventListener("click", () => setBig(!document.documentElement.classList.contains("big")));
-setBig(store.get("gmd-big") === "1");
+initBigToggle();
 </script>
 </body>
 </html>

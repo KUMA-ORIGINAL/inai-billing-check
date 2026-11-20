@@ -6,7 +6,7 @@ from pathlib import Path
 
 from .claim import BLANK, INTRO, claim_basis, claim_positions
 from .explain import TYPE_NAMES, advice, explain, possible_overpay, ratio_text
-from .family import self_check
+from .family import family_summary, number_reputation, self_check
 from .money import format_som, money
 from .pipeline import Result
 from .report import daily_totals
@@ -52,6 +52,8 @@ def embed(template: str, data: dict) -> str:
     """JSON внутри <script type="application/json">: «</» экранируется, чтобы данные не закрыли тег."""
     payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/").replace("<!--", "<\\!--")
     page = (TEMPLATES / template).read_text(encoding="utf-8")
+    page = page.replace("/*__BASE_CSS__*/", (TEMPLATES / "base.css").read_text(encoding="utf-8"))
+    page = page.replace("/*__BASE_JS__*/", (TEMPLATES / "base.js").read_text(encoding="utf-8"))
     return page.replace(PLACEHOLDER, payload)
 
 
@@ -163,3 +165,36 @@ def report_payload(result: Result, profile: str | None = None, llm_text: str | N
 def render_report(result: Result, profile: str | None = None, llm_text: str | None = None,
                   family_link: str | None = None) -> str:
     return embed("report.html", report_payload(result, profile, llm_text, family_link))
+
+
+def family_payload(results: list[Result], profiles: dict[str, str], links: list[str], data_dir: Path) -> dict:
+    members = family_summary(results, profiles)
+    for member, link, result in zip(members, links, results):
+        member.update(link=link, total_text=format_som(Decimal(str(member["total_som"]))),
+                      overpay_text=format_som(Decimal(str(member["overpay_som"]))), period=period(result)["label"])
+    total = sum((Decimal(str(m["total_som"])) for m in members), Decimal(0))
+    overpay = sum((Decimal(str(m["overpay_som"])) for m in members), Decimal(0))
+    reputation = []
+    for row in number_reputation(results):
+        types = ", ".join(TYPE_NAMES[t] for t in row["types"])
+        reputation.append(row | {
+            "members_text": f"у {row['members']} из {row['members_total']}",
+            "total_text": format_som(Decimal(str(row["total_som"]))),
+            "when": "ночью" if row["night"] == row["charges"] else "днём" if row["night"] == 0 else "днём и ночью",
+            "types_text": types,
+            "unseen_by_rules": row["in_rules"] == 0 and row["members"] >= 2,
+        })
+    periods = {m["period"] for m in members}
+    return {
+        "members": members,
+        "names": [m["name"] for m in members],
+        "period": periods.pop() if len(periods) == 1 else "",
+        "totals": {"total_text": format_som(total), "overpay_text": format_som(overpay),
+                   "anomalies": sum(m["anomalies"] for m in members), "count": len(members)},
+        "reputation": reputation,
+        "self_check": self_check(results, data_dir),
+    }
+
+
+def render_family(results: list[Result], profiles: dict[str, str], links: list[str], data_dir: Path) -> str:
+    return embed("family.html", family_payload(results, profiles, links, data_dir))

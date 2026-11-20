@@ -32,7 +32,8 @@ def profile_name(profiles: dict[str, str], source: Path) -> str:
 def number_reputation(results: list[Result]) -> list[dict]:
     """Короткие номера (3–6 цифр), которые списывают деньги, и у скольких членов семьи."""
     stats: dict[str, dict] = defaultdict(lambda: {"members": set(), "charges": 0, "total": Decimal(0),
-                                                  "types": set(), "night": 0, "in_rules": 0})
+                                                  "types": set(), "night": 0, "in_rules": 0,
+                                                  "by_member": [Decimal(0)] * len(results)})
     for index, result in enumerate(results):
         flagged = {a.line for a in result.anomalies if a.line is not None}
         for charge in result.charges:
@@ -43,12 +44,14 @@ def number_reputation(results: list[Result]) -> list[dict]:
             row["members"].add(index)
             row["charges"] += 1
             row["total"] += charge.cost
+            row["by_member"][index] += charge.cost
             row["types"].add(charge.type)
             row["night"] += charge.type in NIGHT_TYPES and charge.dt.time() < NIGHT_END
             row["in_rules"] += charge.line in flagged
     rows = [{"number": number, "members": len(row["members"]), "members_total": len(results),
              "charges": row["charges"], "total_som": money(row["total"]), "types": sorted(row["types"]),
-             "night": row["night"], "in_rules": row["in_rules"]}
+             "night": row["night"], "in_rules": row["in_rules"],
+             "by_member": [money(value) for value in row["by_member"]]}
             for number, row in stats.items()]
     return sorted(rows, key=lambda r: (-r["members"], -r["total_som"], r["number"]))
 
