@@ -82,6 +82,20 @@
 .chart-box .hit { fill: transparent; cursor: pointer; }
 .chart-box .hit:hover + .bar, .chart-box .hit:focus + .bar { opacity: .75; }
 .chart-box .label { fill: var(--ink); font: 600 12px var(--font-body); }
+/* шаги и закреплённая панель выбора */
+.step { margin: 0 0 6px; font: 700 .78rem/1.3 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--pen); }
+.step.quiet { color: var(--ink-3); }
+.tray {
+  position: sticky; bottom: 14px; z-index: 5; margin-top: 22px; display: flex; align-items: center; justify-content: space-between;
+  gap: 10px 16px; flex-wrap: wrap; padding: 10px 10px 10px 18px; border-radius: 14px; background: var(--ink); color: var(--desk);
+  box-shadow: 0 14px 30px -12px rgba(0, 0, 0, .55);
+}
+.tray b { font-family: var(--font-mono); font-weight: 400; font-size: 1.1rem; }
+.tray .pen { padding: 10px 18px; font-size: .98rem; box-shadow: none; white-space: nowrap; }
+@media (max-width: 520px) { .tray { flex-wrap: nowrap; padding: 8px 8px 8px 14px; font-size: .92rem; } .tray .pen { padding: 9px 14px; } }
+.claim-picked { margin: 0 0 16px; padding: 12px 14px; border-radius: 10px; background: var(--pen-wash); max-width: 64ch; }
+.claim-picked b { font-family: var(--font-mono); font-weight: 400; }
+.claim-picked .link { margin-left: 6px; }
 .chart-key { display: flex; gap: 18px; flex-wrap: wrap; margin: 10px 0 0; color: var(--ink-2); font-size: .92rem; padding: 0 4px; }
 .key-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--stamp); margin-right: 6px; vertical-align: 1px; }
 .key-bar { display: inline-block; width: 10px; height: 14px; border-radius: 3px 3px 0 0; background: var(--spike); margin-right: 6px; vertical-align: -2px; }
@@ -159,6 +173,12 @@ td code { font-family: var(--font-mono); word-break: break-all; }
 .r-meta { margin: 12px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 0 10px; color: var(--r-faded); }
 .r-meta dd { margin: 0; color: var(--r-ink); text-align: right; overflow-wrap: anywhere; }
 .r-rule { border: 0; border-top: 1.5px dashed var(--r-rule); margin: 12px 0; }
+.r-mode { display: flex; margin: 14px 0 0; border: 1.5px solid var(--r-ink); border-radius: 999px; overflow: hidden; font: 600 .8rem/1 var(--font-body); }
+.r-mode button { flex: 1; border: 0; background: transparent; padding: 8px 6px; cursor: pointer; color: var(--r-ink); }
+.r-mode button[aria-pressed="true"] { background: var(--r-ink); color: var(--r-paper); }
+.r-hint { margin: 8px 0 0; color: var(--r-faded); font-size: .78rem; text-align: center; }
+.receipt.only-flagged .r-day:not(.flagged):not(.spike) { display: none; }
+.receipt.only-flagged .r-line:not(.flagged) { display: none; }
 .r-day > summary { list-style: none; display: flex; align-items: baseline; gap: 6px; cursor: pointer; padding: 3px 0; }
 .r-day > summary::-webkit-details-marker { display: none; }
 .r-day > summary::before { content: "▸"; color: var(--r-faded); width: 1ch; }
@@ -257,21 +277,21 @@ dialog.phone-dialog::backdrop { background: rgba(10, 16, 18, .62); }
     </section>
 
     <section id="found" aria-labelledby="found-title">
+      <p class="step">Шаг 1 из 2 · проверьте</p>
       <h2 id="found-title">Что мы нашли</h2>
       <p class="lead" id="found-lead"></p>
       <div id="cards"></div>
-    </section>
-
-    <section id="chart" aria-labelledby="chart-title">
-      <h2 id="chart-title">Траты по дням</h2>
-      <p class="lead">Сколько ушло каждый день месяца. Наведите на столбик, чтобы увидеть сумму и находки.</p>
-      <div class="chart-box" id="chart-box"><div class="tip" id="tip" role="status"></div></div>
-      <p class="chart-key"><span><span class="key-dot"></span>день со спорным списанием</span><span><span class="key-bar"></span>необычный день: z-score &gt; 3 к семи предыдущим дням</span></p>
+      <div class="tray" id="tray" hidden>
+        <span id="tray-text"></span>
+        <button type="button" class="pen" id="tray-go">К заявлению ↓</button>
+      </div>
     </section>
 
     <section id="claim" aria-labelledby="claim-title">
+      <p class="step">Шаг 2 из 2 · отправьте</p>
       <h2 id="claim-title">Заявление на перерасчёт</h2>
-      <p class="lead">Отметьте списания в карточках выше — текст и сумма меняются сразу. Заполните ФИО и номер, затем скопируйте или распечатайте.</p>
+      <p class="claim-picked" id="claim-picked"></p>
+      <p class="lead">Впишите ФИО и номер — они попадут в текст. Затем скопируйте его в чат поддержки INAI Mobile или распечатайте.</p>
       <div class="claim-sheet">
         <div class="fields">
           <label>ФИО абонента<input id="c-name" autocomplete="name" placeholder="Иванова Анна Петровна"></label>
@@ -287,7 +307,16 @@ dialog.phone-dialog::backdrop { background: rgba(10, 16, 18, .62); }
       </div>
     </section>
 
+    <section id="chart" aria-labelledby="chart-title">
+      <p class="step quiet">Подробности</p>
+      <h2 id="chart-title">Траты по дням</h2>
+      <p class="lead">Сколько ушло каждый день месяца. Наведите на столбик или нажмите на него, чтобы увидеть день в чеке.</p>
+      <div class="chart-box" id="chart-box"><div class="tip" id="tip" role="status"></div></div>
+      <p class="chart-key"><span><span class="key-dot"></span>день со спорным списанием</span><span><span class="key-bar"></span>необычно дорогой день — намного выше обычной недели</span></p>
+    </section>
+
     <section id="spend" aria-labelledby="spend-title">
+      <p class="step quiet">Подробности</p>
       <h2 id="spend-title">Куда ушли деньги</h2>
       <p class="lead">Дубли не вычитаются: это реальные списания, поэтому их и стоит вернуть.</p>
       <div class="spend">
@@ -298,7 +327,7 @@ dialog.phone-dialog::backdrop { background: rgba(10, 16, 18, .62); }
 
     <section id="tz">
       <details class="box" open>
-        <summary>ТЗ 4: что сделано</summary>
+        <summary>Для жюри: как выполнено ТЗ 4</summary>
         <div id="tz-list"></div>
       </details>
     </section>
@@ -386,9 +415,10 @@ $("#to-claim").addEventListener("click", () => {
 $("#honest").textContent = "INAI Mobile — учебный оператор хакатона. Мы не возвращаем деньги сами: готовим заявление с точными строками детализации, решение принимает оператор. Все числа на странице посчитаны из файла " + D.file + ".";
 
 /* ---------- cards ---------- */
-const lead = D.anomalies.length
-  ? `${D.anomalies.length} ${plural(D.anomalies.length, ["находка", "находки", "находок"])} по пяти правилам ТЗ. В сумму «возможно лишнее» входят только спорные списания; необычный день показан отдельно, чтобы не считать деньги дважды.`
-  : "По пяти правилам ТЗ ничего подозрительного не нашлось.";
+const lead = !D.anomalies.length ? "Ничего подозрительного: ни ночных платных SMS, ни подписок, ни двойных списаний, ни дорогих звонков."
+  : disputedCount
+    ? `Отметьте то, что хотите оспорить, — всё отмеченное попадёт в заявление (шаг 2).` + (spikeCount ? " Дорогой день показан для понимания: в возврат он не входит, потому что состоит из тех же трат." : "")
+    : "Спорных списаний нет. Дорогой день показан для понимания: в нём нет ничего, что стоит оспаривать.";
 $("#found-lead").textContent = lead;
 
 function gotoLine(line) {
@@ -402,6 +432,7 @@ function gotoLine(line) {
 function gotoDay(date) {
   const el = document.getElementById("day-" + date);
   if (!el) return;
+  if (!el.classList.contains("flagged") && !el.classList.contains("spike")) setReceiptMode(true);
   el.open = true;
   el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
 }
@@ -423,7 +454,7 @@ for (const a of D.anomalies) {
     const box = h("input", { type: "checkbox", "data-line": a.line });
     box.checked = state.selected.has(a.line);
     box.addEventListener("change", () => { setSelected(a.line, box.checked); });
-    footer.append(h("label", { class: "check" }, box, "В заявление"),
+    footer.append(h("label", { class: "check" }, box, "Включить в заявление"),
       h("button", { type: "button", class: "link", onclick: () => gotoLine(a.line), text: "Показать в чеке" }));
     if (D.phone.numbers.length && (a.anomaly_type === "new_subscription" || a.anomaly_type === "night_charge")) {
       footer.append(h("button", { type: "button", class: "off-btn", onclick: openPhone, text: "Отключить подписки" }));
@@ -471,10 +502,27 @@ function claimText() {
 }
 function renderClaim() {
   $("#claim-text").textContent = claimText();
-  const total = selectedPositions().reduce((s, p) => s + p.cents, 0);
+  const picked = selectedPositions();
+  const total = picked.reduce((s, p) => s + p.cents, 0);
+  const all = D.claim.positions.length;
   $("#claim-sum").textContent = fmt(total);
-  $("#to-claim").disabled = false;
+  $("#to-claim").disabled = !all;
+  const tray = $("#tray");
+  tray.hidden = !all;
+  $("#tray-text").replaceChildren(`В заявлении ${picked.length} из ${all} · `, h("b", { text: fmt(total) }), " сом");
+  $("#tray-go").disabled = !picked.length;
+  const note = $("#claim-picked");
+  note.replaceChildren(...(picked.length
+    ? [`В заявлении ${picked.length} ${plural(picked.length, ["списание", "списания", "списаний"])} на `, h("b", { text: fmt(total) }), " сом."]
+    : ["Ни одно списание не отмечено — отметьте нужные в шаге 1."]),
+    h("button", { type: "button", class: "link", onclick: goToCards, text: "Изменить выбор" }));
 }
+function goToClaim() {
+  $("#claim").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  setTimeout(() => $("#c-name").focus({ preventScroll: true }), reduceMotion ? 0 : 450);
+}
+function goToCards() { $("#found").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" }); }
+$("#tray-go").addEventListener("click", goToClaim);
 function setSelected(line, on) {
   if (on) state.selected.add(line); else state.selected.delete(line);
   document.querySelectorAll(`input[data-line="${line}"]`).forEach(b => { b.checked = on; });
@@ -509,14 +557,28 @@ paper.append(
   h("dl", { class: "r-meta" },
     h("dt", { text: "абонент" }), h("dd", { text: D.profile }),
     h("dt", { text: "период" }), h("dd", { text: D.period.from ? D.period.from + "–" + D.period.to : "—" }),
-    h("dt", { text: "файл" }), h("dd", { text: D.file })),
-  h("hr", { class: "r-rule" }));
+    h("dt", { text: "файл" }), h("dd", { text: D.file })));
+const modeBox = h("div", { class: "r-mode", role: "group", "aria-label": "Что показать в чеке" });
+const modeHint = h("p", { class: "r-hint" });
+const flaggedCount = D.days.reduce((n, d) => n + d.lines.filter(l => l.flags.length).length, 0);
+const modeButtons = [
+  h("button", { type: "button", onclick: () => setReceiptMode(false), text: "Спорные строки" }),
+  h("button", { type: "button", onclick: () => setReceiptMode(true), text: `Весь чек · ${D.valid_rows}` })];
+modeBox.append(...modeButtons);
+function setReceiptMode(all) {
+  paper.classList.toggle("only-flagged", !all);
+  modeButtons[0].setAttribute("aria-pressed", String(!all));
+  modeButtons[1].setAttribute("aria-pressed", String(all));
+  modeHint.textContent = all ? "Нажмите на день, чтобы раскрыть его строки." : `Показаны ${flaggedCount} ${plural(flaggedCount, ["спорная строка", "спорные строки", "спорных строк"])} и дорогие дни.`;
+}
+if (D.days.length) paper.append(modeBox, modeHint);
+paper.append(h("hr", { class: "r-rule" }));
 let stampIndex = 0;
 for (const day of D.days) {
   const summary = h("summary", null, h("span", { text: day.label }),
     day.flagged ? h("span", { class: "d-flag", title: "есть спорное списание", text: "●" }) : null,
     h("span", { class: "dots" }), h("span", { class: "d-total", text: day.total }));
-  const details = h("details", { class: "r-day" + (day.spike ? " spike" : ""), id: "day-" + day.date }, summary);
+  const details = h("details", { class: "r-day" + (day.spike ? " spike" : "") + (day.flagged ? " flagged" : ""), id: "day-" + day.date }, summary);
   if (day.flagged || day.spike) details.open = true;
   if (day.spike) {
     const a = D.anomalies.find(x => x.date === day.date && x.anomaly_type === "day_spike");
@@ -545,6 +607,7 @@ for (const day of D.days) {
   details.append(list);
   paper.append(details);
 }
+setReceiptMode(!flaggedCount);
 paper.append(h("hr", { class: "r-rule" }),
   h("div", { class: "r-sum strong" }, h("span", { text: "ИТОГО" }), h("span", { text: D.total_text })),
   h("div", { class: "r-sum red" }, h("span", { text: "ВОЗМОЖНО ЛИШНЕЕ" }), h("span", { text: D.overpay_text })),
