@@ -6,71 +6,75 @@
 <title>Где мои деньги? — проверить детализацию</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&family=PT+Mono&family=Rubik+Mono+One&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /*__BASE_CSS__*/
-.page { max-width: 980px; margin: 0 auto; padding: 28px 32px 80px; }
-.title { margin: 10px 0 0; font-size: clamp(2.3rem, 6vw, 4rem); line-height: 1.02; max-width: 15ch; }
-.intro { margin: 16px 0 0; font-size: 1.15rem; color: var(--ink-2); max-width: 54ch; }
-/* Принтер чеков: файл «проходит» через щель и выходит лентой */
-.printer { margin-top: 40px; height: 40px; border-radius: 16px 16px 8px 8px; background: var(--ink); position: relative; z-index: 2; box-shadow: var(--shadow); }
-.printer::after { content: ""; position: absolute; left: 7%; right: 7%; top: 18px; height: 6px; border-radius: 6px; background: rgba(0, 0, 0, .55); }
-.printer .led { position: absolute; right: 18px; top: 10px; width: 8px; height: 8px; border-radius: 50%; background: #5BD18B; }
-.slot {
-  position: relative; display: grid; place-items: center; text-align: center; gap: 8px; margin: -16px 9% 0;
-  min-height: 250px; padding: 46px 24px 34px; background: var(--r-paper); color: var(--r-ink); cursor: pointer;
-  filter: drop-shadow(0 10px 16px rgba(20, 35, 32, .18)); transition: transform .2s;
+.wrap { max-width: 920px; margin: 0 auto; padding: 32px 24px 64px; display: grid; gap: 20px; }
+.intro h1 { font-size: clamp(1.9rem, 4vw, 2.8rem); line-height: 1.1; font-weight: 800; max-width: 20ch; }
+.intro p { margin: 10px 0 0; font-size: 1.08rem; color: var(--text-2); max-width: 60ch; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; counter-reset: step; }
+.steps li { padding: 16px 18px; counter-increment: step; display: grid; gap: 4px; align-content: start; }
+.steps li::before { content: counter(step); width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--brand-soft); color: var(--brand); font-weight: 700; margin-bottom: 6px; }
+.steps b { font-size: 1rem; }
+.steps span { color: var(--text-2); font-size: .9rem; }
+.drop {
+  display: grid; place-items: center; text-align: center; gap: 10px; padding: 40px 24px; min-height: 240px; cursor: pointer;
+  border: 2px dashed var(--line); background: var(--surface); border-radius: var(--radius); transition: border-color .15s, background .15s;
 }
-.slot::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: -10px; height: 10px; background-size: 16px 10px; background-repeat: repeat-x;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='M0 0h16L8 10z' fill='%23FBFBF7'/%3E%3C/svg%3E");
-}
-.slot .frame { position: absolute; inset: 26px 18px 16px; border: 2px dashed var(--r-rule); border-radius: 6px; pointer-events: none; transition: border-color .15s; }
-.slot:hover .frame, .slot.over .frame, .slot:focus-within .frame { border-color: #2B37D0; }
-.slot.over { transform: translateY(6px); }
-.slot .printed { color: var(--r-faded); }
-.slot .big { font-size: 1.45rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.2; }
-.slot .small { color: var(--r-faded); }
-.slot.busy .big::after { content: " …"; }
+.drop:hover, .drop:focus-within, .drop.over { border-color: var(--brand); background: var(--brand-soft); }
+.drop .big-icon { width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; background: var(--brand-soft); color: var(--brand); }
+.drop .big-icon .icon { width: 28px; height: 28px; }
+.drop .title { font-size: 1.25rem; font-weight: 700; }
+.drop .hint { color: var(--text-3); font-size: .9rem; }
+.drop.busy { pointer-events: none; opacity: .7; }
 #file { position: absolute; width: 1px; height: 1px; opacity: 0; }
-.error { margin-top: 14px; padding: 12px 14px; border-radius: 8px; background: var(--stamp-wash); color: var(--stamp); font-weight: 600; }
-.profiles { margin-top: 40px; }
-.chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
-.chip {
-  text-decoration: none; color: var(--ink); background: var(--sheet); box-shadow: var(--shadow);
-  border-radius: 999px; padding: 10px 18px; font-weight: 700;
+.error { display: flex; gap: 10px; padding: 12px 14px; border-radius: 12px; background: var(--danger-soft); color: var(--danger); font-weight: 600; }
+.examples { padding: 20px 22px; }
+.examples p { margin: 4px 0 14px; color: var(--text-2); font-size: .95rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 12px; border: 1px solid var(--line); text-decoration: none; font-weight: 600; background: var(--surface); }
+.chip:hover { border-color: var(--brand); }
+.chip small { color: var(--text-3); font-weight: 500; }
+.chip.family { background: var(--text); color: var(--surface); border-color: var(--text); }
+.privacy { margin: 0 4px; color: var(--text-3); font-size: .88rem; max-width: 76ch; }
+@media (max-width: 760px) {
+  .wrap { padding: 20px 12px 48px; gap: 14px; }
+  .steps { grid-template-columns: 1fr; }
+  .topbar-in { padding: 10px 12px; }
 }
-.chip small { color: var(--ink-3); font-weight: 500; margin-left: 6px; font-family: var(--font-mono); }
-.chip.family { background: var(--ink); color: var(--desk); }
-.chip:hover { transform: translateY(-1px); }
-.privacy { margin-top: 34px; color: var(--ink-2); font-size: .92rem; max-width: 70ch; }
-@media (max-width: 600px) { .page { padding: 16px 16px 56px; } .slot { margin: -16px 4% 0; } }
 </style>
 </head>
 <body>
-<header class="top">
-  <a class="brand" href="/"><span class="ink">Где мои деньги?</span></a>
-  <div class="tools">
-    <button type="button" class="tool" id="big-toggle" aria-pressed="false"><span class="aa">Аа</span> Крупный шрифт</button>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="logo" href="/"><span class="logo-mark" aria-hidden="true">?</span>Где мои деньги?</a>
+    <div class="tools"><button type="button" class="tool" id="big-toggle" aria-pressed="false">Аа Крупнее</button></div>
   </div>
 </header>
-<main class="page">
-  <p class="printed">INAI Mobile · детализация расходов в CSV</p>
-  <h1 class="title">Проверим детализацию за секунду</h1>
-  <p class="intro">Найдём ночные платные SMS, новые подписки, двойные списания и дорогие звонки за границу. Подготовим заявление на перерасчёт в INAI Mobile.</p>
+<main class="wrap">
+  <section class="intro">
+    <h1>Проверьте счёт за связь — свой или родителей</h1>
+    <p>Найдём ночные платные SMS, подписки, на которые никто не соглашался, двойные списания и дорогие звонки за границу. Покажем, сколько можно вернуть, и подготовим заявление в INAI Mobile.</p>
+  </section>
 
-  <div class="printer" aria-hidden="true"><span class="led"></span></div>
-  <label class="slot" id="slot" for="file">
-    <span class="frame" aria-hidden="true"></span>
-    <span class="printed">файл · .csv · до 5 МБ</span>
-    <span class="big" id="slot-big">Перетащите сюда детализацию</span>
-    <span class="small" id="slot-small">или нажмите, чтобы выбрать CSV-файл</span>
+  <ol class="steps">
+    <li class="card"><b>Скачайте детализацию</b><span id="how-to"></span></li>
+    <li class="card"><b>Загрузите файл сюда</b><span>CSV-файл до 5 МБ. Проверка занимает секунду.</span></li>
+    <li class="card"><b>Получите сумму и заявление</b><span>Отметьте, что оспорить, — текст заявления готов сразу.</span></li>
+  </ol>
+
+  <label class="drop" id="slot" for="file">
+    <span class="big-icon" id="drop-icon"></span>
+    <span class="title" id="slot-big">Перетащите файл детализации сюда</span>
+    <span class="btn primary">Выбрать файл на компьютере</span>
+    <span class="hint" id="slot-small">Формат CSV, как его выдаёт личный кабинет INAI Mobile</span>
     <input type="file" id="file" accept=".csv,text/csv">
   </label>
   <div class="error" id="error" role="alert" hidden></div>
 
-  <section class="profiles" aria-labelledby="profiles-title">
-    <h2 id="profiles-title">Или откройте чек члена семьи</h2>
+  <section class="card examples" aria-labelledby="examples-title">
+    <h2 id="examples-title">Нет своего файла? Посмотрите пример</h2>
+    <p>Детализации пятерых членов одной семьи за сентябрь.</p>
     <div class="chips" id="chips"></div>
   </section>
 
@@ -82,19 +86,26 @@
 const D = JSON.parse(document.getElementById("bill-data").textContent);
 /*__BASE_JS__*/
 
+$("#how-to").textContent = D.how_to || "Личный кабинет INAI Mobile → «Расходы» → «Детализация».";
+$("#drop-icon").append(icon("upload"));
 for (const p of D.profiles) {
   $("#chips").append(h("a", { class: "chip", href: "/profile/" + encodeURIComponent(p.file) }, p.name, h("small", { text: p.file })));
 }
-if (D.profiles.length) $("#chips").append(h("a", { class: "chip family", href: "/family", text: "Вся семья →" }));
+if (D.profiles.length) $("#chips").append(h("a", { class: "chip family", href: "/family" }, icon("users"), "Вся семья"));
+else $("#chips").closest("section").hidden = true;
 
 const slot = $("#slot"), input = $("#file"), error = $("#error");
-function fail(message) { error.textContent = message; error.hidden = false; slot.classList.remove("busy"); input.value = ""; $("#slot-big").textContent = "Перетащите сюда детализацию"; }
+const IDLE_TITLE = "Перетащите файл детализации сюда";
+function fail(message) {
+  error.replaceChildren(icon("alert"), h("span", { text: message }));
+  error.hidden = false; slot.classList.remove("busy"); input.value = ""; $("#slot-big").textContent = IDLE_TITLE;
+}
 async function send(file) {
   error.hidden = true;
   if (!file) return;
   if (file.size > D.limit_mb * 1024 * 1024) { fail(`Файл больше ${D.limit_mb} МБ — это не похоже на детализацию за месяц.`); return; }
   slot.classList.add("busy");
-  $("#slot-big").textContent = "Проверяем " + file.name;
+  $("#slot-big").textContent = "Проверяем " + file.name + "…";
   try {
     const response = await fetch("/api/analyze", { method: "POST", headers: { "X-Filename": encodeURIComponent(file.name) }, body: file });
     if (!response.ok) {

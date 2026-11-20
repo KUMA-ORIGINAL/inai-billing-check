@@ -6,108 +6,98 @@
 <title>Где мои деньги? — вся семья</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&family=PT+Mono&family=Rubik+Mono+One&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /*__BASE_CSS__*/
-.page { max-width: 1180px; margin: 0 auto; padding: 18px 32px 80px; }
-.page > section { margin-top: 64px; }
-.page > section:first-child { margin-top: 18px; }
-.hero {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 48px; align-items: center;
-  grid-template-areas: "line line" "title stamp" "sub stamp" "seal stamp";
-}
-.hero .printed { grid-area: line; }
-.hero h1 { grid-area: title; font-size: clamp(2.1rem, 4.4vw, 3.4rem); line-height: 1.04; max-width: 17ch; }
-.hero-sub { grid-area: sub; margin: 0; font-size: 1.1rem; color: var(--ink-2); max-width: 52ch; }
-.hero-sub b { font-family: var(--font-mono); font-weight: 400; color: var(--ink); }
-.hero-stamp { grid-area: stamp; justify-self: center; font-size: .78rem; padding: 1em 1.3em; --tilt: -6deg; }
-.hero-stamp .sum { font-size: 3.4em; letter-spacing: -.02em; line-height: 1; margin: .12em 0 .08em; }
-.seal-box { grid-area: seal; justify-self: start; margin-top: 10px; }
-.seal-box .ink { font-size: .68rem; padding: .8em 1.1em; --tilt: -2deg; --delay: .7s; }
-.seal-box .ink .small { font-size: .82em; letter-spacing: .02em; }
-.check-note { grid-area: seal; margin: 0; color: var(--ink-2); }
-@media (max-width: 760px) {
-  .hero { grid-template-columns: 1fr; grid-template-areas: "line" "title" "stamp" "sub" "seal"; }
-  .hero-stamp { justify-self: start; margin: 10px 0 6px 8px; }
-}
+.wrap { max-width: 920px; margin: 0 auto; padding: 24px 24px 64px; display: grid; gap: 20px; }
+.section { padding: 22px 24px; }
+.sec-lead { margin: 2px 0 16px; color: var(--text-2); font-size: .95rem; }
+.hero { padding: 26px 28px; }
+.who { margin: 0 0 10px; color: var(--text-3); font-size: .9rem; font-weight: 500; }
+.hero h1 { font-size: clamp(1.9rem, 3.4vw, 2.6rem); line-height: 1.12; font-weight: 800; }
+.hero h1 .sum { color: var(--brand); white-space: nowrap; }
+.hero p { margin: 10px 0 0; font-size: 1.05rem; color: var(--text-2); max-width: 62ch; }
 
-/* members */
-.members { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 34px 18px; margin-top: 26px; }
-.member {
-  position: relative; background: var(--r-paper); color: var(--r-ink); padding: 18px 16px 16px; text-decoration: none;
-  font: .9rem/1.45 var(--font-mono); filter: drop-shadow(0 8px 14px rgba(20, 35, 32, .18)); display: block;
-  transition: transform .15s;
-}
-.member::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: -10px; height: 10px; background-size: 16px 10px; background-repeat: repeat-x;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='M0 0h16L8 10z' fill='%23FBFBF7'/%3E%3C/svg%3E");
-}
-.member:hover { transform: translateY(-3px); }
-.member .name { font: 800 1.4rem/1.1 var(--font-body); letter-spacing: -.02em; color: var(--r-ink); }
-.member .meta { color: var(--r-faded); font-size: .78rem; margin-top: 4px; }
-.member hr { border: 0; border-top: 1.5px dashed var(--r-rule); margin: 10px 0; }
-.member .row { display: flex; justify-content: space-between; gap: 8px; }
-.member .row.red { color: #C62F2A; font-weight: 700; }
-.member .open { display: block; margin-top: 12px; color: #2B37D0; font-family: var(--font-body); font-weight: 700; }
-.member .flag { position: absolute; top: -14px; right: 10px; font-size: .58rem; padding: .55em .75em; --tilt: 4deg; color: #C42B26; mix-blend-mode: multiply; }
+.alert { display: grid; grid-template-columns: auto 1fr; gap: 14px; padding: 20px 22px; border-radius: var(--radius); background: var(--danger-soft); }
+.alert .icon { color: var(--danger); width: 26px; height: 26px; margin-top: 2px; }
+.alert h2 { font-size: 1.15rem; }
+.alert p { margin: 6px 0 0; color: var(--text-2); }
+.alert .todo { margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: var(--surface); color: var(--text); }
+.alert .todo b { display: block; font-size: .85rem; color: var(--text-2); }
 
-/* reputation */
-.feature {
-  display: grid; grid-template-columns: auto 1fr; gap: 6px 28px; align-items: center; margin-top: 18px;
-  background: var(--sheet); border-radius: 4px; box-shadow: var(--shadow); padding: 26px 26px 22px; position: relative;
-}
-.feature .ink { position: absolute; top: -15px; right: 22px; font-size: .7rem; padding: .55em .85em; --tilt: 4deg; }
-.feature .num { font: 700 clamp(3rem, 9vw, 5.6rem)/1 var(--font-mono); letter-spacing: -.02em; grid-row: span 2; }
-.feature .facts { font-size: 1.15rem; font-weight: 700; letter-spacing: -.01em; }
-.feature .why { margin: 0; color: var(--ink-2); max-width: 62ch; }
-.matrix-box { margin-top: 18px; background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow); padding: 6px 4px; overflow-x: auto; }
+.members { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.member { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 14px; align-items: center; padding: 14px 4px; border-bottom: 1px solid var(--line); text-decoration: none; }
+.member:hover { background: var(--surface-2); }
+.avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #fff; }
+.member .name { font-weight: 700; font-size: 1.05rem; }
+.member .sub { color: var(--text-2); font-size: .9rem; }
+.member .badges { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.member .icon { color: var(--text-3); }
+
+.table-box { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
 .matrix { width: 100%; border-collapse: collapse; font-size: .95rem; }
-.matrix th, .matrix td { padding: 10px 12px; text-align: center; border-top: 1px solid var(--rule); white-space: nowrap; }
-.matrix thead th { border-top: 0; color: var(--ink-3); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
-.matrix th[scope="row"] { text-align: left; font: 700 1.05rem var(--font-mono); }
-.matrix td.num { font-family: var(--font-mono); text-align: right; }
-.cell { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; font: .78rem var(--font-mono); color: var(--ink-2); }
-.cell i { width: 16px; height: 16px; border-radius: 50%; background: var(--stamp); display: block; }
-.cell.none { color: var(--rule); font-size: 1.1rem; }
-.rules-0 { color: var(--stamp); font-weight: 700; }
-.next { margin-top: 18px; padding: 14px 18px; border: 1.5px dashed var(--ink-3); border-radius: var(--radius); max-width: 70ch; color: var(--ink-2); }
-.honest { margin-top: 44px; color: var(--ink-2); font-size: .92rem; max-width: 70ch; }
+.matrix th, .matrix td { padding: 10px 12px; text-align: center; border-top: 1px solid var(--line); white-space: nowrap; }
+.matrix thead th { border-top: 0; background: var(--surface-2); color: var(--text-2); font-size: .82rem; font-weight: 600; }
+.matrix th[scope="row"] { text-align: left; font-weight: 700; }
+.matrix td.num { text-align: right; font-weight: 600; }
+.matrix tr.hot th[scope="row"], .matrix tr.hot td.num { color: var(--danger); }
+.cell { display: inline-block; min-width: 54px; padding: 3px 8px; border-radius: 8px; background: var(--danger-soft); color: var(--danger); font-weight: 600; font-size: .85rem; }
+.cell.none { background: transparent; color: var(--text-3); }
+.rules { color: var(--text-2); font-size: .88rem; }
+.rules.zero { color: var(--danger); font-weight: 700; }
+.next { margin: 14px 0 0; color: var(--text-2); font-size: .92rem; }
+
+details.jury > summary { cursor: pointer; font-weight: 700; font-size: 1.1rem; }
+.check-row { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; }
+.check-row .icon { color: var(--brand); margin-top: 2px; }
+.honest { margin: 4px; color: var(--text-3); font-size: .88rem; max-width: 76ch; }
 @media (max-width: 700px) {
-  .page { padding: 12px 16px 56px; }
-  .feature { grid-template-columns: 1fr; }
-  .feature .num { grid-row: auto; }
+  .wrap { padding: 16px 12px 48px; gap: 14px; }
+  .section, .hero { padding: 18px 16px; }
+  .member { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .member .badges { grid-column: 2 / -1; justify-content: flex-start; }
+  .member > .icon { display: none; }
+  .topbar-in { padding: 10px 12px; }
 }
 </style>
 </head>
 <body>
-<a class="skip" href="#members">К профилям</a>
-<header class="top">
-  <a class="brand" href="#members"><span class="ink">Где мои деньги?</span></a>
-  <div class="tools">
-    <button type="button" class="tool" id="big-toggle" aria-pressed="false"><span class="aa">Аа</span> Крупный шрифт</button>
+<a class="skip" href="#members">К номерам семьи</a>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="logo" href="#top"><span class="logo-mark" aria-hidden="true">?</span>Где мои деньги?</a>
+    <div class="tools">
+      <button type="button" class="tool" id="big-toggle" aria-pressed="false">Аа Крупнее</button>
+    </div>
   </div>
 </header>
-<main class="page">
-  <section class="hero" aria-labelledby="hero-title">
-    <p class="printed" id="eyebrow"></p>
+<main class="wrap" id="top">
+  <section class="card hero" aria-labelledby="hero-title">
+    <p class="who" id="who"></p>
     <h1 id="hero-title"></h1>
-    <div class="ink thunk hero-stamp" id="hero-stamp" role="img"></div>
-    <p class="hero-sub" id="hero-sub"></p>
-    <div class="seal-box" id="verified" hidden></div>
+    <p id="hero-text"></p>
   </section>
 
-  <section id="members" aria-labelledby="members-title">
-    <h2 id="members-title">Чеки семьи</h2>
-    <p class="lead">Откройте чек, чтобы увидеть каждое спорное списание и подготовить заявление.</p>
-    <div class="members" id="member-list"></div>
+  <div id="alert-box"></div>
+
+  <section class="card section" id="members" aria-labelledby="members-title">
+    <h2 id="members-title">Номера семьи</h2>
+    <p class="sec-lead">Откройте номер, чтобы увидеть спорные списания и составить заявление.</p>
+    <ul class="members" id="member-list"></ul>
   </section>
 
-  <section id="reputation" aria-labelledby="rep-title">
-    <h2 id="rep-title">Номера, которые списывают у всей семьи</h2>
-    <p class="lead">Короткие номера платных SMS, контента и подписок по всем детализациям сразу. Это наблюдение, а не аномалия: в anomalies.json оно не попадает.</p>
-    <div id="feature"></div>
-    <div class="matrix-box"><table class="matrix" id="matrix"></table></div>
-    <p class="next">Следующий шаг продукта: проверять детализации семьи раз в неделю и присылать уведомление в Telegram. Сейчас проверка запускается вручную.</p>
+  <section class="card section" id="reputation" aria-labelledby="rep-title">
+    <h2 id="rep-title">Платные короткие номера</h2>
+    <p class="sec-lead">Сколько каждый номер платного контента и подписок списал у членов семьи за месяц.</p>
+    <div class="table-box"><table class="matrix" id="matrix"></table></div>
+    <p class="next">Как это будет работать в жизни: детализации семьи проверяются раз в неделю, а о новом платном номере приходит уведомление в Telegram. Сейчас проверка запускается вручную.</p>
+  </section>
+
+  <section class="card section">
+    <details class="jury">
+      <summary>Для жюри: сверка с эталонами</summary>
+      <div id="jury"></div>
+    </details>
   </section>
 
   <p class="honest">INAI Mobile — учебный оператор хакатона. Мы не возвращаем деньги сами: готовим заявление с точными строками детализации, решение принимает оператор. Все числа посчитаны из файлов детализации.</p>
@@ -118,74 +108,69 @@
 "use strict";
 const D = JSON.parse(document.getElementById("bill-data").textContent);
 /*__BASE_JS__*/
+const AVATAR_COLORS = ["#0A7A55", "#2E6BE6", "#B5552D", "#7A4FB5", "#1F7F93", "#A23B6B"];
+const withRefund = D.members.filter(m => m.overpay_som > 0).length;
+const count = D.totals.count;
 
-$("#eyebrow").textContent = ["Семья", D.period, `${D.totals.count} ${plural(D.totals.count, ["детализация", "детализации", "детализаций"])}`].filter(Boolean).join(" · ");
-$("#hero-title").textContent = `Проверили ${D.totals.count} ${plural(D.totals.count, ["номер", "номера", "номеров"])} семьи — ${D.totals.anomalies} ${plural(D.totals.anomalies, ["находка", "находки", "находок"])}`;
-(function heroStamp() {
-  const stamp = $("#hero-stamp");
-  stamp.append(h("span", { text: "возможно лишнее" }), h("span", { class: "sum", text: D.totals.overpay_text }), h("span", { text: "сом" }));
-  stamp.setAttribute("aria-label", `Возможно лишнее у всей семьи: ${D.totals.overpay_text} сом`);
-})();
-const featuredNumber = D.reputation.find(r => r.unseen_by_rules);
-$("#hero-sub").append("Потрачено за месяц: ", h("b", { text: D.totals.total_text }), " сом.",
-  featuredNumber ? ` Самое неприятное — номер ${featuredNumber.number}: он списывает деньги ${featuredNumber.members_text} членов семьи, и ни одно правило ТЗ этого не замечает.` : "");
-if (D.self_check) {
-  const s = D.self_check, box = $("#verified");
-  const clean = s.reports_equal === s.files && s.found === s.anomalies_expected && s.false_positives === 0;
-  box.hidden = false;
-  const line = `отчёты ${s.reports_equal}/${s.files} · аномалии ${s.found}/${s.anomalies_expected} · ложных ${s.false_positives}`;
-  if (clean) {
-    box.append(h("span", { class: "ink seal thunk", role: "img", "aria-label": "Проверено на эталонах организаторов: " + line },
-      h("span", { text: "проверено на эталонах" }), h("span", { class: "small", text: line })));
-  } else {
-    box.append(h("p", { class: "check-note", text: "Сверка с эталонами организаторов: " + line }));
-  }
+$("#who").textContent = ["Семья", D.period, `${count} ${plural(count, ["номер", "номера", "номеров"])}`].filter(Boolean).join(" · ");
+$("#hero-title").append("Можно вернуть ", h("span", { class: "sum", text: D.totals.overpay_text + " сом" }));
+$("#hero-text").textContent = (withRefund
+  ? (withRefund === count ? `У всех ${count} ${plural(count, ["номера", "номеров", "номеров"])}` : `У ${withRefund} из ${count} ${plural(count, ["номера", "номеров", "номеров"])}`) + " есть списания, которые стоит оспорить. "
+  : "Спорных списаний ни у кого нет. ") + `Всего за месяц семья потратила ${D.totals.total_text} сом.`;
+
+const featured = D.reputation.find(r => r.unseen_by_rules);
+if (featured) {
+  const everyone = featured.members === featured.members_total;
+  const why = [];
+  if (featured.night === 0) why.push("списания дневные");
+  if (!featured.types.includes("subscription")) why.push("это не подписка");
+  why.push("суммы небольшие и не повторяются подряд");
+  $("#alert-box").append(h("section", { class: "alert", "aria-labelledby": "alert-title" }, icon("alert"),
+    h("div", null,
+      h("h2", { id: "alert-title", text: `Номер ${featured.number} списывает деньги ${everyone ? "у всех " + featured.members_total : featured.members_text}` }),
+      h("p", { text: `${featured.charges} ${plural(featured.charges, ["платное списание", "платных списания", "платных списаний"])} на ${featured.total_text} сом за месяц. По одному номеру это не заметно: ${why.join(", ")}. Видно только, когда смотришь на всю семью.` }),
+      D.advice_ru ? h("div", { class: "todo" }, h("b", { text: "Что делать" }), D.advice_ru) : null)));
 }
 
-for (const m of D.members) {
-  const card = h("a", { class: "member", href: m.link },
-    h("div", { class: "name", text: m.name }),
-    h("div", { class: "meta", text: m.file + (m.period ? " · " + m.period : "") }),
-    h("hr"),
-    h("div", { class: "row" }, h("span", { text: "потрачено" }), h("span", { text: m.total_text })),
-    h("div", { class: "row red" }, h("span", { text: "возможно лишнее" }), h("span", { text: m.overpay_text })),
-    h("div", { class: "row" }, h("span", { text: "находок" }), h("span", { text: String(m.anomalies) })),
-    h("span", { class: "open", text: "Открыть чек →" }));
-  if (m.new_subscription) card.append(h("span", { class: "ink flag", text: "новая подписка" }));
-  $("#member-list").append(card);
-}
+D.members.forEach((m, i) => {
+  const initials = m.name.split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase();
+  const badges = h("span", { class: "badges" },
+    m.overpay_som > 0 ? h("span", { class: "badge bad", text: `вернуть ${m.overpay_text} сом` }) : h("span", { class: "badge ok", text: "всё чисто" }),
+    m.new_subscription ? h("span", { class: "badge warn", text: "новая подписка" }) : null);
+  $("#member-list").append(h("li", null, h("a", { class: "member", href: m.link },
+    h("span", { class: "avatar", style: `background:${AVATAR_COLORS[i % AVATAR_COLORS.length]}`, "aria-hidden": "true", text: initials }),
+    h("span", null, h("span", { class: "name", text: m.name }), h("br"),
+      h("span", { class: "sub", text: `потрачено ${m.total_text} сом · ${m.file}` })),
+    badges, icon("chevron"))));
+});
 
 const rep = D.reputation;
-function unseenReason(r) {
-  const why = [];
-  if (r.night === 0) why.push("списания дневные");
-  if (!r.types.includes("subscription")) why.push("это не подписка");
-  why.push("одинаковые списания не повторяются в пределах минуты");
-  return `Ни одно из пяти правил ТЗ этого не видит: ${why.join(", ")}. Схема заметна, только если смотреть на семью целиком.`;
-}
-const featured = rep.find(r => r.unseen_by_rules);
-if (featured) {
-  $("#feature").append(h("div", { class: "feature" },
-    h("div", { class: "num", text: featured.number }),
-    h("div", { class: "facts", text: `списывает ${featured.members_text} · ${featured.charges} ${plural(featured.charges, ["списание", "списания", "списаний"])} · ${featured.total_text} сом · ${featured.when} · ${featured.types_text}` }),
-    h("p", { class: "why", text: unseenReason(featured) }),
-    h("span", { class: "ink", "aria-hidden": "true", text: featured.members === featured.members_total ? "у всех" : featured.members_text })));
-}
 if (rep.length) {
-  const head = h("tr", null, h("th", { scope: "col", text: "номер" }), D.names.map(n => h("th", { scope: "col", text: n })),
-    h("th", { scope: "col", text: "итого" }), h("th", { scope: "col", text: "попало под правила ТЗ" }));
+  const head = h("tr", null, h("th", { scope: "col", text: "Номер" }), D.names.map(n => h("th", { scope: "col", text: n })),
+    h("th", { scope: "col", text: "Всего" }), h("th", { scope: "col", text: "Заметили правила" }));
   const body = h("tbody");
   for (const r of rep) {
-    body.append(h("tr", null, h("th", { scope: "row", text: r.number }),
+    body.append(h("tr", { class: r === featured ? "hot" : "" }, h("th", { scope: "row", text: r.number }),
       r.by_member.map((v, i) => h("td", null, v > 0
-        ? h("span", { class: "cell", "aria-label": `${D.names[i]}: ${fmt(Math.round(v * 100))} сом` }, h("i"), fmt(Math.round(v * 100)))
-        : h("span", { class: "cell none", "aria-label": `${D.names[i]}: нет`, text: "·" }))),
+        ? h("span", { class: "cell", "aria-label": `${D.names[i]}: ${fmt(Math.round(v * 100))} сом`, text: fmt(Math.round(v * 100)) })
+        : h("span", { class: "cell none", "aria-label": `${D.names[i]}: нет`, text: "—" }))),
       h("td", { class: "num", text: r.total_text }),
-      h("td", { class: r.in_rules === 0 ? "rules-0" : "", text: `${r.in_rules} из ${r.charges}` })));
+      h("td", { class: "rules" + (r.in_rules === 0 ? " zero" : ""), text: r.in_rules === 0 ? "ни одного" : `${r.in_rules} из ${r.charges}` })));
   }
   $("#matrix").append(h("thead", null, head), body);
 } else {
   $("#matrix").append(h("tbody", null, h("tr", null, h("td", { text: "Платных коротких номеров нет." }))));
+}
+
+const jury = $("#jury");
+if (D.self_check) {
+  const s = D.self_check;
+  const clean = s.reports_equal === s.files && s.found === s.anomalies_expected && s.false_positives === 0;
+  jury.append(h("div", { class: "check-row" }, icon(clean ? "check" : "alert"),
+    h("p", { style: "margin:0" }, h("b", { text: clean ? "Совпадает с эталонами организаторов" : "Есть расхождения с эталонами" }), h("br"),
+      `Отчёты: ${s.reports_equal} из ${s.files} · аномалии: ${s.found} из ${s.anomalies_expected} · ложных: ${s.false_positives}`)));
+} else {
+  jury.append(h("p", { class: "muted", text: "Эталонов рядом с файлами нет — сверять не с чем." }));
 }
 initBigToggle();
 </script>

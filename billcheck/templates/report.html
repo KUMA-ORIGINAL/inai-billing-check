@@ -6,351 +6,272 @@
 <title>Где мои деньги? — проверка детализации</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&family=PT+Mono&family=Rubik+Mono+One&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /*__BASE_CSS__*/
-/* layout */
-.layout {
-  max-width: 1320px; margin: 0 auto; padding: 18px 32px 80px;
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(330px, 410px); gap: 48px; align-items: start;
-}
-.desk { container-type: inline-size; }
-.desk > section { margin-top: 64px; }
-.desk > section:first-child { margin-top: 18px; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 24px 24px 64px; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; }
+.main { display: grid; gap: 20px; min-width: 0; }
+.section { padding: 22px 24px; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+.sec-lead { margin: 2px 0 16px; color: var(--text-2); font-size: .95rem; }
 
-/* hero: заголовок-находка и штамп с суммой */
-.hero {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 40px; align-items: center;
-  grid-template-areas: "line line" "title stamp" "sub stamp" "actions stamp" "llm llm";
-}
-.hero .printed { grid-area: line; }
-.hero h1 { grid-area: title; font-size: clamp(2.1rem, 4.1vw, 3.35rem); line-height: 1.04; max-width: 16ch; }
-.hero .sub { grid-area: sub; margin: 0; font-size: 1.08rem; color: var(--ink-2); max-width: 46ch; }
-.hero .sub b { font-family: var(--font-mono); font-weight: 400; color: var(--ink); }
-.hero .actions { grid-area: actions; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
-.hero-stamp { grid-area: stamp; justify-self: center; font-size: .78rem; padding: 1em 1.3em; --tilt: -6deg; }
-.hero-stamp .sum { font-size: 3.6em; letter-spacing: -.02em; line-height: 1; margin: .12em 0 .08em; }
-.hero-stamp.long .sum { font-size: 2.7em; }
-.llm {
-  grid-area: llm; margin-top: 10px; background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow);
-  padding: 16px 18px; max-width: 64ch; border-left: 3px solid var(--pen);
-}
-@container (max-width: 720px) {
-  .hero { grid-template-columns: 1fr; grid-template-areas: "line" "title" "stamp" "sub" "actions" "llm"; }
-  .hero-stamp { justify-self: start; margin: 10px 0 6px 8px; }
-}
-.llm p { margin: 6px 0 0; white-space: pre-line; }
-.llm .note { font-size: .85rem; color: var(--ink-3); }
+/* итог */
+.hero { padding: 26px 28px; }
+.who { margin: 0 0 10px; color: var(--text-3); font-size: .9rem; font-weight: 500; }
+.hero h1 { font-size: clamp(1.9rem, 3.4vw, 2.6rem); line-height: 1.12; font-weight: 800; }
+.hero h1 .sum { color: var(--brand); white-space: nowrap; }
+.hero h1.clean { color: var(--text); }
+.hero-text { margin: 10px 0 0; font-size: 1.05rem; color: var(--text-2); max-width: 60ch; }
+.hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+.llm { margin-top: 18px; padding: 14px 16px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); max-width: 66ch; }
+.llm p { margin: 4px 0 0; white-space: pre-line; }
+.llm .muted { font-size: .82rem; margin-top: 8px; }
 
-/* находки — полоски чека: печатная строка, своя печать, пояснение и что делать */
-#cards { display: grid; gap: 22px; }
-.card {
-  position: relative; background: var(--sheet); border-radius: 4px; box-shadow: var(--shadow);
-  padding: 18px 22px 16px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 20px;
-}
-.card .printed { grid-column: 1 / -1; padding-right: 120px; }
-.card .tag { grid-column: 1; font-size: 1.2rem; line-height: 1.25; letter-spacing: -.015em; font-weight: 700; margin: 4px 0 0; }
-.card .amount { grid-column: 2; grid-row: 2 / span 2; align-self: start; text-align: right; font: 400 1.75rem/1 var(--font-mono); white-space: nowrap; margin-top: 4px; }
-.card .amount small { font-size: .5em; color: var(--ink-2); }
-.card .amount .of { display: block; font-size: .46em; color: var(--ink-3); margin-top: 8px; }
-.card.kind-day_spike .amount .num { background: linear-gradient(transparent 52%, var(--marker) 52%, var(--marker) 92%, transparent 92%); color: var(--ink); }
-.card .explain { grid-column: 1; margin: 6px 0 0; font-size: 1.02rem; max-width: 62ch; }
-.card .todo { grid-column: 1 / -1; margin: 12px 0 0; padding-left: 12px; border-left: 3px solid var(--pen); color: var(--ink-2); max-width: 70ch; }
-.card .todo b { color: var(--pen); font-weight: 700; margin-right: .3em; }
-.card footer { grid-column: 1 / -1; display: flex; gap: 10px 20px; flex-wrap: wrap; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1.5px dashed var(--rule); }
-.card-stamp { position: absolute; top: -14px; right: 20px; font-size: .7rem; padding: .55em .85em; --tilt: 5deg; }
-.card.flash { animation: flash 1.4s ease-out; }
-@keyframes flash { 0% { box-shadow: 0 0 0 4px var(--pen); } 100% { box-shadow: var(--shadow); } }
-.check { display: inline-flex; gap: 8px; align-items: center; font-weight: 600; cursor: pointer; }
-.check input { width: 20px; height: 20px; accent-color: var(--pen); }
-.link { border: 0; background: none; padding: 4px 0; color: var(--pen); font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-.mini-note { color: var(--ink-3); font-size: .92rem; margin: 0; max-width: 52ch; }
-.off-btn {
-  border: 1.5px solid var(--stamp); color: var(--stamp); background: transparent; border-radius: 999px;
-  padding: 6px 14px; font-weight: 700; cursor: pointer; margin-left: auto;
-}
-.off-btn:hover { background: var(--stamp-wash); }
+/* спорные списания */
+.items { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.item { border-bottom: 1px solid var(--line); }
+.item-row { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 14px 0; }
+.pick { display: grid; place-items: center; width: 28px; height: 28px; cursor: pointer; }
+.pick input { width: 22px; height: 22px; margin: 0; accent-color: var(--brand); cursor: pointer; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.item-icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--danger-soft); color: var(--danger); }
+.item-main { text-align: left; border: 0; background: none; padding: 0; cursor: pointer; display: grid; gap: 2px; min-width: 0; }
+.item-title { font-weight: 600; font-size: 1.02rem; display: inline-flex; align-items: center; gap: 6px; }
+.item-title .icon { width: 1em; height: 1em; color: var(--text-3); transition: transform .15s; }
+.item-main[aria-expanded="true"] .item-title .icon { transform: rotate(90deg); }
+.item-sub { color: var(--text-2); font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-amount { text-align: right; display: grid; }
+.item-amount b { font-size: 1.05rem; font-weight: 700; white-space: nowrap; }
+.item-amount small { color: var(--text-3); font-size: .8rem; white-space: nowrap; }
+.item.off .item-amount b { color: var(--text-3); text-decoration: line-through; }
+.item-more { padding: 0 0 16px 96px; display: grid; gap: 12px; }
+.item-more p { margin: 0; }
+.advice { padding: 12px 14px; border-radius: 12px; background: var(--surface-2); }
+.advice b { display: block; font-size: .85rem; color: var(--text-2); margin-bottom: 2px; }
+.item-actions { display: flex; gap: 8px 20px; flex-wrap: wrap; }
+.item.flash { animation: flash 1.5s ease-out; }
+@keyframes flash { 0%, 40% { background: var(--brand-soft); } 100% { background: transparent; } }
+.note { display: flex; gap: 14px; align-items: flex-start; margin-top: 16px; padding: 14px 16px; border-radius: 14px; background: var(--warn-soft); }
+.note .icon { color: var(--warn); margin-top: 3px; }
+.note p { margin: 2px 0 0; color: var(--text-2); font-size: .92rem; }
+.empty { padding: 18px 0 4px; color: var(--text-2); }
 
-/* chart */
-.chart-box { background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 16px 10px; position: relative; }
+/* панель возврата */
+.side { position: sticky; top: 76px; }
+.refund { padding: 22px; }
+.refund h2 { font-size: 1.1rem; }
+.refund-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
+.refund-list li { display: flex; justify-content: space-between; gap: 10px; font-size: .92rem; }
+.refund-list li span { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.refund-total { display: flex; justify-content: space-between; align-items: baseline; margin: 14px 0 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.refund-total b { font-size: 1.6rem; font-weight: 800; color: var(--brand); }
+.refund .btn { width: 100%; }
+.refund-hint { margin: 12px 0 0; font-size: .85rem; color: var(--text-3); }
+.mobile-bar { display: none; }
+
+/* график */
+.chart-box { position: relative; }
 .chart-box svg { width: 100%; height: auto; display: block; overflow: visible; }
-.chart-box .grid line { stroke: var(--rule); stroke-width: 1; }
-.chart-box .axis text { fill: var(--ink-3); font: 11px var(--font-mono); }
-.chart-box .bar { fill: var(--bar); }
-.chart-box .bar.spike { fill: var(--spike); }
-.chart-box .dot { fill: var(--stamp); stroke: var(--sheet); stroke-width: 2; }
+.chart-box .grid line { stroke: var(--line); }
+.chart-box .axis text { fill: var(--text-3); font: 11px var(--font); }
+.chart-box .bar { fill: #C3CCC8; }
+.chart-box .bar.flagged { fill: var(--danger); opacity: .8; }
+.chart-box .bar.spike { fill: var(--warn); }
 .chart-box .hit { fill: transparent; cursor: pointer; }
-.chart-box .hit:hover + .bar, .chart-box .hit:focus + .bar { opacity: .75; }
-.chart-box .label { fill: var(--ink); font: 600 12px var(--font-body); }
-/* шаги и закреплённая панель выбора */
-.step { margin: 0 0 6px; font: 700 .78rem/1.3 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--pen); }
-.step.quiet { color: var(--ink-3); }
-.tray {
-  position: sticky; bottom: 14px; z-index: 5; margin-top: 22px; display: flex; align-items: center; justify-content: space-between;
-  gap: 10px 16px; flex-wrap: wrap; padding: 10px 10px 10px 18px; border-radius: 14px; background: var(--ink); color: var(--desk);
-  box-shadow: 0 14px 30px -12px rgba(0, 0, 0, .55);
-}
-.tray b { font-family: var(--font-mono); font-weight: 400; font-size: 1.1rem; }
-.tray .pen { padding: 10px 18px; font-size: .98rem; box-shadow: none; white-space: nowrap; }
-@media (max-width: 520px) { .tray { flex-wrap: nowrap; padding: 8px 8px 8px 14px; font-size: .92rem; } .tray .pen { padding: 9px 14px; } }
-.claim-picked { margin: 0 0 16px; padding: 12px 14px; border-radius: 10px; background: var(--pen-wash); max-width: 64ch; }
-.claim-picked b { font-family: var(--font-mono); font-weight: 400; }
-.claim-picked .link { margin-left: 6px; }
-.chart-key { display: flex; gap: 18px; flex-wrap: wrap; margin: 10px 0 0; color: var(--ink-2); font-size: .92rem; padding: 0 4px; }
-.key-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--stamp); margin-right: 6px; vertical-align: 1px; }
-.key-bar { display: inline-block; width: 10px; height: 14px; border-radius: 3px 3px 0 0; background: var(--spike); margin-right: 6px; vertical-align: -2px; }
-.tip {
-  position: absolute; pointer-events: none; background: var(--ink); color: var(--desk); padding: 8px 10px;
-  border-radius: 8px; font-size: .88rem; line-height: 1.35; max-width: 240px; transform: translate(-50%, -100%);
-  opacity: 0; transition: opacity .12s;
-}
+.chart-box .hit:hover + .bar, .chart-box .hit:focus + .bar { opacity: .6; }
+.chart-box .label { fill: var(--text); font: 600 12px var(--font); }
+.legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; color: var(--text-2); font-size: .88rem; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: 0; }
+.tip { position: absolute; pointer-events: none; background: var(--text); color: var(--surface); padding: 8px 10px; border-radius: 10px; font-size: .85rem; line-height: 1.35; max-width: 240px; transform: translate(-50%, -100%); opacity: 0; transition: opacity .12s; }
 .tip.on { opacity: 1; }
-.tip b { font-family: var(--font-mono); }
 
-/* claim */
-.claim-sheet { background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
+/* детализация */
+.filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-weight: 600; font-size: .88rem; color: var(--text-2); display: inline-flex; gap: 6px; align-items: center; }
+.chip span { color: var(--text-3); font-weight: 500; }
+.chip[aria-pressed="true"] { background: var(--text); color: var(--surface); border-color: var(--text); }
+.chip[aria-pressed="true"] span { color: inherit; opacity: .7; }
+.chip.day .icon { width: .9em; height: .9em; }
+.search { position: relative; flex: 1 1 200px; max-width: 280px; margin-left: auto; }
+.search .icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-3); }
+.search input { width: 100%; border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 8px 10px 8px 36px; }
+.history { max-height: 560px; overflow: auto; border: 1px solid var(--line); border-radius: 12px; }
+.day-head { position: sticky; top: 0; z-index: 1; display: flex; justify-content: space-between; padding: 8px 14px; background: var(--surface-2); border-bottom: 1px solid var(--line); font-weight: 600; font-size: .88rem; color: var(--text-2); }
+.day-head.spike b { color: var(--warn); }
+.tx { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 9px 14px; border-bottom: 1px solid var(--line); cursor: pointer; }
+.tx:hover { background: var(--surface-2); }
+.tx .icon { color: var(--text-3); }
+.tx-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tx-name small { color: var(--text-3); margin-left: 6px; }
+.tx-cost { white-space: nowrap; font-weight: 600; }
+.tx.bad { background: var(--danger-soft); }
+.tx.bad .icon { color: var(--danger); }
+.tx-raw { grid-column: 1 / -1; margin: 2px 0 0; font: .8rem var(--mono); color: var(--text-2); overflow-wrap: anywhere; }
+.history-foot { margin-top: 10px; color: var(--text-3); font-size: .85rem; }
+
+/* траты */
+.spend { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.spend h3 { font-size: .95rem; margin-bottom: 10px; }
+.cat { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; margin: 0 0 12px; }
+.cat .track { grid-column: 1 / -1; height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+.cat .fill { height: 100%; background: var(--brand); border-radius: 999px; opacity: .75; }
+.top { margin: 0; padding: 0; list-style: none; }
+.top li { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.top li:last-child { border-bottom: 0; }
+
+/* для жюри */
+details.jury > summary { cursor: pointer; font-weight: 700; font-size: 1.1rem; list-style-position: inside; }
+.jury-group h3 { margin: 18px 0 6px; font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); }
+.tz-item { display: grid; grid-template-columns: 24px 1fr auto; gap: 2px 10px; padding: 10px 0; border-top: 1px solid var(--line); align-items: start; }
+.tz-item .icon { color: var(--brand); margin-top: 2px; }
+.tz-item.no .icon { color: var(--text-3); }
+.tz-item .v { grid-column: 2; color: var(--text-2); font-size: .9rem; }
+.tz-item .link { grid-column: 3; grid-row: 1; font-size: .9rem; }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+th, td { text-align: left; padding: 8px; border-top: 1px solid var(--line); vertical-align: top; }
+th { color: var(--text-3); font-weight: 600; font-size: .8rem; }
+td code { font-family: var(--mono); word-break: break-all; }
+.honest { margin: 4px 4px 0; color: var(--text-3); font-size: .88rem; max-width: 76ch; }
+
+/* окна */
+dialog { border: 0; padding: 0; border-radius: 20px; background: var(--surface); color: var(--text); box-shadow: var(--shadow-lg); width: min(720px, calc(100vw - 24px)); max-height: calc(100vh - 32px); }
+dialog::backdrop { background: rgba(10, 16, 14, .5); }
+.dlg { padding: 22px 24px 24px; display: grid; gap: 14px; }
+.dlg-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+.icon-btn { border: 0; background: var(--surface-2); border-radius: 10px; width: 36px; height: 36px; display: grid; place-items: center; cursor: pointer; }
 .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.fields label { display: grid; gap: 4px; font-weight: 600; font-size: .92rem; color: var(--ink-2); }
-.fields input { border: 1.5px solid var(--rule); background: transparent; border-radius: 8px; padding: 10px 12px; font-size: 1rem; }
-.fields input:focus { border-color: var(--pen); outline: none; }
-#claim-text {
-  margin: 16px 0 0; padding: 18px; background: var(--desk); border-radius: 8px; white-space: pre-wrap;
-  font: .92rem/1.55 var(--font-mono); max-height: 460px; overflow: auto; color: var(--ink);
-}
-.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
-.row .pen { padding: 11px 20px; font-size: 1rem; }
-.row .ghost { padding: 9px 16px; }
-#copied { color: var(--ink-2); font-weight: 600; }
+.fields label { display: grid; gap: 4px; font-weight: 600; font-size: .9rem; color: var(--text-2); }
+.fields input { border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 10px 12px; }
+#claim-text { margin: 0; padding: 16px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); white-space: pre-wrap; font: .88rem/1.55 var(--mono); max-height: 42vh; overflow: auto; }
+.dlg-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+#copied { color: var(--brand); font-weight: 600; }
 
-/* spend */
-.spend { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
-.panel { background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 18px; }
-.panel h3 { margin: 0 0 10px; font-size: 1rem; }
-.cat { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: baseline; margin: 10px 0; }
-.cat .track { grid-column: 1 / -1; height: 8px; background: var(--rule); border-radius: 999px; overflow: hidden; }
-.cat .fill { height: 100%; background: var(--ink-2); border-radius: 999px; }
-.cat .v, .top li span { font-family: var(--font-mono); white-space: nowrap; }
-.top { margin: 0; padding-left: 1.6em; }
-.top li { margin: 8px 0; }
-.top li div { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.phone-wrap { display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: center; padding: 24px; }
+.phone-frame { background: #111614; border-radius: 34px; padding: 12px; }
+.phone-screen { background: #F4F6F5; color: #121A17; border-radius: 24px; min-height: 430px; padding: 16px 14px; display: flex; flex-direction: column; gap: 12px; font-size: .92rem; }
+.demo-badge { align-self: center; font-weight: 700; font-size: .78rem; color: #6B4D00; background: #FBE7A6; padding: 4px 10px; border-radius: 999px; }
+.ussd { background: #FFFFFF; border-radius: 14px; padding: 14px; white-space: pre-line; min-height: 210px; box-shadow: 0 1px 3px rgba(0, 0, 0, .08); }
+.ussd .reply { margin-top: 10px; padding-top: 8px; border-top: 1px solid #E2E7E5; color: #0A7A55; font-weight: 700; }
+.ussd-steps { margin: 0; padding: 0 0 0 18px; color: #7A8581; font-size: .82rem; }
+.ussd-steps li.on { color: #121A17; font-weight: 700; }
+.phone-side blockquote { margin: 10px 0; padding: 12px 14px; background: var(--surface-2); border-radius: 12px; }
 
-/* checklist & quality */
-details.box { background: var(--sheet); border-radius: var(--radius); box-shadow: var(--shadow); padding: 4px 18px; }
-details.box > summary { cursor: pointer; padding: 14px 0; font: 800 1.15rem/1.2 var(--font-body); letter-spacing: -.015em; list-style-position: outside; }
-.tz-group h3 { margin: 12px 0 4px; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
-.tz-item { display: grid; grid-template-columns: 26px 1fr; gap: 2px 8px; padding: 9px 0; border-top: 1px dashed var(--rule); }
-.tz-item .mark { font: 700 1rem/1.4 var(--font-mono); color: var(--pen); }
-.tz-item.no .mark { color: var(--ink-3); }
-.tz-item .t { font-weight: 600; }
-.tz-item .v { grid-column: 2; color: var(--ink-2); font-size: .95rem; }
-.tz-item button { grid-column: 2; justify-self: start; }
-.badge {
-  display: inline-flex; gap: 8px; align-items: center; margin: 4px 0 14px; padding: 8px 12px; border-radius: 8px;
-  background: var(--pen-wash); font-weight: 600;
-}
-table { width: 100%; border-collapse: collapse; font-size: .92rem; margin-bottom: 14px; }
-th, td { text-align: left; padding: 7px 8px; border-top: 1px solid var(--rule); vertical-align: top; }
-th { color: var(--ink-3); font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; }
-td code { font-family: var(--font-mono); word-break: break-all; }
-.honest { margin-top: 44px; color: var(--ink-2); font-size: .92rem; max-width: 70ch; }
-
-/* receipt */
-.receipt-wrap {
-  position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; overflow-x: hidden; padding: 12px 8px 24px;
-  scrollbar-width: thin; filter: drop-shadow(0 10px 18px rgba(20, 35, 32, .20));
-}
-.receipt {
-  background: var(--r-paper); color: var(--r-ink); font: .9rem/1.45 var(--font-mono); padding: 22px 20px 18px;
-  position: relative;
-}
-.receipt::before, .receipt::after {
-  content: ""; position: absolute; left: 0; right: 0; height: 10px; background-repeat: repeat-x; background-size: 16px 10px;
-}
-.receipt::before { top: -10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='M0 10L8 0l8 10z' fill='%23FBFBF7'/%3E%3C/svg%3E"); }
-.receipt::after { bottom: -10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='M0 0h16L8 10z' fill='%23FBFBF7'/%3E%3C/svg%3E"); }
-.r-head { text-align: center; letter-spacing: .12em; line-height: 1.35; }
-.r-head b { font-size: 1.05rem; }
-.r-meta { margin: 12px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 0 10px; color: var(--r-faded); }
-.r-meta dd { margin: 0; color: var(--r-ink); text-align: right; overflow-wrap: anywhere; }
-.r-rule { border: 0; border-top: 1.5px dashed var(--r-rule); margin: 12px 0; }
-.r-mode { display: flex; margin: 14px 0 0; border: 1.5px solid var(--r-ink); border-radius: 999px; overflow: hidden; font: 600 .8rem/1 var(--font-body); }
-.r-mode button { flex: 1; border: 0; background: transparent; padding: 8px 6px; cursor: pointer; color: var(--r-ink); }
-.r-mode button[aria-pressed="true"] { background: var(--r-ink); color: var(--r-paper); }
-.r-hint { margin: 8px 0 0; color: var(--r-faded); font-size: .78rem; text-align: center; }
-.receipt.only-flagged .r-day:not(.flagged):not(.spike) { display: none; }
-.receipt.only-flagged .r-line:not(.flagged) { display: none; }
-.r-day > summary { list-style: none; display: flex; align-items: baseline; gap: 6px; cursor: pointer; padding: 3px 0; }
-.r-day > summary::-webkit-details-marker { display: none; }
-.r-day > summary::before { content: "▸"; color: var(--r-faded); width: 1ch; }
-.r-day[open] > summary::before { content: "▾"; }
-.r-day .dots { flex: 1; border-bottom: 1.5px dotted var(--r-rule); transform: translateY(-4px); }
-.r-day .d-total { white-space: nowrap; }
-.r-day.spike .d-total { background: var(--marker); padding: 0 4px; border-radius: 2px; color: #24272B; }
-.r-day .d-flag { color: #C62F2A; font-weight: 700; }
-.r-note { margin: 0 0 4px 1.6ch; color: var(--r-faded); font-size: .82rem; }
-.r-lines { list-style: none; margin: 0 0 6px; padding: 0 0 0 1.6ch; }
-.r-line { position: relative; }
-.r-line > button {
-  width: 100%; display: grid; grid-template-columns: 5.2ch 1fr auto; gap: 8px; border: 0; background: none;
-  padding: 2px 0; text-align: left; cursor: pointer; font: inherit; color: inherit;
-}
-.r-line > button:hover { background: rgba(0, 0, 0, .04); }
-.r-line .what { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--r-faded); }
-.r-line.flagged { background: rgba(198, 47, 42, .08); }
-.r-line.flagged .what { color: var(--r-ink); }
-.r-line.pulse { animation: pulse 1.6s ease-out; }
-@keyframes pulse { 0%, 30% { background: var(--marker); } 100% { background: rgba(198, 47, 42, .08); } }
-.r-raw { margin: 0 0 4px; padding: 6px 8px; background: #EEF0EC; font-size: .8rem; overflow-wrap: anywhere; color: #3D4247; }
-.r-line.flagged { padding-bottom: 32px; }
-.r-stamp { position: absolute; right: 8px; bottom: 5px; font-size: .58rem; padding: .5em .7em; border-width: 2px; color: #C42B26; mix-blend-mode: multiply; }
-.r-stamp::before { inset: 3px; border-width: 1px; }
-.r-sum { display: flex; justify-content: space-between; gap: 10px; }
-.r-sum.strong { font-weight: 700; font-size: 1rem; }
-.r-sum.red { color: #C62F2A; font-weight: 700; }
-.r-foot { text-align: center; margin-top: 14px; color: var(--r-faded); letter-spacing: .08em; font-size: .8rem; }
-
-/* phone demo */
-dialog.phone-dialog {
-  border: 0; padding: 0; background: transparent; max-width: min(860px, calc(100vw - 24px)); width: 100%;
-  color: var(--ink);
-}
-dialog.phone-dialog::backdrop { background: rgba(10, 16, 18, .62); }
-.phone-wrap { display: grid; grid-template-columns: 300px 1fr; gap: 28px; align-items: center; background: var(--sheet); border-radius: 18px; padding: 26px; box-shadow: var(--shadow); }
-.phone-frame { background: #15191C; border-radius: 38px; padding: 14px; box-shadow: inset 0 0 0 2px #2D3438; }
-.phone-screen { background: #0E1A16; border-radius: 26px; min-height: 470px; padding: 18px 16px; color: #CFEFD9; font: .95rem/1.5 var(--font-mono); display: flex; flex-direction: column; gap: 12px; }
-.demo-badge { align-self: center; text-align: center; font: 800 .7rem/1.35 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: #0E1A16; background: var(--marker); padding: 6px 10px; border-radius: 999px; }
-.ussd { background: #F4F6F2; color: #1D2124; border-radius: 12px; padding: 14px; white-space: pre-line; min-height: 220px; }
-.ussd .reply { margin-top: 10px; padding-top: 8px; border-top: 1px solid #D5DAD6; color: #2B37D0; font-weight: 700; }
-.ussd-steps { margin: 0; padding: 0 0 0 18px; color: #9FC8AE; font-size: .8rem; }
-.ussd-steps li.on { color: #E6FFEF; font-weight: 700; }
-.phone-side h2 { margin-bottom: 10px; }
-.phone-side blockquote { margin: 10px 0; padding: 12px 14px; background: var(--pen-wash); border-radius: 8px; font-size: 1.05rem; }
-.phone-side .row { margin-top: 16px; }
-@media (max-width: 760px) { .phone-wrap { grid-template-columns: 1fr; padding: 18px; } .phone-screen { min-height: 380px; } }
-
-@media (max-width: 980px) {
-  .layout { grid-template-columns: 1fr; gap: 36px; padding: 12px 16px 56px; }
-  .top { padding: 14px 16px 0; }
-  .receipt-wrap { position: static; max-height: none; overflow: visible; }
-  .fields { grid-template-columns: 1fr; }
+@media (max-width: 960px) {
+  .wrap { grid-template-columns: 1fr; padding: 16px 12px 110px; gap: 14px; }
+  .side { display: none; }
+  .mobile-bar {
+    display: flex; position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 15; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px 10px 10px 16px; border-radius: 16px; background: var(--surface); box-shadow: var(--shadow-lg); border: 1px solid var(--line);
+  }
+  .mobile-bar b { display: block; font-size: 1.2rem; color: var(--brand); }
+  .mobile-bar span { font-size: .8rem; color: var(--text-3); }
+  .section, .hero { padding: 18px 16px; }
+  .item-more { padding-left: 0; }
+  .spend, .fields { grid-template-columns: 1fr; }
+  .search { max-width: none; margin-left: 0; flex-basis: 100%; }
+  .phone-wrap { grid-template-columns: 1fr; padding: 16px; }
+  .topbar-in { padding: 10px 12px; }
 }
 @media (max-width: 520px) {
-  .card { grid-template-columns: 1fr; padding: 18px 16px 14px; }
-  .card .printed { padding-right: 0; margin-top: 8px; }
-  .card .amount { grid-column: 1; grid-row: auto; text-align: left; margin-top: 6px; }
-  .off-btn { margin-left: 0; }
+  .item-row { grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; }
+  .item-icon { display: none; }
+  .tools .label-long { display: none; }
 }
 @media print {
   body { background: #fff; }
   body * { visibility: hidden; }
   #claim-text, #claim-text * { visibility: visible; }
-  #claim-text { position: absolute; left: 0; top: 0; max-height: none; background: #fff; color: #000; font-size: 11pt; }
+  #claim-text { position: fixed; left: 0; top: 0; max-height: none; border: 0; background: #fff; color: #000; font-size: 11pt; }
 }
 </style>
 </head>
 <body>
-<a class="skip" href="#found">К находкам</a>
-<header class="top">
-  <a class="brand" href="#hero"><span class="ink">Где мои деньги?</span></a>
-  <div class="tools">
-    <a class="tool" id="back-link" href="#" hidden></a>
-    <div class="seg" role="group" aria-label="Язык советов">
-      <button type="button" data-lang="ru" aria-pressed="true">RU</button>
-      <button type="button" data-lang="ky" aria-pressed="false">KY</button>
+<a class="skip" href="#found">К спорным списаниям</a>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="logo" href="#hero"><span class="logo-mark" aria-hidden="true">?</span>Где мои деньги?</a>
+    <div class="tools">
+      <a class="tool" id="back-link" href="#" hidden></a>
+      <div class="seg" role="group" aria-label="Язык советов">
+        <button type="button" data-lang="ru" aria-pressed="true">RU</button>
+        <button type="button" data-lang="ky" aria-pressed="false">KY</button>
+      </div>
+      <button type="button" class="tool" id="big-toggle" aria-pressed="false">Аа <span class="label-long">Крупнее</span></button>
     </div>
-    <button type="button" class="tool" id="big-toggle" aria-pressed="false"><span class="aa">Аа</span> Крупный шрифт</button>
   </div>
 </header>
 
-<main class="layout">
-  <div class="desk">
-    <section id="hero" class="hero" aria-labelledby="hero-title">
-      <p class="printed" id="hero-line"></p>
+<main class="wrap">
+  <div class="main">
+    <section id="hero" class="card hero" aria-labelledby="hero-title">
+      <p class="who" id="who"></p>
       <h1 id="hero-title"></h1>
-      <div class="ink thunk hero-stamp" id="hero-stamp" role="img"></div>
-      <p class="sub" id="hero-sub"></p>
-      <div class="actions">
-        <button type="button" class="pen" id="to-claim">Подготовить возврат <span id="claim-sum"></span> сом</button>
-        <a class="ghost" href="#receipt">Открыть чек</a>
-      </div>
-      <aside class="llm" id="llm" hidden><b>Письмо абоненту</b><p id="llm-text"></p><p class="note">Текст подготовлен ИИ по посчитанным числам. Суммы и номера — из детализации.</p></aside>
+      <p class="hero-text" id="hero-text"></p>
+      <div class="hero-actions" id="hero-actions"></div>
+      <aside class="llm" id="llm" hidden><b>Письмо абоненту</b><p id="llm-text"></p><p class="muted">Текст написал ИИ по посчитанным числам. Суммы и номера взяты из детализации.</p></aside>
     </section>
 
-    <section id="found" aria-labelledby="found-title">
-      <p class="step">Шаг 1 из 2 · проверьте</p>
-      <h2 id="found-title">Что мы нашли</h2>
-      <p class="lead" id="found-lead"></p>
-      <div id="cards"></div>
-      <div class="tray" id="tray" hidden>
-        <span id="tray-text"></span>
-        <button type="button" class="pen" id="tray-go">К заявлению ↓</button>
-      </div>
+    <section id="found" class="card section" aria-labelledby="found-title">
+      <div class="sec-head"><h2 id="found-title">Спорные списания</h2><span class="muted small" id="found-count"></span></div>
+      <p class="sec-lead" id="found-lead"></p>
+      <ul class="items" id="items"></ul>
+      <div id="spike-box"></div>
     </section>
 
-    <section id="claim" aria-labelledby="claim-title">
-      <p class="step">Шаг 2 из 2 · отправьте</p>
-      <h2 id="claim-title">Заявление на перерасчёт</h2>
-      <p class="claim-picked" id="claim-picked"></p>
-      <p class="lead">Впишите ФИО и номер — они попадут в текст. Затем скопируйте его в чат поддержки INAI Mobile или распечатайте.</p>
-      <div class="claim-sheet">
-        <div class="fields">
-          <label>ФИО абонента<input id="c-name" autocomplete="name" placeholder="Иванова Анна Петровна"></label>
-          <label>Номер телефона<input id="c-msisdn" inputmode="tel" autocomplete="tel" placeholder="+996 ___ ___ ___"></label>
-        </div>
-        <pre id="claim-text" tabindex="0" aria-label="Текст заявления"></pre>
-        <div class="row">
-          <button type="button" class="pen" id="copy">Скопировать</button>
-          <button type="button" class="ghost" id="download">Скачать .txt</button>
-          <button type="button" class="ghost" id="print">Печать / PDF</button>
-          <span id="copied" role="status" aria-live="polite"></span>
-        </div>
-      </div>
-    </section>
-
-    <section id="chart" aria-labelledby="chart-title">
-      <p class="step quiet">Подробности</p>
-      <h2 id="chart-title">Траты по дням</h2>
-      <p class="lead">Сколько ушло каждый день месяца. Наведите на столбик или нажмите на него, чтобы увидеть день в чеке.</p>
+    <section id="chart" class="card section" aria-labelledby="chart-title">
+      <div class="sec-head"><h2 id="chart-title">Расходы по дням</h2></div>
+      <p class="sec-lead">Нажмите на день, чтобы увидеть его списания в детализации.</p>
       <div class="chart-box" id="chart-box"><div class="tip" id="tip" role="status"></div></div>
-      <p class="chart-key"><span><span class="key-dot"></span>день со спорным списанием</span><span><span class="key-bar"></span>необычно дорогой день — намного выше обычной недели</span></p>
+      <div class="legend"><span><i style="background:var(--danger)"></i>есть спорное списание</span><span><i style="background:var(--warn)"></i>необычно дорогой день</span><span><i style="background:#C3CCC8"></i>обычный день</span></div>
     </section>
 
-    <section id="spend" aria-labelledby="spend-title">
-      <p class="step quiet">Подробности</p>
-      <h2 id="spend-title">Куда ушли деньги</h2>
-      <p class="lead">Дубли не вычитаются: это реальные списания, поэтому их и стоит вернуть.</p>
+    <section id="history" class="card section" aria-labelledby="history-title">
+      <div class="sec-head"><h2 id="history-title">Детализация</h2><span class="muted small" id="history-total"></span></div>
+      <p class="sec-lead">Все списания месяца из файла. Нажмите на строку, чтобы увидеть её как в файле.</p>
+      <div class="filters" id="filters"></div>
+      <div class="history" id="history-list" tabindex="0" aria-label="Список списаний"></div>
+      <p class="history-foot" id="history-foot"></p>
+    </section>
+
+    <section id="spend" class="card section" aria-labelledby="spend-title">
+      <div class="sec-head"><h2 id="spend-title">Куда ушли деньги</h2></div>
+      <p class="sec-lead">Двойные списания здесь не вычитаются: деньги действительно ушли дважды.</p>
       <div class="spend">
-        <div class="panel"><h3>По категориям</h3><div id="cats"></div></div>
-        <div class="panel"><h3>Топ-5 номеров по стоимости</h3><ol class="top" id="top5"></ol></div>
+        <div><h3>По видам</h3><div id="cats"></div></div>
+        <div><h3>Номера, на которые ушло больше всего</h3><ol class="top" id="top5"></ol></div>
       </div>
     </section>
 
-    <section id="tz">
-      <details class="box" open>
+    <section id="quality" class="card section">
+      <details class="jury" id="jury">
         <summary>Для жюри: как выполнено ТЗ 4</summary>
         <div id="tz-list"></div>
-      </details>
-    </section>
-
-    <section id="quality">
-      <details class="box">
-        <summary id="quality-title">Качество данных</summary>
-        <p class="lead">Каждая отброшенная строка — с номером в файле и причиной. Корректные строки в двух форматах даты и с запятой в суммах разобраны.</p>
-        <div id="dropped"></div>
+        <div class="jury-group"><h3 id="dropped-title">Пропущенные строки файла</h3><div id="dropped"></div></div>
       </details>
     </section>
 
     <p class="honest" id="honest"></p>
   </div>
 
-  <aside class="receipt-wrap" id="receipt" aria-label="Чек: детализация по дням" tabindex="-1">
-    <div class="receipt" id="receipt-paper"></div>
+  <aside class="side" aria-label="Заявление на возврат">
+    <div class="card refund">
+      <h2>Заявление на возврат</h2>
+      <ul class="refund-list" id="refund-list"></ul>
+      <div class="refund-total"><span>Итого</span><b id="refund-sum"></b></div>
+      <button type="button" class="btn primary lg" id="open-claim">Составить заявление</button>
+      <p class="refund-hint" id="refund-hint"></p>
+    </div>
   </aside>
 </main>
 
-<dialog class="phone-dialog" id="phone" aria-labelledby="phone-title">
+<div class="mobile-bar" id="mobile-bar">
+  <div><span>К возврату</span><b id="mb-sum"></b></div>
+  <button type="button" class="btn primary" id="mb-open">Составить заявление</button>
+</div>
+
+<dialog id="phone" aria-labelledby="phone-title">
   <div class="phone-wrap">
-    <div class="phone-frame" aria-hidden="false">
+    <div class="phone-frame">
       <div class="phone-screen">
         <span class="demo-badge">Демо: так это могло бы выглядеть</span>
         <div class="ussd" id="ussd" aria-live="polite"></div>
@@ -358,15 +279,37 @@ dialog.phone-dialog::backdrop { background: rgba(10, 16, 18, .62); }
       </div>
     </div>
     <div class="phone-side">
-      <h2 id="phone-title">Отключить платные подписки</h2>
-      <p>Слева — идея: одно меню оператора, где видно все платные номера абонента и их можно отключить разом. Это демонстрация, у учебного INAI Mobile такого меню нет.</p>
+      <h2 id="phone-title">Как отключить платные номера</h2>
+      <p class="muted">Слева — идея: одно меню оператора, где видны все платные номера абонента и их можно отключить разом. Это демонстрация: у учебного INAI Mobile такого меню нет.</p>
       <p><b>Как сделать сегодня</b> — совет оператора:</p>
       <blockquote id="phone-advice"></blockquote>
-      <div class="row">
-        <button type="button" class="pen" id="phone-replay">Показать ещё раз</button>
-        <button type="button" class="ghost" id="phone-close">Закрыть</button>
+      <div class="dlg-actions">
+        <button type="button" class="btn primary" id="phone-replay">Показать ещё раз</button>
+        <button type="button" class="btn" id="phone-close">Закрыть</button>
       </div>
     </div>
+  </div>
+</dialog>
+
+<dialog id="claim-dialog" aria-labelledby="claim-title">
+  <div class="dlg">
+    <div class="dlg-head">
+      <div><h2 id="claim-title">Заявление в INAI Mobile</h2><p class="muted small" id="claim-sub"></p></div>
+      <button type="button" class="icon-btn" id="claim-close" aria-label="Закрыть"></button>
+    </div>
+    <div class="fields">
+      <label>ФИО абонента<input id="c-name" autocomplete="name" placeholder="Иванова Анна Петровна"></label>
+      <label>Номер телефона<input id="c-msisdn" inputmode="tel" autocomplete="tel" placeholder="+996 ___ ___ ___"></label>
+    </div>
+    <pre id="claim-text" tabindex="0" aria-label="Текст заявления"></pre>
+    <div class="dlg-actions">
+      <button type="button" class="btn primary" id="copy">Скопировать текст</button>
+      <button type="button" class="btn" id="share" hidden>Отправить…</button>
+      <button type="button" class="btn" id="download">Скачать .txt</button>
+      <button type="button" class="btn" id="print">Печать или PDF</button>
+      <span id="copied" role="status" aria-live="polite"></span>
+    </div>
+    <p class="muted small">Отправьте текст в чат поддержки INAI Mobile или распечатайте и отнесите в офис. Решение о возврате принимает оператор.</p>
   </div>
 </dialog>
 
@@ -375,105 +318,85 @@ dialog.phone-dialog::backdrop { background: rgba(10, 16, 18, .62); }
 "use strict";
 const D = JSON.parse(document.getElementById("bill-data").textContent);
 /*__BASE_JS__*/
-const dtRu = iso => iso.slice(8, 10) + "." + iso.slice(5, 7) + "." + iso.slice(0, 4) + " " + iso.slice(11);
-
+const BOM = String.fromCharCode(0xFEFF);
+const smooth = reduceMotion ? "auto" : "smooth";
 const state = {
   lang: store.get("gmd-lang") === "ky" ? "ky" : "ru",
-  selected: new Set(D.claim.positions.map(p => p.line))
+  selected: new Set(D.claim.positions.map(p => p.line)),
+  filter: "all", day: null, query: ""
 };
+const disputed = D.anomalies.filter(a => a.anomaly_type !== "day_spike");
+const spikes = D.anomalies.filter(a => a.anomaly_type === "day_spike");
+const positionByLine = Object.fromEntries(D.claim.positions.map(p => [p.line, p]));
 
-/* ---------- hero ---------- */
-const STAMP_WORDS = { night_charge: "ночь", new_subscription: "подписка", duplicate_charge: "дубль",
-  international_rate: "дорого" };
-const disputedCount = D.claim.positions.length;
-const spikeCount = D.anomalies.filter(a => a.anomaly_type === "day_spike").length;
-$("#hero-line").textContent = [D.profile, D.period.label, D.file].join(" · ");
-$("#hero-title").textContent = disputedCount
-  ? `Нашли ${disputedCount} ${plural(disputedCount, ["списание, которое", "списания, которые", "списаний, которые"])} стоит оспорить`
-  : spikeCount ? "Спорных списаний нет, но был необычно дорогой день" : "Ничего подозрительного: счёт выглядит честно";
-(function heroStamp() {
-  const stamp = $("#hero-stamp");
-  if (D.overpay_cents > 0) {
-    stamp.append(h("span", { text: "возможно лишнее" }), h("span", { class: "sum", text: D.overpay_text }), h("span", { text: "сом" }));
-    stamp.classList.toggle("long", D.overpay_text.length > 6);
-    stamp.setAttribute("aria-label", `Возможно лишнее: ${D.overpay_text} сом`);
-  } else {
-    stamp.classList.add("seal");
-    stamp.append(h("span", { text: "спорных" }), h("span", { class: "sum", text: "нет" }));
-    stamp.setAttribute("aria-label", "Спорных списаний нет");
-  }
-})();
-const heroSub = $("#hero-sub");
-heroSub.append(`Потрачено за ${D.period.label}: `, h("b", { text: D.total_text }), ` сом, ${D.valid_rows} ${plural(D.valid_rows, ["списание", "списания", "списаний"])}.`);
-if (spikeCount) heroSub.append(` ${spikeCount === 1 ? "Один день" : spikeCount + " " + plural(spikeCount, ["день", "дня", "дней"])} был необычно дорогим — ${spikeCount === 1 ? "он показан" : "они показаны"} отдельно и в сумму возврата не входит.`);
+/* ---------- шапка и итог ---------- */
+if (D.back_link) { const a = $("#back-link"); a.href = D.back_link.href; a.replaceChildren(icon("back"), D.back_link.label.replace(/^←\s*/, "")); a.hidden = false; }
+$("#who").textContent = [D.profile, D.period.label, D.file].join(" · ");
+const title = $("#hero-title");
+if (D.overpay_cents > 0) {
+  title.append("Можно вернуть ", h("span", { class: "sum", text: D.overpay_text + " сом" }));
+} else {
+  title.classList.add("clean");
+  title.textContent = "Лишних списаний не нашли";
+}
+$("#hero-text").textContent = (disputed.length
+  ? `${disputed.length} ${plural(disputed.length, ["спорное списание", "спорных списания", "спорных списаний"])} из ${D.valid_rows}. `
+  : `Проверили ${D.valid_rows} ${plural(D.valid_rows, ["списание", "списания", "списаний"])}. `)
+  + `Всего за ${D.period.label} потрачено ${D.total_text} сом.`;
+if (disputed.length) {
+  $("#hero-actions").append(
+    h("button", { type: "button", class: "btn primary lg", onclick: openClaim, text: "Составить заявление" }),
+    h("a", { class: "btn lg", href: "#found", text: "Посмотреть списания" }));
+}
 if (D.llm) { $("#llm").hidden = false; $("#llm-text").textContent = D.llm; }
-if (D.back_link) { const a = $("#back-link"); a.href = D.back_link.href; a.textContent = D.back_link.label; a.hidden = false; }
-$("#to-claim").addEventListener("click", () => {
-  $("#claim").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-  setTimeout(() => $("#c-name").focus({ preventScroll: true }), reduceMotion ? 0 : 450);
-});
-$("#honest").textContent = "INAI Mobile — учебный оператор хакатона. Мы не возвращаем деньги сами: готовим заявление с точными строками детализации, решение принимает оператор. Все числа на странице посчитаны из файла " + D.file + ".";
+$("#honest").textContent = `INAI Mobile — учебный оператор хакатона. Мы не возвращаем деньги сами: готовим заявление с точными строками детализации, решение принимает оператор. Все числа посчитаны из файла ${D.file}.`;
 
-/* ---------- cards ---------- */
-const lead = !D.anomalies.length ? "Ничего подозрительного: ни ночных платных SMS, ни подписок, ни двойных списаний, ни дорогих звонков."
-  : disputedCount
-    ? `Отметьте то, что хотите оспорить, — всё отмеченное попадёт в заявление (шаг 2).` + (spikeCount ? " Дорогой день показан для понимания: в возврат он не входит, потому что состоит из тех же трат." : "")
-    : "Спорных списаний нет. Дорогой день показан для понимания: в нём нет ничего, что стоит оспаривать.";
-$("#found-lead").textContent = lead;
-
-function gotoLine(line) {
-  const el = document.getElementById("line-" + line);
-  if (!el) return;
-  const day = el.closest("details");
-  if (day) day.open = true;
-  el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
-  el.classList.remove("pulse"); void el.offsetWidth; el.classList.add("pulse");
-}
-function gotoDay(date) {
-  const el = document.getElementById("day-" + date);
-  if (!el) return;
-  if (!el.classList.contains("flagged") && !el.classList.contains("spike")) setReceiptMode(true);
-  el.open = true;
-  el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-}
-
-const cards = $("#cards");
+/* ---------- спорные списания ---------- */
+$("#found-count").textContent = disputed.length ? `${disputed.length} из ${D.valid_rows}` : "";
+$("#found-lead").textContent = disputed.length
+  ? "Отметьте, что хотите вернуть, — отмеченное попадёт в заявление. Нажмите на списание, чтобы узнать, почему оно спорное и что делать."
+  : "Ночных платных SMS, новых подписок, двойных списаний и дорогих звонков за границу нет.";
 const adviceNodes = [];
-for (const a of D.anomalies) {
-  const isSpike = a.anomaly_type === "day_spike";
-  const amount = h("div", { class: "amount" }, h("span", { class: "num", text: a.amount_text }), " ", h("small", { text: "сом" }),
-    a.cost_text && a.cost_text !== a.amount_text ? h("span", { class: "of", text: `списано ${a.cost_text} сом` }) : null);
-  const adviceText = h("span");
-  const adviceLabel = h("b");
-  adviceNodes.push([adviceText, adviceLabel, a]);
-  const footer = h("footer");
-  if (isSpike) {
-    footer.append(h("p", { class: "mini-note", text: "Не входит в сумму возврата: день складывается из обычных трат и тех же спорных списаний." }),
-      h("button", { type: "button", class: "link", onclick: () => gotoDay(a.date), text: "Показать день в чеке" }));
-  } else {
-    const box = h("input", { type: "checkbox", "data-line": a.line });
-    box.checked = state.selected.has(a.line);
-    box.addEventListener("change", () => { setSelected(a.line, box.checked); });
-    footer.append(h("label", { class: "check" }, box, "Включить в заявление"),
-      h("button", { type: "button", class: "link", onclick: () => gotoLine(a.line), text: "Показать в чеке" }));
-    if (D.phone.numbers.length && (a.anomaly_type === "new_subscription" || a.anomaly_type === "night_charge")) {
-      footer.append(h("button", { type: "button", class: "off-btn", onclick: openPhone, text: "Отключить подписки" }));
-    }
+const items = $("#items");
+disputed.forEach((a, i) => {
+  const moreId = "more-" + a.id;
+  const box = h("input", { type: "checkbox", "data-line": a.line, "aria-label": "Включить в заявление: " + a.title });
+  box.checked = state.selected.has(a.line);
+  box.addEventListener("change", () => setSelected(a.line, box.checked));
+  const toggle = h("button", { type: "button", class: "item-main", "aria-expanded": String(i === 0), "aria-controls": moreId },
+    h("span", { class: "item-title" }, a.title, icon("chevron")),
+    h("span", { class: "item-sub", text: `${humanDate(a.datetime)} · ${a.printed.split(" · ")[2]} ${a.number || ""}`.trim() }));
+  const advice = h("p"), adviceLabel = h("b");
+  adviceNodes.push([advice, adviceLabel, a]);
+  const actions = h("div", { class: "item-actions" },
+    h("button", { type: "button", class: "link", onclick: () => showLine(a.line), text: "Показать в детализации" }));
+  if (D.phone.numbers.length && (a.anomaly_type === "new_subscription" || a.anomaly_type === "night_charge")) {
+    actions.append(h("button", { type: "button", class: "link", onclick: openPhone, text: "Как отключить платные номера" }));
   }
-  cards.append(h("article", { class: "card kind-" + a.anomaly_type, id: "a-" + a.id },
-    h("p", { class: "printed", text: a.printed }),
-    h("h3", { class: "tag", text: a.title }),
-    amount,
-    h("p", { class: "explain", text: a.explanation }),
-    h("p", { class: "todo" }, adviceLabel, adviceText),
-    footer,
-    isSpike ? null : h("span", { class: "ink card-stamp", "aria-hidden": "true", text: STAMP_WORDS[a.anomaly_type] })));
+  const more = h("div", { class: "item-more", id: moreId, hidden: i !== 0 },
+    h("p", { text: a.explanation }), h("div", { class: "advice" }, adviceLabel, advice), actions);
+  toggle.addEventListener("click", () => {
+    const open = toggle.getAttribute("aria-expanded") !== "true";
+    toggle.setAttribute("aria-expanded", String(open)); more.hidden = !open;
+  });
+  const amount = h("span", { class: "item-amount" }, h("b", { text: a.amount_text + " сом" }),
+    a.cost_text && a.cost_text !== a.amount_text ? h("small", { text: `переплата из ${a.cost_text}` }) : null);
+  items.append(h("li", { class: "item", id: "a-" + a.id },
+    h("div", { class: "item-row" }, h("label", { class: "pick" }, box), h("span", { class: "item-icon" }, icon(a.anomaly_type)), toggle, amount),
+    more));
+});
+if (!disputed.length) items.replaceWith(h("p", { class: "empty", text: "Всё чисто: оспаривать нечего." }));
+for (const a of spikes) {
+  $("#spike-box").append(h("div", { class: "note" }, icon("day_spike"),
+    h("div", null, h("b", { text: a.explanation }),
+      h("p", { text: "В заявление не входит: этот день состоит из обычных трат и тех же спорных списаний. " },
+        h("button", { type: "button", class: "link", onclick: () => showDay(a.date), text: "Показать день" })))));
 }
 function renderAdvice() {
-  for (const [text, label, a] of adviceNodes) {
-    text.textContent = (state.lang === "ky" ? a.advice_ky : a.advice_ru) || a.advice_ru;
-    text.lang = state.lang === "ky" ? "ky" : "ru";
-    label.textContent = state.lang === "ky" ? "Оператордун кеңеши:" : "Что делать:";
+  for (const [p, label, a] of adviceNodes) {
+    p.textContent = (state.lang === "ky" ? a.advice_ky : a.advice_ru) || a.advice_ru;
+    p.lang = state.lang;
+    label.textContent = state.lang === "ky" ? "Оператордун кеңеши" : "Что делать";
   }
   document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === state.lang)));
 }
@@ -482,12 +405,12 @@ document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click"
 }));
 renderAdvice();
 
-/* ---------- claim ---------- */
+/* ---------- заявление ---------- */
+function selectedPositions() { return D.claim.positions.filter(p => state.selected.has(p.line)); }
 function today() {
   const d = new Date();
   return String(d.getDate()).padStart(2, "0") + "." + String(d.getMonth() + 1).padStart(2, "0") + "." + d.getFullYear();
 }
-function selectedPositions() { return D.claim.positions.filter(p => state.selected.has(p.line)); }
 function claimText() {
   const name = $("#c-name").value.trim() || D.claim.blank;
   const msisdn = $("#c-msisdn").value.trim() || D.claim.blank;
@@ -500,136 +423,166 @@ function claimText() {
   lines.push("", `Итого к проверке: ${fmt(total)} сом`, "", D.claim.basis, "Дата составления: " + today(), "Подпись: " + D.claim.blank);
   return lines.join("\n") + "\n";
 }
-function renderClaim() {
-  $("#claim-text").textContent = claimText();
+function renderRefund() {
   const picked = selectedPositions();
   const total = picked.reduce((s, p) => s + p.cents, 0);
-  const all = D.claim.positions.length;
-  $("#claim-sum").textContent = fmt(total);
-  $("#to-claim").disabled = !all;
-  const tray = $("#tray");
-  tray.hidden = !all;
-  $("#tray-text").replaceChildren(`В заявлении ${picked.length} из ${all} · `, h("b", { text: fmt(total) }), " сом");
-  $("#tray-go").disabled = !picked.length;
-  const note = $("#claim-picked");
-  note.replaceChildren(...(picked.length
-    ? [`В заявлении ${picked.length} ${plural(picked.length, ["списание", "списания", "списаний"])} на `, h("b", { text: fmt(total) }), " сом."]
-    : ["Ни одно списание не отмечено — отметьте нужные в шаге 1."]),
-    h("button", { type: "button", class: "link", onclick: goToCards, text: "Изменить выбор" }));
+  const list = $("#refund-list");
+  list.replaceChildren(...disputed.filter(a => state.selected.has(a.line))
+    .map(a => h("li", null, h("span", { text: a.title }), h("b", { text: fmt(positionByLine[a.line].cents) }))));
+  $("#refund-sum").textContent = fmt(total) + " сом";
+  $("#mb-sum").textContent = fmt(total) + " сом";
+  $("#refund-hint").textContent = !disputed.length ? "Возвращать нечего — счёт выглядит честно."
+    : picked.length ? "Снимите галочку у списания, если не хотите его оспаривать." : "Отметьте спорные списания слева.";
+  for (const id of ["open-claim", "mb-open"]) $("#" + id).disabled = !picked.length;
+  $("#mobile-bar").hidden = !disputed.length;
+  document.querySelectorAll(".item").forEach(li => {
+    const box = li.querySelector("input[data-line]");
+    li.classList.toggle("off", box && !box.checked);
+  });
+  $("#claim-text").textContent = claimText();
+  $("#claim-sub").textContent = `${picked.length} ${plural(picked.length, ["списание", "списания", "списаний"])} на ${fmt(total)} сом`;
 }
-function goToClaim() {
-  $("#claim").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-  setTimeout(() => $("#c-name").focus({ preventScroll: true }), reduceMotion ? 0 : 450);
-}
-function goToCards() { $("#found").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" }); }
-$("#tray-go").addEventListener("click", goToClaim);
 function setSelected(line, on) {
   if (on) state.selected.add(line); else state.selected.delete(line);
   document.querySelectorAll(`input[data-line="${line}"]`).forEach(b => { b.checked = on; });
-  renderClaim();
+  renderRefund();
 }
-$("#c-name").addEventListener("input", renderClaim);
-$("#c-msisdn").addEventListener("input", renderClaim);
+const claimDialog = $("#claim-dialog");
+function openClaim() {
+  renderRefund();
+  if (typeof claimDialog.showModal === "function") claimDialog.showModal(); else claimDialog.setAttribute("open", "");
+  $("#c-name").focus();
+}
+$("#claim-close").append(icon("close"));
+$("#claim-close").addEventListener("click", () => claimDialog.close());
+$("#open-claim").addEventListener("click", openClaim);
+$("#mb-open").addEventListener("click", openClaim);
+$("#c-name").addEventListener("input", renderRefund);
+$("#c-msisdn").addEventListener("input", renderRefund);
 function flash(msg) { const s = $("#copied"); s.textContent = msg; setTimeout(() => { s.textContent = ""; }, 2500); }
 $("#copy").addEventListener("click", async () => {
-  const text = claimText();
-  try { await navigator.clipboard.writeText(text); flash("Скопировано"); }
+  try { await navigator.clipboard.writeText(claimText()); flash("Скопировано"); }
   catch (e) {
     const r = document.createRange(); r.selectNodeContents($("#claim-text"));
     const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
     flash("Текст выделен — нажмите Ctrl+C");
   }
 });
+if (navigator.share) {
+  const share = $("#share"); share.hidden = false;
+  share.addEventListener("click", () => navigator.share({ title: "Заявление в INAI Mobile", text: claimText() }).catch(() => {}));
+}
 $("#download").addEventListener("click", () => {
-  const blob = new Blob(["﻿" + claimText()], { type: "text/plain;charset=utf-8" });
+  const blob = new Blob([BOM + claimText()], { type: "text/plain;charset=utf-8" });
   const a = h("a", { href: URL.createObjectURL(blob), download: "zayavlenie_" + D.file.replace(/\.csv$/i, "") + ".txt" });
   document.body.append(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   flash("Файл сохранён");
 });
 $("#print").addEventListener("click", () => window.print());
-renderClaim();
+renderRefund();
 
-/* ---------- receipt ---------- */
-const paper = $("#receipt-paper");
-paper.append(
-  h("div", { class: "r-head" }, h("b", { text: "INAI MOBILE" }), h("br"), "ДЕТАЛИЗАЦИЯ РАСХОДОВ"),
-  h("dl", { class: "r-meta" },
-    h("dt", { text: "абонент" }), h("dd", { text: D.profile }),
-    h("dt", { text: "период" }), h("dd", { text: D.period.from ? D.period.from + "–" + D.period.to : "—" }),
-    h("dt", { text: "файл" }), h("dd", { text: D.file })));
-const modeBox = h("div", { class: "r-mode", role: "group", "aria-label": "Что показать в чеке" });
-const modeHint = h("p", { class: "r-hint" });
-const flaggedCount = D.days.reduce((n, d) => n + d.lines.filter(l => l.flags.length).length, 0);
-const modeButtons = [
-  h("button", { type: "button", onclick: () => setReceiptMode(false), text: "Спорные строки" }),
-  h("button", { type: "button", onclick: () => setReceiptMode(true), text: `Весь чек · ${D.valid_rows}` })];
-modeBox.append(...modeButtons);
-function setReceiptMode(all) {
-  paper.classList.toggle("only-flagged", !all);
-  modeButtons[0].setAttribute("aria-pressed", String(!all));
-  modeButtons[1].setAttribute("aria-pressed", String(all));
-  modeHint.textContent = all ? "Нажмите на день, чтобы раскрыть его строки." : `Показаны ${flaggedCount} ${plural(flaggedCount, ["спорная строка", "спорные строки", "спорных строк"])} и дорогие дни.`;
+/* ---------- детализация ---------- */
+const FILTERS = [
+  ["all", "Все", () => true],
+  ["bad", "Спорные", ln => ln.flags.length > 0],
+  ["call", "Звонки", ln => ln.type === "call"],
+  ["sms", "SMS", ln => ln.type === "sms"],
+  ["data", "Интернет", ln => ln.type === "data"],
+  ["paid", "Подписки и контент", ln => ln.type === "subscription" || ln.type === "content"]
+];
+const allLines = D.days.flatMap(d => d.lines);
+const filterBox = $("#filters");
+const chips = {};
+for (const [key, label, test] of FILTERS) {
+  const count = allLines.filter(test).length;
+  if (key !== "all" && key !== "bad" && !count) continue;
+  chips[key] = h("button", { type: "button", class: "chip", onclick: () => { state.filter = key; renderHistory(); } }, label, h("span", { text: String(count) }));
+  filterBox.append(chips[key]);
 }
-if (D.days.length) paper.append(modeBox, modeHint);
-paper.append(h("hr", { class: "r-rule" }));
-let stampIndex = 0;
-for (const day of D.days) {
-  const summary = h("summary", null, h("span", { text: day.label }),
-    day.flagged ? h("span", { class: "d-flag", title: "есть спорное списание", text: "●" }) : null,
-    h("span", { class: "dots" }), h("span", { class: "d-total", text: day.total }));
-  const details = h("details", { class: "r-day" + (day.spike ? " spike" : "") + (day.flagged ? " flagged" : ""), id: "day-" + day.date }, summary);
-  if (day.flagged || day.spike) details.open = true;
-  if (day.spike) {
-    const a = D.anomalies.find(x => x.date === day.date && x.anomaly_type === "day_spike");
-    details.append(h("p", { class: "r-note", text: "необычный день" + (a ? `: +${a.amount_text} к обычному` : "") }));
-  }
-  const list = h("ol", { class: "r-lines" });
-  for (const ln of day.lines) {
-    const flagged = ln.flags.length > 0;
-    const raw = h("p", { class: "r-raw", hidden: true, text: `строка ${ln.line}: ${ln.raw}` });
-    const btn = h("button", { type: "button", "aria-expanded": "false",
-      "aria-label": `${ln.time} ${ln.type_ru} ${ln.number || "без номера"} ${ln.cost} сом — показать исходную строку` },
-      h("span", { text: ln.time.slice(0, 5) }),
-      h("span", { class: "what", text: ln.type_ru + " " + (ln.number || "—") }),
-      h("span", { text: ln.cost }));
-    btn.addEventListener("click", () => {
-      raw.hidden = !raw.hidden; btn.setAttribute("aria-expanded", String(!raw.hidden));
-    });
-    const li = h("li", { class: "r-line" + (flagged ? " flagged" : ""), id: "line-" + ln.line }, btn);
-    if (flagged) {
-      const kinds = [...new Set(ln.flags.map(id => STAMP_WORDS[D.anomalies[id].anomaly_type]))].join(", ");
-      li.append(h("span", { class: "ink thunk r-stamp", style: `--delay:${(0.9 + 0.25 * stampIndex++).toFixed(2)}s;--tilt:-4deg`, text: "проверить: " + kinds }));
+const dayChip = h("button", { type: "button", class: "chip day", hidden: true, onclick: () => { state.day = null; renderHistory(); } });
+filterBox.append(dayChip);
+const search = h("label", { class: "search" }, icon("search"), h("span", { class: "sr", text: "Поиск по номеру или сумме" }),
+  h("input", { type: "search", placeholder: "Номер или сумма", oninput: e => { state.query = e.target.value.trim().toLowerCase(); renderHistory(); } }));
+filterBox.append(search);
+$("#history-total").textContent = `${D.valid_rows} ${plural(D.valid_rows, ["списание", "списания", "списаний"])}`;
+function renderHistory() {
+  const test = FILTERS.find(f => f[0] === state.filter)[2];
+  for (const [key, chip] of Object.entries(chips)) chip.setAttribute("aria-pressed", String(key === state.filter));
+  dayChip.hidden = !state.day;
+  if (state.day) dayChip.replaceChildren(humanDate(state.day), icon("close"));
+  const list = $("#history-list");
+  const nodes = [];
+  let shown = 0;
+  for (const day of D.days) {
+    if (state.day && day.date !== state.day) continue;
+    const rows = day.lines.filter(ln => test(ln) && (!state.query
+      || (ln.number || "").toLowerCase().includes(state.query) || ln.cost.replace(/\s/g, "").includes(state.query.replace(/\s/g, ""))));
+    if (!rows.length) continue;
+    shown += rows.length;
+    const wd = day.label.slice(0, 2);
+    nodes.push(h("div", { class: "day-head" + (day.spike ? " spike" : ""), id: "day-" + day.date },
+      h("span", { text: `${wd[0]}${wd[1].toLowerCase()}, ${humanDate(day.date)}` + (day.spike ? " · необычно дорогой день" : "") }),
+      h("b", { text: day.total + " сом" })));
+    for (const ln of rows) {
+      const bad = ln.flags.length > 0;
+      const raw = h("p", { class: "tx-raw", hidden: true, text: `строка ${ln.line} в файле: ${ln.raw}` });
+      const row = h("div", { class: "tx" + (bad ? " bad" : ""), id: "line-" + ln.line, role: "button", tabindex: 0, "aria-expanded": "false" },
+        icon(ln.type),
+        h("span", { class: "tx-name" }, `${ln.type_ru} ${ln.number || ""}`.trim(), h("small", { text: ln.time.slice(0, 5) }), bad ? " " : null,
+          bad ? h("span", { class: "badge bad", text: "спорное" }) : null),
+        h("span", { class: "tx-cost", text: ln.cost }),
+        raw);
+      const flip = () => { raw.hidden = !raw.hidden; row.setAttribute("aria-expanded", String(!raw.hidden)); };
+      row.addEventListener("click", flip);
+      row.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); } });
+      nodes.push(row);
     }
-    li.append(raw);
-    list.append(li);
   }
-  details.append(list);
-  paper.append(details);
+  if (!nodes.length) {
+    nodes.push(h("p", { class: "empty", style: "padding:16px" }, "Ничего не нашлось. ",
+      h("button", { type: "button", class: "link", onclick: resetHistory, text: "Показать все списания" })));
+  }
+  list.replaceChildren(...nodes);
+  $("#history-foot").textContent = `Показано ${shown} из ${D.valid_rows}`;
 }
-setReceiptMode(!flaggedCount);
-paper.append(h("hr", { class: "r-rule" }),
-  h("div", { class: "r-sum strong" }, h("span", { text: "ИТОГО" }), h("span", { text: D.total_text })),
-  h("div", { class: "r-sum red" }, h("span", { text: "ВОЗМОЖНО ЛИШНЕЕ" }), h("span", { text: D.overpay_text })),
-  h("div", { class: "r-sum" }, h("span", { text: "списаний" }), h("span", { text: String(D.valid_rows) })),
-  h("div", { class: "r-sum" }, h("span", { text: "отброшено строк" }), h("span", { text: String(D.dropped_rows) })),
-  h("div", { class: "r-foot", text: "*** ПРОВЕРЕНО: ГДЕ МОИ ДЕНЬГИ? ***" }));
+function resetHistory() {
+  state.filter = "all"; state.day = null; state.query = "";
+  search.querySelector("input").value = "";
+  renderHistory();
+}
+function showDay(date) {
+  state.day = date; state.filter = "all"; state.query = ""; search.querySelector("input").value = "";
+  renderHistory();
+  $("#history").scrollIntoView({ behavior: smooth, block: "start" });
+}
+function showLine(line) {
+  state.day = null; state.filter = "bad"; state.query = ""; search.querySelector("input").value = "";
+  renderHistory();
+  const row = document.getElementById("line-" + line);
+  $("#history").scrollIntoView({ behavior: smooth, block: "start" });
+  if (row) {
+    row.scrollIntoView({ behavior: smooth, block: "nearest" });
+    row.click();
+  }
+}
+renderHistory();
 
-/* ---------- chart ---------- */
+/* ---------- график ---------- */
 (function chart() {
   const box = $("#chart-box"), tip = $("#tip");
   const days = D.days;
-  if (!days.length) { box.append(h("p", { class: "mini-note", text: "Нет списаний — нечего рисовать." })); return; }
-  const W = 720, H = 250, m = { l: 46, r: 8, t: 34, b: 26 };
+  if (!days.length) { box.append(h("p", { class: "empty", text: "Нет списаний за этот период." })); return; }
+  const W = 720, H = 230, m = { l: 44, r: 8, t: 30, b: 26 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
   const max = Math.max(...days.map(d => d.total_cents), 1);
   const step = [1000, 2000, 2500, 5000, 10000, 20000, 25000, 50000, 100000, 200000].find(s => max / s <= 4) || 500000;
   const top = Math.ceil(max / step) * step;
   const y = v => m.t + ih - (v / top) * ih;
-  const band = iw / days.length, bw = Math.max(2, band - 2);
+  const band = iw / days.length, bw = Math.max(2, band - 3);
   const ns = "http://www.w3.org/2000/svg";
   const s = (tag, attrs) => { const el = document.createElementNS(ns, tag); for (const k in attrs) el.setAttribute(k, attrs[k]); return el; };
-  const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Траты по дням месяца" });
+  const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Расходы по дням месяца" });
   const grid = s("g", { class: "grid" }), axis = s("g", { class: "axis" });
   for (let v = 0; v <= top; v += step) {
     grid.append(s("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v) }));
@@ -641,83 +594,79 @@ paper.append(h("hr", { class: "r-rule" }),
   days.forEach((d, i) => {
     const x = m.l + i * band + (band - bw) / 2, top_ = y(d.total_cents), hgt = m.t + ih - top_;
     const r = Math.min(4, bw / 2, hgt);
-    const g = s("g", {});
-    const hit = s("rect", { class: "hit", x: m.l + i * band, y: m.t, width: band, height: ih, tabindex: 0,
-      "aria-label": `${d.label}: ${d.total} сом` });
+    const hit = s("rect", { class: "hit", x: m.l + i * band, y: m.t, width: band, height: ih, tabindex: 0, role: "button",
+      "aria-label": `${humanDate(d.date)}: ${d.total} сом — показать списания` });
     const path = hgt > 0
       ? `M${x},${m.t + ih} V${top_ + r} Q${x},${top_} ${x + r},${top_} H${x + bw - r} Q${x + bw},${top_} ${x + bw},${top_ + r} V${m.t + ih} Z`
       : `M${x},${m.t + ih} h${bw}`;
-    const bar = s("path", { class: "bar" + (d.spike ? " spike" : ""), d: path });
-    g.append(hit, bar);
-    if (d.flagged) g.append(s("circle", { class: "dot", cx: x + bw / 2, cy: top_ - 9, r: 4 }));
+    const bar = s("path", { class: "bar" + (d.spike ? " spike" : d.flagged ? " flagged" : ""), d: path });
+    svg.append(hit, bar);
     const dayNum = Number(d.date.slice(8, 10));
     const nearSpike = days.some((o, j) => o.spike && j !== i && Math.abs(j - i) <= 2);
     if (d.spike || ((dayNum === 1 || dayNum % 5 === 0) && !nearSpike)) {
-      const t = s("text", { x: x + bw / 2, y: H - 8, "text-anchor": "middle" }); t.textContent = d.date.slice(8, 10) + "." + d.date.slice(5, 7);
+      const t = s("text", { x: x + bw / 2, y: H - 8, "text-anchor": "middle" }); t.textContent = String(dayNum);
       axis.append(t);
     }
     if (d.spike) {
-      const a = (dayAnoms[d.date] || []).find(x => x.anomaly_type === "day_spike");
-      const label = s("text", { class: "label", x: Math.min(x + bw / 2, W - 150), y: top_ - (d.flagged ? 20 : 10), "text-anchor": x > W - 160 ? "end" : "middle" });
-      label.textContent = a && a.label ? a.label : "необычный день";
-      if (x > W - 160) label.setAttribute("x", x + bw);
+      const a = (dayAnoms[d.date] || []).find(z => z.anomaly_type === "day_spike");
+      const end = x > W - 170;
+      const label = s("text", { class: "label", x: end ? x + bw : x + bw / 2, y: top_ - 10, "text-anchor": end ? "end" : "middle" });
+      label.textContent = a && a.label ? a.label : "необычно дорогой день";
       svg.append(label);
     }
     const show = () => {
       const list = (dayAnoms[d.date] || []).map(a => "• " + a.title + " — " + a.amount_text + " сом").join("\n");
-      tip.replaceChildren(h("div", null, d.label + ": ", h("b", { text: d.total + " сом" })), list ? h("div", { style: "white-space:pre-line;margin-top:4px", text: list }) : "");
+      tip.replaceChildren(h("div", null, humanDate(d.date) + ": ", h("b", { text: d.total + " сом" })), list ? h("div", { style: "white-space:pre-line;margin-top:4px", text: list }) : "");
       const rect = svg.getBoundingClientRect(), scale = rect.width / W;
-      tip.style.left = (16 + (x + bw / 2) * scale) + "px";
-      tip.style.top = (16 + (top_ - 14) * scale) + "px";
+      tip.style.left = ((x + bw / 2) * scale) + "px";
+      tip.style.top = ((top_ - 10) * scale) + "px";
       tip.classList.add("on");
     };
     const hide = () => tip.classList.remove("on");
     hit.addEventListener("mouseenter", show); hit.addEventListener("focus", show);
     hit.addEventListener("mouseleave", hide); hit.addEventListener("blur", hide);
-    hit.addEventListener("click", () => gotoDay(d.date));
-    svg.append(g);
+    hit.addEventListener("click", () => showDay(d.date));
+    hit.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); showDay(d.date); } });
   });
   box.append(svg);
 })();
 
-/* ---------- spend ---------- */
+/* ---------- куда ушли деньги ---------- */
 const maxCat = Math.max(...D.by_category.map(c => c.value), 0.01);
 for (const c of D.by_category) {
-  $("#cats").append(h("div", { class: "cat" }, h("span", { text: c.label }), h("span", { class: "v", text: c.text }),
+  $("#cats").append(h("div", { class: "cat" }, h("span", { text: c.label[0].toUpperCase() + c.label.slice(1) }), h("b", { text: c.text + " сом" }),
     h("div", { class: "track" }, h("div", { class: "fill", style: `width:${(100 * c.value / maxCat).toFixed(1)}%` }))));
 }
-if (!D.top5.length) $("#top5").append(h("li", { text: "нет номеров" }));
-for (const t of D.top5) $("#top5").append(h("li", null, h("div", null, h("span", { text: t.number }), h("span", { text: t.text + " сом" }))));
+if (!D.top5.length) $("#top5").append(h("li", { text: "Нет номеров" }));
+for (const t of D.top5) $("#top5").append(h("li", null, h("span", { text: t.number }), h("b", { text: t.text + " сом" })));
 
-/* ---------- checklist ---------- */
+/* ---------- для жюри ---------- */
 const tz = $("#tz-list");
 for (const group of D.checklist) {
-  const g = h("div", { class: "tz-group" }, h("h3", { text: group.title }));
+  const g = h("div", { class: "jury-group" }, h("h3", { text: group.title }));
   for (const item of group.items) {
     g.append(h("div", { class: "tz-item" + (item.ok ? "" : " no") },
-      h("span", { class: "mark", "aria-label": item.ok ? "сделано" : "не сделано", text: item.ok ? "✓" : "—" }),
-      h("span", { class: "t", text: item.title }),
+      icon(item.ok ? "check" : "close"),
+      h("span", null, h("b", { text: item.title }), h("span", { class: "sr", text: item.ok ? " — сделано" : " — не сделано" })),
       h("span", { class: "v", text: item.value }),
       item.where ? h("button", { type: "button", class: "link", text: "Показать", onclick: () => {
         const target = document.getElementById(item.where);
-        if (target) { if (target.tagName === "SECTION") { const det = target.querySelector("details"); if (det) det.open = true; } target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" }); }
+        if (target) target.scrollIntoView({ behavior: smooth, block: "start" });
       } }) : null));
   }
   tz.append(g);
 }
-
-/* ---------- data quality ---------- */
-$("#quality-title").textContent = `Качество данных: отброшено ${D.dropped_rows} ${plural(D.dropped_rows, ["строка", "строки", "строк"])}`;
+$("#dropped-title").textContent = `Пропущенные строки файла: ${D.dropped_rows}`;
 if (D.dropped.length) {
   const tbody = h("tbody");
   for (const d of D.dropped) tbody.append(h("tr", null, h("td", { text: String(d.line) }), h("td", { text: d.reason_ru }),
     h("td", null, h("code", { text: d.raw || "(пусто)" }))));
   $("#dropped").append(h("table", null, h("thead", null, h("tr", null, h("th", { text: "строка" }), h("th", { text: "причина" }), h("th", { text: "как в файле" }))), tbody));
 } else {
-  $("#dropped").append(h("p", { class: "mini-note", text: "Все строки файла разобраны." }));
+  $("#dropped").append(h("p", { class: "muted", text: "Все строки файла разобраны." }));
 }
 
-/* ---------- phone demo ---------- */
+/* ---------- окно телефона (демо) ---------- */
 const phone = $("#phone");
 let phoneTimers = [];
 function phoneScreens() {
@@ -750,7 +699,7 @@ function openPhone() {
 $("#phone-replay").addEventListener("click", playPhone);
 $("#phone-close").addEventListener("click", () => phone.close());
 phone.addEventListener("close", () => { phoneTimers.forEach(clearTimeout); phoneTimers = []; });
-phone.addEventListener("click", e => { if (e.target === phone) phone.close(); });
+for (const dlg of [phone, claimDialog]) dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
 
 initBigToggle();
 </script>

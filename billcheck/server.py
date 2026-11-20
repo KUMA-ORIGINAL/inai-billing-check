@@ -13,6 +13,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
+from .explain import load_faq
 from .family import load_profiles, profile_name
 from .html import embed, render_family, render_report
 from .llm import llm_summary
@@ -23,6 +24,7 @@ MAX_UPLOAD = 5 * 1024 * 1024
 SAFE_NAME = re.compile(r"[^\w.\-]+", re.UNICODE)
 FAMILY_BACK = {"href": "/family", "label": "← Вся семья"}
 UPLOAD_BACK = {"href": "/", "label": "← Другой файл"}
+HOW_TO_FAQ_ID = 15  # FAQ оператора: «Как получить детализацию расходов?»
 
 
 def billing_files(data_dir: Path) -> dict[str, Path]:
@@ -102,7 +104,8 @@ def make_server(data_dir: Path, port: int = 8000, use_llm: bool = False) -> Thre
             profiles = load_profiles(data_dir)
             if path == "/":
                 payload = {"profiles": [{"file": name, "name": profile_name(profiles, p)} for name, p in files.items()],
-                           "limit_mb": MAX_UPLOAD // (1024 * 1024)}
+                           "limit_mb": MAX_UPLOAD // (1024 * 1024),
+                           "how_to": load_faq().get(HOW_TO_FAQ_ID, {}).get("answer_ru", "")}
                 self._send(HTTPStatus.OK, embed("upload.html", payload))
             elif path == "/family" and files:
                 results = [analyze(p) for p in files.values()]

@@ -43,6 +43,7 @@ def test_index_lists_profiles(server):
     assert status == 200
     names = [p["name"] for p in _payload(page)["profiles"]]
     assert names == ["Я", "Папа", "Бабушка", "Мама", "Брат"]
+    assert "Детализация" in _payload(page)["how_to"]
 
 
 def test_upload_billing_03(server):

@@ -50,3 +50,8 @@ def test_cli_index_is_family_page(tmp_path):
     assert len(data["members"]) == 5 and data["members"][0]["link"] == "billing_01/report.html"
     report = _payload((out / "billing_03" / "report.html").read_text(encoding="utf-8"))
     assert report["back_link"] == {"href": "../index.html", "label": "← Вся семья"}
+
+
+def test_family_payload_has_operator_advice(results):
+    data = family_payload(results, load_profiles(DATA_DIR), ["#"] * 5, DATA_DIR)
+    assert "Подписки" in data["advice_ru"] and "Жазылуулар" in data["advice_ky"]

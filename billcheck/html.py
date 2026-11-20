@@ -215,6 +215,8 @@ def family_payload(results: list[Result], profiles: dict[str, str], links: list[
                    "anomalies": sum(m["anomalies"] for m in members), "count": len(members)},
         "reputation": reputation,
         "self_check": self_check(results, data_dir),
+        "advice_ru": load_faq().get(ADVICE_FAQ_ID["new_subscription"], {}).get("answer_ru", ""),
+        "advice_ky": load_faq().get(ADVICE_FAQ_ID["new_subscription"], {}).get("answer_ky", ""),
     }
 
 
