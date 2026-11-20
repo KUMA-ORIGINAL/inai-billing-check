@@ -3,8 +3,9 @@ from decimal import Decimal
 
 import pytest
 
-from billcheck.anomalies import (REASONS, find_duplicates, find_international, find_new_subscription,
-                                 find_night_charges)
+from billcheck.anomalies import (REASONS, find_all, find_day_spikes, find_duplicates, find_international,
+                                 find_new_subscription, find_night_charges)
+from billcheck.parse import read_billing
 from helpers import ch
 
 
@@ -78,3 +79,47 @@ def test_local_number_without_plus():
 
 def test_international_zero_duration():
     assert find_international([ch("2026-09-27 10:40:38", "call", "+971007731297", 0, 0, "50")]) == []
+
+
+# --- Task 4: всплеск расходов за день и полный список ---------------------------------------
+
+def _days(costs: dict[int, str]) -> list:
+    return [ch(f"2026-09-{day:02d} 12:00:00", "call", "+996700000001", 60, 0, cost)
+            for day, cost in costs.items()]
+
+
+def test_first_seven_days_not_checked():
+    assert find_day_spikes(_days({1: "1", 2: "1", 3: "1", 4: "1", 5: "1", 6: "1", 7: "100"})) == []
+    found = find_day_spikes(_days({1: "1", 2: "1", 3: "1", 4: "1", 5: "1", 6: "1", 7: "1", 8: "100"}))
+    assert [a.as_dict() for a in found] == [{
+        "datetime": "2026-09-08 00:00:00", "type": "day_spike", "anomaly_type": "day_spike",
+        "amount_som": 99.0, "reason": REASONS["day_spike"]}]
+    assert (found[0].line, found[0].charge) == (None, None)
+
+
+def test_zero_days_count_in_window():
+    found = find_day_spikes(_days({8: "5"}))
+    assert [(a.dt.day, a.as_dict()["amount_som"]) for a in found] == [(8, 5.0)]
+
+
+def test_flat_days_no_spike():
+    assert find_day_spikes(_days({d: "10" for d in range(1, 9)})) == []
+
+
+def test_population_std():
+    # pstdev окна ≈ 0.98974 → z ≈ 3.18 > 3 (с выборочным std было бы ≈ 2.94 — не всплеск)
+    week = {1: "10", 2: "12", 3: "10", 4: "12", 5: "10", 6: "12", 7: "10"}
+    assert [a.as_dict()["amount_som"] for a in find_day_spikes(_days(week | {8: "14"}))] == [3.14]
+    assert find_day_spikes(_days(week | {8: "13"})) == []
+
+
+@pytest.mark.parametrize("n", range(1, 6))
+def test_all_anomalies_match_expected(data_dir, n):
+    charges, _ = read_billing(data_dir / f"billing_0{n}.csv")
+    expected = json.loads((data_dir / f"billing_0{n}_expected.json").read_text(encoding="utf-8"))["anomalies"]
+    assert [a.as_dict() for a in find_all(charges)] == expected
+
+
+def test_open_data_has_twenty_anomalies(data_dir):
+    total = sum(len(find_all(read_billing(data_dir / f"billing_0{n}.csv")[0])) for n in range(1, 6))
+    assert total == 20

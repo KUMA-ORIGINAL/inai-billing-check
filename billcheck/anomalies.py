@@ -1,11 +1,13 @@
 """Пять правил аномалий из уточнений организаторов (CLARIFICATIONS_RU, раздел 4)."""
+import math
+import statistics
 from dataclasses import dataclass
 from datetime import datetime, time
 from decimal import Decimal
 
 from .money import money
 from .parse import Charge
-from .report import normalize_number
+from .report import daily_totals, normalize_number
 
 REASONS = {
     "night_charge": "Платное SMS/контент ночью с 00:00 до 06:00",
@@ -85,3 +87,37 @@ def find_international(charges: list[Charge]) -> list[Anomaly]:
             overpay = max(Decimal(0), c.cost - RATE_LIMIT_PER_MIN * c.duration_sec / 60)
             found.append(_from_charge(c, "international_rate", overpay))
     return found
+
+
+SPIKE_WINDOW_DAYS = 7
+SPIKE_Z = 3
+
+
+def _z_score(value: Decimal, window: list[Decimal]) -> float:
+    mean = statistics.mean(window)
+    std = statistics.pstdev(window)  # population std, ddof=0
+    if std == 0:
+        return math.inf if value > mean else 0.0
+    return float((value - mean) / std)
+
+
+def find_day_spikes(charges: list[Charge]) -> list[Anomaly]:
+    """День дороже семи предыдущих полных дней (нулевые дни считаются): z-score > 3."""
+    series = list(daily_totals(charges).items())
+    found = []
+    for i in range(SPIKE_WINDOW_DAYS, len(series)):
+        day, value = series[i]
+        window = [total for _, total in series[i - SPIKE_WINDOW_DAYS:i]]
+        if _z_score(value, window) > SPIKE_Z:
+            found.append(Anomaly(datetime.combine(day, time()), "day_spike", "day_spike",
+                                 value - statistics.mean(window), REASONS["day_spike"]))
+    return found
+
+
+RULES = (find_night_charges, find_new_subscription, find_duplicates, find_international, find_day_spikes)
+
+
+def find_all(charges: list[Charge]) -> list[Anomaly]:
+    """Все пять правил; на каждое правило — отдельная аномалия; сортировка по времени."""
+    found = [anomaly for rule in RULES for anomaly in rule(charges)]
+    return sorted(found, key=lambda a: (a.dt, a.anomaly_type))
