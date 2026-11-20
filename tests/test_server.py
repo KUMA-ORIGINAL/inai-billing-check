@@ -39,10 +39,10 @@ def _payload(page: str) -> dict:
 
 
 def test_index_lists_profiles(server):
-    status, page = _get(server + "/")
+    status, page = _get(server + "/classic")
     assert status == 200
     names = [p["name"] for p in _payload(page)["profiles"]]
-    assert names == ["Я", "Папа", "Бабушка", "Мама", "Брат"]
+    assert names == ["Бабушка", "Папа", "Мама", "Сын, 15 лет", "Дочь, 19 лет"]
     assert "Детализация" in _payload(page)["how_to"]
 
 
@@ -51,7 +51,7 @@ def test_upload_billing_03(server):
     assert status == 200
     data = _payload(page)
     assert data["overpay_text"] == "65,00" and "62626" in page
-    assert data["profile"] == "Бабушка" and data["back_link"]["href"] == "/"
+    assert data["profile"] == "Мама" and data["back_link"]["href"] == "/classic"
     assert "Эталон организаторов" in json.dumps(data["checklist"], ensure_ascii=False)
 
 
@@ -97,3 +97,51 @@ def test_profile_and_family(server):
                                   "/profile/nope.csv", "/nothing"])
 def test_unknown_paths(server, path):
     assert _get(server + path)[0] == 404
+
+
+def _post_json(url: str, data) -> tuple[int, str]:
+    body = json.dumps(data, ensure_ascii=False).encode("utf-8")
+    return _get(urllib.request.Request(url, data=body, method="POST", headers={"Content-Type": "application/json"}))
+
+
+def test_app_page_has_snapshot(server):
+    status, page = _get(server + "/")
+    assert status == 200 and "Акчам кайда?" in page
+    embedded = re.search(r"window\.TAZA_SNAPSHOT=(.*?);</script>", page, re.S).group(1)
+    assert json.loads(embedded)["members"][0]["name"] == "Гүлнара"
+
+
+def test_api_health_and_demo(server):
+    status, text = _get(server + "/api/health")
+    assert status == 200 and json.loads(text)["ok"] is True
+    status, text = _get(server + "/api/demo")
+    demo = json.loads(text)
+    assert status == 200 and len(demo["members"]) == 5 and demo["radar"]
+    assert demo["members"][2]["report"]["summary"]["reclaimable_som"] == 65.0
+    assert demo["members"][2]["content"].startswith("datetime,type")
+
+
+def test_api_analyze_radar_explain_render(server):
+    content = (DATA_DIR / "billing_03.csv").read_text(encoding="utf-8")
+    status, text = _post_json(server + "/api/analyze", {"filename": "billing_03.csv", "content": content,
+                                                        "settings": {"z_threshold": 3}})
+    assert status == 200
+    report = json.loads(text)["report"]
+    assert report["summary"]["reclaimable_som"] == 65.0
+    status, text = _post_json(server + "/api/radar", {"members": [{"name": "Мама", "report": report}]})
+    assert status == 200 and {r["number"] for r in json.loads(text)["radar"]} >= {"53530", "62626"}
+    status, text = _post_json(server + "/api/explain", {"anomaly": report["anomalies"][0], "lang": "ky"})
+    assert status == 200 and json.loads(text)["source"] == "template"
+    status, page = _post_json(server + "/api/render", {"report": report, "complaint": "Прошу вернуть"})
+    assert status == 200 and "Прошу вернуть" in page and "<script" not in page
+
+
+def test_api_errors_are_json(server):
+    status, text = _post_json(server + "/api/analyze", {"filename": "a.csv", "content": "hello,world\n1,2\n"})
+    assert status == 400 and json.loads(text)["error"]
+    bad = urllib.request.Request(server + "/api/radar", data=b"{oops", method="POST",
+                                 headers={"Content-Type": "application/json"})
+    status, text = _get(bad)
+    assert status == 400 and json.loads(text)["error"]
+    assert _post_json(server + "/api/explain", {"lang": "ru"})[0] == 400
+    assert _post_json(server + "/api/render", {})[0] == 400

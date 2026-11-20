@@ -18,6 +18,9 @@
 .hero h1 .sum { color: var(--brand); white-space: nowrap; }
 .hero p { margin: 10px 0 0; font-size: 1.05rem; color: var(--text-2); max-width: 62ch; }
 
+.save { display: flex; gap: 12px; align-items: center; margin-top: 16px; padding: 12px 16px; border-radius: 14px; background: var(--brand-soft); max-width: 62ch; }
+.save b { color: var(--brand); white-space: nowrap; }
+.save .icon { color: var(--brand); flex: none; }
 .alert { display: grid; grid-template-columns: auto 1fr; gap: 14px; padding: 20px 22px; border-radius: var(--radius); background: var(--danger-soft); }
 .alert .icon { color: var(--danger); width: 26px; height: 26px; margin-top: 2px; }
 .alert h2 { font-size: 1.15rem; }
@@ -114,6 +117,13 @@ const count = D.totals.count;
 
 $("#who").textContent = ["Семья", D.period, `${count} ${plural(count, ["номер", "номера", "номеров"])}`].filter(Boolean).join(" · ");
 $("#hero-title").append("Можно вернуть ", h("span", { class: "sum", text: D.totals.overpay_text + " сом" }));
+if (D.totals.savings_cents > 0) {
+  const savers = D.members.filter(m => m.savings_cents > 0).length;
+  $("#hero-text").after(h("p", { class: "save" }, icon("day_spike"),
+    h("span", null, "А на подходящих тарифах ", savers === count ? "вся семья" : `${savers} из ${count}`,
+      " может платить на ", h("b", { text: D.totals.savings_text + " сом" }), " меньше в месяц — ",
+      h("b", { text: D.totals.year_text + " сом" }), " в год.")));
+}
 $("#hero-text").textContent = (withRefund
   ? (withRefund === count ? `У всех ${count} ${plural(count, ["номера", "номеров", "номеров"])}` : `У ${withRefund} из ${count} ${plural(count, ["номера", "номеров", "номеров"])}`) + " есть списания, которые стоит оспорить. "
   : "Спорных списаний ни у кого нет. ") + `Всего за месяц семья потратила ${D.totals.total_text} сом.`;
@@ -136,7 +146,8 @@ D.members.forEach((m, i) => {
   const initials = m.name.split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase();
   const badges = h("span", { class: "badges" },
     m.overpay_som > 0 ? h("span", { class: "badge bad", text: `вернуть ${m.overpay_text} сом` }) : h("span", { class: "badge ok", text: "всё чисто" }),
-    m.new_subscription ? h("span", { class: "badge warn", text: "новая подписка" }) : null);
+    m.new_subscription ? h("span", { class: "badge warn", text: "новая подписка" }) : null,
+    m.savings_cents > 0 ? h("span", { class: "badge ok", title: "Тариф " + m.tariff_name, text: `−${m.savings_text} сом/мес на тарифе` }) : null);
   $("#member-list").append(h("li", null, h("a", { class: "member", href: m.link },
     h("span", { class: "avatar", style: `background:${AVATAR_COLORS[i % AVATAR_COLORS.length]}`, "aria-hidden": "true", text: initials }),
     h("span", null, h("span", { class: "name", text: m.name }), h("br"),

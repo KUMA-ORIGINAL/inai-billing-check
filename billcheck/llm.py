@@ -175,3 +175,83 @@ def llm_summary(result: Result, generate: Generate | None = None) -> str | None:
         print(f"ИИ-письмо отброшено ({reason}): отчёт с шаблонными пояснениями.", file=sys.stderr)
         return None
     return text
+
+
+EXPLAIN_SYSTEM = {
+    "ru": ("Ты объясняешь абоненту учебного оператора INAI Mobile одно подозрительное списание из его детализации. "
+           "Пиши по-русски, на «вы», 2–3 коротких предложения простыми словами, как пожилому человеку, без списков "
+           "и markdown. Используй только факты из сообщения: числа и номера переписывай дословно, ничего не "
+           "пересчитывай и не обещай вернуть деньги — решает оператор. Закончи одним понятным шагом, что сделать."),
+    "ky": ("Сен INAI Mobile окуу операторунун абонентине анын детализациясындагы бир шектүү төлөмдү түшүндүрөсүң. "
+           "Кыргызча, «сиз» деп, 2–3 кыска сүйлөм менен, карыя адамга түшүндүргөндөй жөнөкөй сөздөр менен жаз, "
+           "тизмесиз жана markdownсыз. Билдирүүдөгү фактыларды гана колдон: сандарды жана номерлерди так көчүр, "
+           "эч нерсени кайра эсептебе жана акчаны кайтарабыз деп убада бербе — оператор чечет. "
+           "Акырында эмне кылуу керектигин бир кадам менен айт."),
+}
+MASK = re.compile(r"\+?\d{9,}")
+
+
+def mask_number(number: str) -> str:
+    """+996777165026 → +99677••••26: в модель не уходят полные номера абонента и его собеседников."""
+    if not number or len(re.sub(r"\D", "", number)) < 9:
+        return number
+    return number[:6] + "••••" + number[-2:]
+
+
+def anomaly_facts(anomaly: dict, lang: str) -> dict:
+    """Факты одной находки для модели: только посчитанные числа, номера замаскированы."""
+    ky = lang == "ky"
+    return {
+        "что_нашли": anomaly.get("reason_ky" if ky else "reason") or anomaly.get("reason", ""),
+        "когда": anomaly.get("datetime", ""),
+        "номер": mask_number(str(anomaly.get("number") or "")),
+        "сумма_сом": anomaly.get("amount_som"),
+        "к_возврату": bool(anomaly.get("reclaimable")),
+        "пояснение": MASK.sub(lambda m: mask_number(m.group()),
+                              str(anomaly.get("explanation_ky" if ky else "explanation") or "")),
+        "что_делать": str(anomaly.get("advice_ky" if ky else "advice") or ""),
+    }
+
+
+def explain_rejection(text: str, facts_text: str, lang: str) -> str | None:
+    if LINK.search(text):
+        return "в тексте есть ссылка"
+    letters = [ch for ch in text if ch.isalpha()]
+    if letters and sum(ch.isascii() for ch in letters) / len(letters) > MAX_LATIN_SHARE:
+        return "текст не на кириллице"
+    invented = {run for run in DIGITS.findall(text) if int(run) > MAX_FREE_COUNT} - set(DIGITS.findall(facts_text))
+    if invented:
+        return "число, которого нет в фактах: " + ", ".join(sorted(invented))
+    if lang == "ru" and PROMISE.search(text):
+        return "обещание вернуть деньги — решает оператор"
+    return None
+
+
+def template_explanation(anomaly: dict, lang: str = "ru") -> dict:
+    """Пояснение без ИИ: готовый текст отчёта и шаг «что делать» на нужном языке."""
+    ky = lang == "ky"
+    text = str(anomaly.get("explanation_ky" if ky else "explanation") or anomaly.get("explanation") or "")
+    advice = str(anomaly.get("advice_ky" if ky else "advice") or "")
+    return {"text": (text + (" " + advice if advice else "")).strip(), "source": "template"}
+
+
+def explain_anomaly(anomaly: dict, lang: str = "ru", generate: Generate | None = None) -> dict:
+    """«Объяснить проще»: {"text", "source": "llm" | "template"}. Без ключа, сети или при выдумке — шаблон."""
+    lang = "ky" if lang == "ky" else "ru"
+    fallback = template_explanation(anomaly, lang)
+    if generate is None:
+        provider = pick_provider()
+        if provider is None:
+            return fallback
+        generate = provider[1]
+    facts_text = json.dumps(anomaly_facts(anomaly, lang), ensure_ascii=False, indent=1)
+    try:
+        text = THINK.sub("", generate(EXPLAIN_SYSTEM[lang], "Факты:\n" + facts_text) or "").strip()
+    except Exception as exc:  # сеть, лимиты, неверный ключ → шаблон
+        print(f"ИИ-пояснение недоступно ({type(exc).__name__}): шаблон.", file=sys.stderr)
+        return fallback
+    reason = explain_rejection(text, facts_text, lang) if text else "пустой ответ"
+    if reason:
+        print(f"ИИ-пояснение отброшено ({reason}): шаблон.", file=sys.stderr)
+        return fallback
+    return {"text": text, "source": "llm"}

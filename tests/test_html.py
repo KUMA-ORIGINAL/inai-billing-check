@@ -51,7 +51,7 @@ def test_cli_writes_report_html(data_dir, tmp_path):
     out = tmp_path / "out"
     assert cli.main([str(data_dir / "billing_03.csv"), "--out", str(out)]) == 0
     page = (out / "report.html").read_text(encoding="utf-8")
-    assert _payload(page)["profile"] == "Бабушка"
+    assert _payload(page)["profile"] == "Мама"
 
 
 def test_report_html_survives_html_comment_in_data(tmp_path):
@@ -67,3 +67,19 @@ def test_cards_have_printed_receipt_line(data_dir):
     by_type = {a["anomaly_type"]: a["printed"] for a in data["anomalies"]}
     assert by_type["international_rate"] == "ПН 07.09.2026 · 17:54:43 · звонок · +971517547668 · строка 111"
     assert by_type["day_spike"] == "ВТ 29.09.2026 · за весь день"
+
+
+def test_payload_has_tariff_advice(data_dir):
+    tariff = report_payload(analyze(data_dir / "billing_03.csv"))["tariff"]
+    assert tariff["worth"] is True
+    assert tariff["best_name"] == "«Максимум» + 2 × 100 минут"
+    assert tariff["paid_text"] == "1\u00a0988,02" and tariff["best_text"] == "1\u00a0082,00"
+    assert tariff["savings_text"] == "906,02" and tariff["year_text"] == "10\u00a0872"
+    assert sum(o["best"] for o in tariff["options"]) == 1 and len(tariff["options"]) == 5
+    assert "50 сом" in tariff["advice_ru"] and tariff["advice_ky"]
+
+
+def test_checklist_mentions_tariff_advisor(data_dir):
+    groups = report_payload(analyze(data_dir / "billing_03.csv"))["checklist"]
+    extra = next(g for g in groups if g["title"].startswith("Сверх ТЗ"))
+    assert extra["items"][0]["ok"] and "Максимум" in extra["items"][0]["value"]

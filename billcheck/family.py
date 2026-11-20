@@ -16,13 +16,27 @@ from .selfcheck import compare, load_anomalies
 FAMILY_FILE = "family.json"
 
 
-def load_profiles(data_dir: Path) -> dict[str, str]:
-    """Подписи профилей из family.json: имя файла → «Бабушка». Нет файла — пустой словарь."""
+def load_family(data_dir: Path) -> dict:
+    """family.json: {"family": «Семья …», "members": [{file, name, role, msisdn}]}.
+    Старый формат {имя файла: подпись} тоже читается. Нет файла или он битый — пустая семья."""
     try:
         data = json.loads((Path(data_dir) / FAMILY_FILE).read_text(encoding="utf-8"))
     except (OSError, ValueError):
-        return {}
-    return {str(k): str(v) for k, v in data.items()} if isinstance(data, dict) else {}
+        return {"family": "", "members": []}
+    if not isinstance(data, dict):
+        return {"family": "", "members": []}
+    if not isinstance(data.get("members"), list):
+        return {"family": "", "members": [{"file": str(k), "name": str(v), "role": str(v), "msisdn": ""}
+                                          for k, v in data.items()]}
+    members = [{"file": str(m.get("file", "")), "name": str(m.get("name") or m.get("role") or ""),
+                "role": str(m.get("role", "")), "msisdn": str(m.get("msisdn", ""))}
+               for m in data["members"] if isinstance(m, dict) and m.get("file")]
+    return {"family": str(data.get("family", "")), "members": members}
+
+
+def load_profiles(data_dir: Path) -> dict[str, str]:
+    """Подписи профилей: имя файла → «Бабушка» (роль, а если её нет — имя). Нет файла — пустой словарь."""
+    return {m["file"]: m["role"] or m["name"] for m in load_family(data_dir)["members"]}
 
 
 def profile_name(profiles: dict[str, str], source: Path) -> str:

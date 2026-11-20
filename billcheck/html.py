@@ -1,7 +1,7 @@
 """Самодостаточные HTML-страницы: данные встраиваются JSON-ом в шаблон, внешних скриптов нет."""
 import json
 from collections import Counter
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
 from .claim import BLANK, INTRO, claim_basis, claim_positions
@@ -10,6 +10,7 @@ from .family import family_summary, number_reputation, self_check
 from .money import format_som, money
 from .pipeline import Result
 from .report import daily_totals
+from .tariffs import Advice, Offer, advise
 
 TEMPLATES = Path(__file__).resolve().parent / "templates"
 PLACEHOLDER = "__BILL_DATA__"
@@ -122,6 +123,12 @@ def checklist(result: Result, llm_text: str | None, expected_dir: Path) -> list[
              "value": "не делали: у организаторов нет образцов PDF"},
         ]},
     ]
+    tariff = advise(result.charges)
+    groups.append({"title": "Сверх ТЗ: объединили с ТЗ 2", "items": [
+        {"title": "Тарифный советник: тот же месяц на пакетном тарифе по прайсу и правилам ТЗ 2",
+         "ok": tariff is not None, "where": "tariff" if tariff else "",
+         "value": (f"лучший — {offer_name(tariff.best)}: {format_som(tariff.best.cost)} сом вместо "
+                   f"{format_som(tariff.usage.paid)}" if tariff else "нет data/tariffs.json или нечего сравнивать")}]})
     check = self_check([result], expected_dir)
     if check:
         groups.append({"title": "Сверка с эталоном организаторов", "items": [
@@ -138,6 +145,53 @@ def phone_payload(result: Result) -> dict:
                 "types_text": ", ".join(TYPE_NAMES[t] for t in row["types"])}
                for row in number_reputation([result])]
     return {"numbers": numbers, "advice_ru": faq.get("answer_ru", ""), "advice_ky": faq.get("answer_ky", "")}
+
+
+SWITCH_FAQ_ID = 5  # «Как сменить тариф?»: где менять и разовый сбор
+
+
+def offer_name(offer: Offer) -> str:
+    """«Максимум + 2 × 100 минут»."""
+    counts = Counter(a.name for a in offer.addons)
+    extras = [f"{n} × {name}" if n > 1 else name for name, n in counts.items()]
+    return " + ".join([f"«{offer.plan.name}»", *extras])
+
+
+def whole_som(value: Decimal) -> str:
+    """Крупная сумма без копеек: 10 872."""
+    return f"{value.quantize(Decimal(1), rounding=ROUND_HALF_UP):,.0f}".replace(",", "\u00a0")
+
+
+def gb_text(value: Decimal) -> str:
+    return f"{value:.1f}".replace(".", ",")
+
+
+def tariff_payload(advice: Advice | None) -> dict | None:
+    """Блок «Можно платить меньше»: тот же месяц на лучшем тарифе учебного прайса INAI Mobile."""
+    if advice is None:
+        return None
+    usage, best = advice.usage, advice.best
+    parts = [{"label": f"Абонплата {offer_name(best)}", "text": format_som(best.fee)}]
+    extra = best.extra_cost
+    for key, amount, unit in (("call", best.extra_minutes, "мин"), ("data", best.extra_gb, "ГБ"),
+                              ("sms", best.extra_sms, "SMS")):
+        if amount > 0:
+            shown = gb_text(amount) if key == "data" else f"{amount:.0f}"
+            parts.append({"label": f"Сверх пакета: {shown} {unit}", "text": format_som(extra[key])})
+    faq = load_faq().get(SWITCH_FAQ_ID, {})
+    return {
+        "worth": advice.worth_switching,
+        "paid_text": format_som(usage.paid), "best_text": format_som(best.cost), "best_name": offer_name(best),
+        "savings_text": format_som(advice.savings), "savings_cents": cents(advice.savings),
+        "year_text": whole_som(advice.savings * 12),
+        "usage_text": f"{usage.minutes} мин местных звонков · {usage.sms} SMS · {gb_text(usage.gb)} ГБ интернета",
+        "outside_text": format_som(usage.outside),
+        "parts": parts,
+        "options": [{"name": offer_name(o), "text": format_som(o.cost), "best": o is best,
+                     "savings_text": format_som(usage.paid - o.cost), "cheaper": o.cost < usage.paid}
+                    for o in advice.options],
+        "advice_ru": faq.get("answer_ru", ""), "advice_ky": faq.get("answer_ky", ""),
+    }
 
 
 def report_payload(result: Result, profile: str | None = None, llm_text: str | None = None,
@@ -181,6 +235,7 @@ def report_payload(result: Result, profile: str | None = None, llm_text: str | N
         "llm": llm_text,
         "back_link": back_link,
         "phone": phone_payload(result),
+        "tariff": tariff_payload(advise(result.charges)),
     }
 
 
@@ -191,9 +246,15 @@ def render_report(result: Result, profile: str | None = None, llm_text: str | No
 
 def family_payload(results: list[Result], profiles: dict[str, str], links: list[str], data_dir: Path) -> dict:
     members = family_summary(results, profiles)
+    savings = Decimal(0)
     for member, link, result in zip(members, links, results):
+        advice = advise(result.charges)
+        saving = advice.savings if advice and advice.worth_switching else Decimal(0)
+        savings += saving
         member.update(link=link, total_text=format_som(Decimal(str(member["total_som"]))),
-                      overpay_text=format_som(Decimal(str(member["overpay_som"]))), period=period(result)["label"])
+                      overpay_text=format_som(Decimal(str(member["overpay_som"]))), period=period(result)["label"],
+                      savings_cents=cents(saving), savings_text=format_som(saving),
+                      tariff_name=offer_name(advice.best) if saving else "")
     total = sum((Decimal(str(m["total_som"])) for m in members), Decimal(0))
     overpay = sum((Decimal(str(m["overpay_som"])) for m in members), Decimal(0))
     reputation = []
@@ -212,7 +273,9 @@ def family_payload(results: list[Result], profiles: dict[str, str], links: list[
         "names": [m["name"] for m in members],
         "period": periods.pop() if len(periods) == 1 else "",
         "totals": {"total_text": format_som(total), "overpay_text": format_som(overpay),
-                   "anomalies": sum(m["anomalies"] for m in members), "count": len(members)},
+                   "anomalies": sum(m["anomalies"] for m in members), "count": len(members),
+                   "savings_cents": cents(savings), "savings_text": format_som(savings),
+                   "year_text": whole_som(savings * 12)},
         "reputation": reputation,
         "self_check": self_check(results, data_dir),
         "advice_ru": load_faq().get(ADVICE_FAQ_ID["new_subscription"], {}).get("answer_ru", ""),

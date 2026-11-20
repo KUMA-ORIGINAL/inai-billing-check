@@ -1,7 +1,8 @@
 """CLI: python analyze.py [billing.csv …] [--out out]   ·   из Python: analyze.analyze("billing.csv")
 
-Один файл → out/report.json, out/anomalies.json, out/dropped_rows.csv.
-Несколько файлов (или ни одного — тогда все data/billing_*.csv) → out/<имя>/… и out/index.html.
+Один файл → out/report.json, out/anomalies.json, out/dropped_rows.csv, out/report.html, out/report.md.
+Несколько файлов (или ни одного — тогда все data/billing_*.csv) → out/<имя>/…, out/index.html (приложение
+«Акчам кайда?», работает без сервера) и out/family.html (классическая семейная страница).
 --llm добавляет письмо абоненту от Claude (нужны пакет anthropic и доступ к API; иначе — шаблоны).
 Коды возврата: 0 — успех, 2 — проблема с входным файлом (run.bat / run.sh: 3 — не найден Python).
 """
@@ -13,18 +14,20 @@ from pathlib import Path
 if sys.version_info < (3, 10):  # до импорта billcheck: там синтаксис 3.10
     sys.exit("Нужен Python 3.10 или новее, а запущен " + sys.version.split()[0] + ".")
 
+from billcheck.app import family_snapshot, render_app, render_markdown
 from billcheck.explain import possible_overpay
 from billcheck.family import load_profiles, profile_name
 from billcheck.html import render_family
 from billcheck.llm import llm_summary
 from billcheck.parse import BillingFileError
 from billcheck.pipeline import Result, write_outputs
+from billcheck.rich import rich_report
 from billcheck.pipeline import analyze as analyze_billing
 
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data"
 EXIT_OK, EXIT_INPUT = 0, 2
-FAMILY_BACK_LINK = {"href": "../index.html", "label": "← Вся семья"}
+FAMILY_BACK_LINK = {"href": "../family.html", "label": "← Вся семья"}
 
 
 def analyze(file: str | Path, out: str | Path = "out") -> dict:
@@ -33,7 +36,9 @@ def analyze(file: str | Path, out: str | Path = "out") -> dict:
     Возвращает отчёт в формате эталона организаторов. Ошибка входного файла — BillingFileError.
     """
     result = analyze_billing(file)
-    write_outputs(result, Path(out), profile_name(load_profiles(result.source.parent), result.source))
+    name = profile_name(load_profiles(result.source.parent), result.source)
+    write_outputs(result, Path(out), name)
+    write_markdown(result, Path(out), name)
     return result.report
 
 
@@ -69,12 +74,21 @@ def print_summary(result: Result, out_dir: Path) -> None:
     print(f"  → {out_dir / 'anomalies.json'}")
 
 
+def write_markdown(result: Result, out_dir: Path, title: str) -> Path:
+    path = Path(out_dir) / "report.md"
+    path.write_text(render_markdown(rich_report(result), title), encoding="utf-8")
+    return path
+
+
 def write_family_index(results: list[Result], out_dir: Path) -> Path:
-    """index.html — семейный экран со ссылками на отчёт каждого профиля."""
+    """index.html — приложение «Акчам кайда?» со вшитым снимком семьи; family.html — классическая страница."""
     data_dir = results[0].source.parent
     links = [f"{r.source.stem}/report.html" for r in results]
+    (out_dir / "family.html").write_text(render_family(results, load_profiles(data_dir), links, data_dir),
+                                         encoding="utf-8")
     path = out_dir / "index.html"
-    path.write_text(render_family(results, load_profiles(data_dir), links, data_dir), encoding="utf-8")
+    snapshot = family_snapshot(data_dir, with_content=False, files=[r.source for r in results])
+    path.write_text(render_app(snapshot), encoding="utf-8")
     return path
 
 
@@ -128,8 +142,9 @@ def main(argv: list[str] | None = None) -> int:
     out = Path(args.out)
     if len(results) == 1:
         result = results[0]
-        write_outputs(result, out, profile_name(load_profiles(result.source.parent), result.source),
-                      llm_summary(result) if args.llm else None)
+        name = profile_name(load_profiles(result.source.parent), result.source)
+        write_outputs(result, out, name, llm_summary(result) if args.llm else None)
+        write_markdown(result, out, name)
         print_summary(result, out)
         page = out / "report.html"
     else:
@@ -137,6 +152,7 @@ def main(argv: list[str] | None = None) -> int:
             name = profile_name(load_profiles(result.source.parent), result.source)
             write_outputs(result, out / result.source.stem, name, llm_summary(result) if args.llm else None,
                           back_link=FAMILY_BACK_LINK)
+            write_markdown(result, out / result.source.stem, name)
             print_summary(result, out / result.source.stem)
         page = write_family_index(results, out)
         print(f"Сводка: {page}")

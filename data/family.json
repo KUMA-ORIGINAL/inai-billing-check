@@ -1,7 +1,10 @@
 {
-  "billing_01.csv": "Я",
-  "billing_02.csv": "Папа",
-  "billing_03.csv": "Бабушка",
-  "billing_04.csv": "Мама",
-  "billing_05.csv": "Брат"
+  "family": "Семья Осмоновых",
+  "members": [
+    {"file": "billing_01.csv", "name": "Гүлнара", "role": "Бабушка", "msisdn": "+996 555 01 01 01"},
+    {"file": "billing_02.csv", "name": "Бакыт", "role": "Папа", "msisdn": "+996 700 02 02 02"},
+    {"file": "billing_03.csv", "name": "Айгерим", "role": "Мама", "msisdn": "+996 770 03 03 03"},
+    {"file": "billing_04.csv", "name": "Эрлан", "role": "Сын, 15 лет", "msisdn": "+996 505 04 04 04"},
+    {"file": "billing_05.csv", "name": "Айпери", "role": "Дочь, 19 лет", "msisdn": "+996 220 05 05 05"}
+  ]
 }

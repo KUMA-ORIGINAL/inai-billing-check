@@ -40,7 +40,7 @@ def test_self_check_none_without_expected(results, tmp_path):
 
 def test_family_summary(results, data_dir):
     rows = family_summary(results, load_profiles(data_dir))
-    assert [r["name"] for r in rows] == ["Я", "Папа", "Бабушка", "Мама", "Брат"]
+    assert [r["name"] for r in rows] == ["Бабушка", "Папа", "Мама", "Сын, 15 лет", "Дочь, 19 лет"]
     grandma = rows[2]
     assert (grandma["file"], grandma["total_som"], grandma["overpay_som"], grandma["anomalies"],
             grandma["new_subscription"]) == ("billing_03.csv", 2106.02, 65.0, 5, True)

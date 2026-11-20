@@ -5,7 +5,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from .anomalies import Anomaly, find_all
+from .anomalies import DEFAULT_RULES, Anomaly, Rules, find_all
 from .explain import advice, explain
 from .parse import Charge, Dropped, read_billing
 from .report import summarize
@@ -18,15 +18,16 @@ class Result:
     dropped: list[Dropped]
     anomalies: list[Anomaly]
     report: dict
+    rules: Rules = DEFAULT_RULES
 
 
-def analyze(path: str | Path) -> Result:
+def analyze(path: str | Path, rules: Rules = DEFAULT_RULES) -> Result:
     """Детализация → отчёт ровно в формате эталона организаторов + список аномалий."""
     path = Path(path)
     charges, dropped = read_billing(path)
-    anomalies = find_all(charges)
+    anomalies = find_all(charges, rules)
     report = summarize(charges, len(dropped)) | {"anomalies": [a.as_dict() for a in anomalies]}
-    return Result(path, charges, dropped, anomalies, report)
+    return Result(path, charges, dropped, anomalies, report, rules)
 
 
 def anomaly_records(result: Result) -> list[dict]:
