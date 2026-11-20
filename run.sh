@@ -1,25 +1,14 @@
 #!/usr/bin/env sh
-# One command for Linux/macOS: creates .venv, installs requirements, runs analyze.py.
-# Usage:  ./run.sh [billing.csv ...] [--open] [--serve] [other analyze.py options]
-set -e
+# One command for Linux/macOS: runs analyze.py with Python 3.10+.
+# Standard library only: no installation and no internet needed.
+# Usage:  ./run.sh [billing.csv ...] [--open] [--serve] [--llm] [other analyze.py options]
 ROOT="$(cd "$(dirname "$0")" && pwd)"
-
-venv_python() {
-    if [ -x "$ROOT/.venv/bin/python" ]; then echo "$ROOT/.venv/bin/python"
-    elif [ -x "$ROOT/.venv/Scripts/python.exe" ]; then echo "$ROOT/.venv/Scripts/python.exe"  # Git Bash
-    fi
-}
-
-VPY="$(venv_python)"
-if [ -z "$VPY" ]; then
-    PY="${PYTHON:-}"
-    if [ -z "$PY" ]; then
-        if command -v python3 >/dev/null 2>&1; then PY=python3; else PY=python; fi
-    fi
-    echo "[setup] Creating virtual environment .venv ..."
-    "$PY" -m venv "$ROOT/.venv"
-    VPY="$(venv_python)"
+if [ -x "$ROOT/.venv/bin/python" ]; then PY="$ROOT/.venv/bin/python"
+elif [ -x "$ROOT/.venv/Scripts/python.exe" ]; then PY="$ROOT/.venv/Scripts/python.exe"  # Git Bash
+elif command -v python3 >/dev/null 2>&1; then PY=python3
+elif command -v python >/dev/null 2>&1; then PY=python
+else
+    echo "Python 3.10+ not found. Install it from https://www.python.org and run again." >&2
+    exit 3
 fi
-
-"$VPY" -m pip install -q --disable-pip-version-check -r "$ROOT/requirements.txt"
-exec "$VPY" "$ROOT/analyze.py" "$@"
+exec "$PY" "$ROOT/analyze.py" "$@"

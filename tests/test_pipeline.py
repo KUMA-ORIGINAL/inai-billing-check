@@ -60,3 +60,22 @@ def test_anomalies_json_has_explanations(data_dir, tmp_path):
     night = next(a for a in anomalies if a["anomaly_type"] == "night_charge")
     assert night["line"] == 243 and "62626" in night["explanation_ru"]
     assert "Подписки" in night["advice_ru"] and "Жазылуулар" in night["advice_ky"]
+
+
+@pytest.mark.parametrize("expected_text", ['[{"datetime": "2026-09-14 01:37:37", "type": "sms"}]',
+                                           "{not json", '{"valid_rows": 1}'])
+def test_odd_expected_file_next_to_input_does_not_block_outputs(data_dir, tmp_path, expected_text):
+    source = tmp_path / "billing_hidden.csv"
+    source.write_bytes((data_dir / "billing_03.csv").read_bytes())
+    (tmp_path / "billing_hidden_expected.json").write_text(expected_text, encoding="utf-8")
+    out = tmp_path / "out"
+    assert cli.main([str(source), "--out", str(out)]) == 0
+    assert len(json.loads((out / "anomalies.json").read_text(encoding="utf-8"))) == 5
+    assert (out / "report.html").is_file()
+
+
+def test_analyze_function_from_task_text_writes_files(data_dir, tmp_path):
+    """ТЗ: analyze(file) → отчёт + anomalies.json — так можно вызвать и из Python."""
+    report = cli.analyze(data_dir / "billing_03.csv", out=tmp_path / "out")
+    assert report == json.loads((data_dir / "billing_03_expected.json").read_text(encoding="utf-8"))
+    assert len(json.loads((tmp_path / "out" / "anomalies.json").read_text(encoding="utf-8"))) == 5

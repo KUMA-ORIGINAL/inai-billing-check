@@ -57,27 +57,29 @@ def parse_datetime(text: str) -> datetime | None:
 
 
 def _records(lines: Iterator[str]) -> Iterator[tuple[int, list[str], str]]:
-    """(номер первой физической строки, поля, исходный текст) для каждой записи CSV."""
-    consumed: list[str] = []
-
-    def tap() -> Iterator[str]:
-        for physical in lines:
-            consumed.append(physical)
-            yield physical
-
-    reader = csv.reader(tap())
-    line_no = 1
-    for row in reader:
-        raw = "".join(consumed).rstrip("\r\n")
+    """(номер физической строки, поля, исходный текст). Каждая строка файла разбирается отдельно,
+    поэтому незакрытая кавычка портит только свою строку, а не все следующие."""
+    for line_no, physical in enumerate(lines, start=1):
+        raw = physical.rstrip("\r\n")
+        try:
+            row = next(csv.reader([raw]), [])
+        except csv.Error:
+            row = [raw]  # неразбираемая строка: одна «колонка» → column_count
         yield line_no, row, raw
-        line_no += len(consumed)
-        consumed.clear()
 
 
-def _classify(row: list[str], columns: dict[str, int], width: int) -> tuple[str | None, tuple]:
+def _row_widths(header: list[str]) -> set[int]:
+    """Допустимое число колонок: как в заголовке и как в заголовке без хвостовых пустых ячеек."""
+    trimmed = len(header)
+    while trimmed and not header[trimmed - 1].strip():
+        trimmed -= 1
+    return {len(header), trimmed}
+
+
+def _classify(row: list[str], columns: dict[str, int], widths: set[int]) -> tuple[str | None, tuple]:
     if not row:
         return EMPTY_LINE, ()
-    if len(row) != width:
+    if len(row) not in widths:
         return COLUMN_COUNT, ()
     get = lambda name: row[columns[name]].strip()  # noqa: E731
     type_ = get("type")
@@ -116,9 +118,9 @@ def read_billing(path: str | Path) -> tuple[list[Charge], list[Dropped]]:
             if first is None:
                 raise BillingFileError(f"Файл пуст: {path.name}")
             columns = _header_columns(first[1])
-            width = len(first[1])
+            widths = _row_widths(first[1])
             for line_no, row, raw in records:
-                reason, fields = _classify(row, columns, width)
+                reason, fields = _classify(row, columns, widths)
                 if reason:
                     dropped.append(Dropped(line_no, reason, raw))
                 else:

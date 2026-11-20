@@ -1,26 +1,40 @@
-"""CLI: python analyze.py [billing.csv …] [--out out]
+"""CLI: python analyze.py [billing.csv …] [--out out]   ·   из Python: analyze.analyze("billing.csv")
 
 Один файл → out/report.json, out/anomalies.json, out/dropped_rows.csv.
 Несколько файлов (или ни одного — тогда все data/billing_*.csv) → out/<имя>/… и out/index.html.
 --llm добавляет письмо абоненту от Claude (нужны пакет anthropic и доступ к API; иначе — шаблоны).
-Коды возврата: 0 — успех, 2 — проблема с входным файлом.
+Коды возврата: 0 — успех, 2 — проблема с входным файлом (run.bat / run.sh: 3 — не найден Python).
 """
 import argparse
 import sys
 import webbrowser
 from pathlib import Path
 
+if sys.version_info < (3, 10):  # до импорта billcheck: там синтаксис 3.10
+    sys.exit("Нужен Python 3.10 или новее, а запущен " + sys.version.split()[0] + ".")
+
 from billcheck.explain import possible_overpay
 from billcheck.family import load_profiles, profile_name
 from billcheck.html import render_family
 from billcheck.llm import llm_summary
 from billcheck.parse import BillingFileError
-from billcheck.pipeline import Result, analyze, write_outputs
+from billcheck.pipeline import Result, write_outputs
+from billcheck.pipeline import analyze as analyze_billing
 
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data"
 EXIT_OK, EXIT_INPUT = 0, 2
 FAMILY_BACK_LINK = {"href": "../index.html", "label": "← Вся семья"}
+
+
+def analyze(file: str | Path, out: str | Path = "out") -> dict:
+    """Интерфейс из ТЗ: analyze(file) → отчёт + anomalies.json (а также report.json, dropped_rows.csv, report.html).
+
+    Возвращает отчёт в формате эталона организаторов. Ошибка входного файла — BillingFileError.
+    """
+    result = analyze_billing(file)
+    write_outputs(result, Path(out), profile_name(load_profiles(result.source.parent), result.source))
+    return result.report
 
 
 def utf8_console() -> None:
@@ -107,7 +121,7 @@ def main(argv: list[str] | None = None) -> int:
         print("Ошибка: не найдено ни одной детализации (billing_*.csv).", file=sys.stderr)
         return EXIT_INPUT
     try:
-        results = [analyze(path) for path in files]
+        results = [analyze_billing(path) for path in files]
     except BillingFileError as exc:
         print(f"Ошибка: {exc}", file=sys.stderr)
         return EXIT_INPUT

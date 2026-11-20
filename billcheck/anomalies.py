@@ -103,9 +103,19 @@ def _z_score(value: Decimal, window: list[Decimal]) -> float:
     return float((value - mean) / std)
 
 
+def billing_month(charges: list[Charge]) -> list[Charge]:
+    """Списания основного месяца детализации — месяца медианного по времени списания.
+    Случайная строка из другого месяца или года не сдвигает ряд дней и не даёт ложных всплесков."""
+    if not charges:
+        return []
+    middle = sorted(c.dt for c in charges)[len(charges) // 2]
+    return [c for c in charges if (c.dt.year, c.dt.month) == (middle.year, middle.month)]
+
+
 def find_day_spikes(charges: list[Charge]) -> list[Anomaly]:
-    """День дороже семи предыдущих полных дней (нулевые дни считаются): z-score > 3."""
-    series = list(daily_totals(charges).items())
+    """День дороже семи предыдущих полных дней (нулевые дни считаются): z-score > 3.
+    Ряд — дни основного месяца с его 1-го числа."""
+    series = list(daily_totals(billing_month(charges)).items())
     found = []
     for i in range(SPIKE_WINDOW_DAYS, len(series)):
         day, value = series[i]

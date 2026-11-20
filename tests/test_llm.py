@@ -181,3 +181,18 @@ def test_english_or_links_rejected(grandma):
 
 def test_think_block_is_stripped(grandma):
     assert llm_summary(grandma, generate=fake("<think>считаю 4 920,54</think>\n" + LETTER)) == LETTER
+
+
+def test_invented_whole_sum_or_short_number_rejected(grandma):
+    assert llm_summary(grandma, generate=fake(LETTER + " Ещё 500 сом ушло на связь.")) is None
+    assert llm_summary(grandma, generate=fake(LETTER + " Подписка на номер 4444 тоже платная.")) is None
+
+
+def test_refund_promise_rejected(grandma):
+    assert llm_summary(grandma, generate=fake(LETTER + " Оператор обязательно вернёт вам деньги.")) is None
+
+
+def test_small_counts_and_quoted_facts_allowed(grandma):
+    text = (LETTER + " Мы нашли 4 спорных списания и 1 необычный день: 29.09 вы потратили 464,95 сом — "
+            "в 9,2 раза больше обычного. Ночное SMS на 62626 пришло 14.09 в 01:37.")
+    assert llm_summary(grandma, generate=fake(text)) == text

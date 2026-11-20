@@ -123,3 +123,14 @@ def test_all_anomalies_match_expected(data_dir, n):
 def test_open_data_has_twenty_anomalies(data_dir):
     total = sum(len(find_all(read_billing(data_dir / f"billing_0{n}.csv")[0])) for n in range(1, 6))
     assert total == 20
+
+
+@pytest.mark.parametrize("stray", ["2026-08-31 23:58:00,call,+996700000000,60,0,1",
+                                   "2016-09-15 12:00:00,call,+996700000000,60,0,1",
+                                   "2026-10-15 12:00:00,call,+996700000000,60,0,3"])
+def test_stray_row_from_another_month_adds_no_spikes(data_dir, tmp_path, stray):
+    text = (data_dir / "billing_03.csv").read_text(encoding="utf-8")
+    path = tmp_path / "billing_03_stray.csv"
+    path.write_text(text.rstrip("\n") + "\n" + stray + "\n", encoding="utf-8")
+    expected = json.loads((data_dir / "billing_03_expected.json").read_text(encoding="utf-8"))["anomalies"]
+    assert [a.as_dict() for a in find_all(read_billing(path)[0])] == expected

@@ -1,1 +1,2 @@
-pytest>=7.0
+# Во время работы нужна только стандартная библиотека Python 3.10+ — ставить ничего не нужно.
+# Тесты: requirements-dev.txt. Письмо от Claude: requirements-llm.txt.

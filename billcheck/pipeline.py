@@ -1,6 +1,7 @@
 """Сквозной расчёт по одному файлу и запись результатов для жюри."""
 import csv
 import json
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -46,11 +47,16 @@ def write_outputs(result: Result, out_dir: Path, profile: str | None = None, llm
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     paths = {name: out_dir / name for name in ("report.json", "anomalies.json", "dropped_rows.csv", "report.html")}
-    paths["report.html"].write_text(render_report(result, profile, llm_text, back_link), encoding="utf-8")
+    # Сначала файлы для автопроверки: страница не должна мешать им появиться.
     write_json(paths["report.json"], result.report)
     write_json(paths["anomalies.json"], anomaly_records(result))
     with paths["dropped_rows.csv"].open("w", encoding="utf-8-sig", newline="") as handle:
         writer = csv.writer(handle)
         writer.writerow(["line", "reason", "raw"])
         writer.writerows([d.line, d.reason, d.raw] for d in result.dropped)
+    try:
+        paths["report.html"].write_text(render_report(result, profile, llm_text, back_link), encoding="utf-8")
+    except Exception as exc:  # отчёт для человека — дополнение; JSON для жюри уже записаны
+        print(f"Предупреждение: report.html не создан ({type(exc).__name__}: {exc}).", file=sys.stderr)
+        del paths["report.html"]
     return paths

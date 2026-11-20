@@ -11,7 +11,7 @@ from .anomalies import NIGHT_END, NIGHT_TYPES, is_short_number
 from .explain import possible_overpay
 from .money import money
 from .pipeline import Result
-from .selfcheck import compare
+from .selfcheck import compare, load_anomalies
 
 FAMILY_FILE = "family.json"
 
@@ -71,11 +71,15 @@ def self_check(results: list[Result], data_dir: Path) -> dict | None:
         path = Path(data_dir) / f"{result.source.stem}_expected.json"
         if not path.is_file():
             continue
-        expected = json.loads(path.read_text(encoding="utf-8-sig"))
-        verdict = compare(result.report["anomalies"], expected["anomalies"])
+        try:  # эталон бывает объектом с anomalies или просто списком; нечитаемый — пропускаем
+            expected = json.loads(path.read_text(encoding="utf-8-sig"))
+            expected_anomalies = load_anomalies(path)
+            verdict = compare(result.report["anomalies"], expected_anomalies)
+        except (OSError, ValueError, KeyError, TypeError, AttributeError):
+            continue
         totals["files"] += 1
         totals["reports_equal"] += result.report == expected
-        totals["anomalies_expected"] += len(expected["anomalies"])
+        totals["anomalies_expected"] += len(expected_anomalies)
         totals["found"] += verdict["found"]
         totals["false_positives"] += len(verdict["false_positives"])
     return totals if totals["files"] else None

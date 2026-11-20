@@ -45,6 +45,9 @@ PHONE = re.compile(r"\+?\d{5,}")
 THINK = re.compile(r"<think>.*?</think>", re.S)  # рассуждения reasoning-моделей (deepseek-r1 и др.)
 LINK = re.compile(r"https?://|www\.", re.I)
 MAX_LATIN_SHARE = 0.15
+DIGITS = re.compile(r"\d+")  # каждое число в письме (суммы, номера, даты) должно встречаться в фактах…
+MAX_FREE_COUNT = 10  # …кроме маленьких счётчиков вроде «4 спорных списания»
+PROMISE = re.compile(r"\b(верн[её]м|верн[её]т|вернут|гарантир\w*)\b", re.I)
 
 
 def summary_facts(result: Result) -> dict:
@@ -79,6 +82,11 @@ def rejection_reason(text: str, facts: dict, facts_text: str) -> str | None:
         return "сумма, которой нет в расчёте"
     if not set(PHONE.findall(text)) <= set(PHONE.findall(facts_text)):
         return "номер, которого нет в детализации"
+    invented = {run for run in DIGITS.findall(text) if int(run) > MAX_FREE_COUNT} - set(DIGITS.findall(facts_text))
+    if invented:
+        return "число, которого нет в расчёте: " + ", ".join(sorted(invented))
+    if PROMISE.search(text):
+        return "обещание вернуть деньги — решает оператор"
     return None
 
 

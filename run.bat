@@ -1,24 +1,23 @@
 @echo off
-rem One command for Windows: creates .venv, installs requirements, runs analyze.py.
-rem Usage:  run.bat [billing.csv ...] [--open] [--serve] [other analyze.py options]
+rem One command for Windows: runs analyze.py with Python 3.10+.
+rem Standard library only: no installation and no internet needed.
+rem Usage:  run.bat [billing.csv ...] [--open] [--serve] [--llm] [other analyze.py options]
 setlocal
 set "ROOT=%~dp0"
-set "VPY=%ROOT%.venv\Scripts\python.exe"
+if exist "%ROOT%.venv\Scripts\python.exe" goto venv
+where py >nul 2>&1 && goto launcher
+where python >nul 2>&1 && goto python
+echo Python 3.10+ not found. Install it from https://www.python.org and run again.
+exit /b 3
 
-if not exist "%VPY%" (
-    echo [setup] Creating virtual environment .venv ...
-    py -3 -m venv "%ROOT%.venv" 2>nul || python -m venv "%ROOT%.venv"
-    if not exist "%VPY%" (
-        echo Python 3.10+ not found. Install it from https://www.python.org and run again.
-        exit /b 3
-    )
-)
+:venv
+"%ROOT%.venv\Scripts\python.exe" "%ROOT%analyze.py" %*
+exit /b %errorlevel%
 
-"%VPY%" -m pip install -q --disable-pip-version-check -r "%ROOT%requirements.txt"
-if errorlevel 1 (
-    echo Failed to install requirements.
-    exit /b 1
-)
+:launcher
+py -3 "%ROOT%analyze.py" %*
+exit /b %errorlevel%
 
-"%VPY%" "%ROOT%analyze.py" %*
+:python
+python "%ROOT%analyze.py" %*
 exit /b %errorlevel%

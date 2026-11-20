@@ -104,3 +104,29 @@ def test_money_rounds_half_up():
     assert money(Decimal("0.125")) == 0.13
     assert money(Decimal("2.675")) == 2.68
     assert money(Decimal("1230.164999")) == 1230.16
+
+
+GOOD_ROWS = ["2026-09-10 10:00:00,sms,8899,0,0,5", "2026-09-10 11:00:00,call,+996700000001,60,0,2",
+             "2026-09-10 12:00:00,data,,0,10,1"]
+
+
+def test_unbalanced_quote_breaks_only_its_own_line(tmp_path):
+    rows = ['2026-09-10 09:00:00,sms,"8899,0,0,5'] + GOOD_ROWS
+    charges, bad = read_billing(write_csv(tmp_path, rows))
+    assert [(b.line, b.reason) for b in bad] == [(2, "column_count")]
+    assert [c.line for c in charges] == [3, 4, 5]
+
+
+def test_header_with_trailing_comma(tmp_path):
+    path = tmp_path / "b.csv"
+    path.write_text("datetime,type,number,duration_sec,mb,cost_som,\n" + "\n".join(GOOD_ROWS) + "\n", encoding="utf-8")
+    charges, bad = read_billing(path)
+    assert (len(charges), bad) == (3, [])
+
+
+def test_header_with_extra_column(tmp_path):
+    path = tmp_path / "b.csv"
+    rows = [row + ",заметка" for row in GOOD_ROWS] + ["2026-09-10 13:00:00,sms,8899"]
+    path.write_text("datetime,type,number,duration_sec,mb,cost_som,note\n" + "\n".join(rows) + "\n", encoding="utf-8")
+    charges, bad = read_billing(path)
+    assert len(charges) == 3 and [b.reason for b in bad] == ["column_count"]

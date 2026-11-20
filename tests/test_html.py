@@ -52,3 +52,11 @@ def test_cli_writes_report_html(data_dir, tmp_path):
     assert cli.main([str(data_dir / "billing_03.csv"), "--out", str(out)]) == 0
     page = (out / "report.html").read_text(encoding="utf-8")
     assert _payload(page)["profile"] == "Бабушка"
+
+
+def test_report_html_survives_html_comment_in_data(tmp_path):
+    path = write_csv(tmp_path, ["2026-09-01 10:00:00,sms,<!--x,0,0,1.00", "2026-09-01 11:00:00,sms,<script>,0,0,1.00"])
+    page = render_report(analyze(path))
+    data = _payload(page)  # json.loads не падает — значит и JSON.parse в браузере не упадёт
+    assert [line["number"] for line in data["days"][0]["lines"]] == ["<!--x", "<script>"]
+    assert "<!--x" not in page and "<script>," not in page

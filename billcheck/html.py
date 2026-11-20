@@ -48,9 +48,12 @@ def cents(value: Decimal) -> int:
     return int(round(money(value) * 100))
 
 
+LESS_THAN_ESCAPE = "\\" + "u003c"  # JSON-экранирование «<»: ни </script>, ни <!-- не попадут в разметку
+
+
 def embed(template: str, data: dict) -> str:
-    """JSON внутри <script type="application/json">: «</» экранируется, чтобы данные не закрыли тег."""
-    payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/").replace("<!--", "<\\!--")
+    """Данные страницы — JSON внутри <script type="application/json">; каждый «<» экранирован."""
+    payload = json.dumps(data, ensure_ascii=False).replace("<", LESS_THAN_ESCAPE)
     page = (TEMPLATES / template).read_text(encoding="utf-8")
     page = page.replace("/*__BASE_CSS__*/", (TEMPLATES / "base.css").read_text(encoding="utf-8"))
     page = page.replace("/*__BASE_JS__*/", (TEMPLATES / "base.js").read_text(encoding="utf-8"))
