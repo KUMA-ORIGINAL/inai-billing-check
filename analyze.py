@@ -7,6 +7,7 @@
 Коды возврата: 0 — успех, 2 — проблема с входным файлом (run.bat / run.sh: 3 — не найден Python).
 """
 import argparse
+import os
 import sys
 import webbrowser
 from pathlib import Path
@@ -92,16 +93,17 @@ def write_family_index(results: list[Result], out_dir: Path) -> Path:
     return path
 
 
-def serve(port: int, open_browser: bool, use_llm: bool = False) -> int:
+def serve(port: int, open_browser: bool, use_llm: bool = False, host: str = "127.0.0.1") -> int:
     from billcheck.server import make_server
 
     try:
-        server = make_server(DATA_DIR, port, use_llm=use_llm)
+        server = make_server(DATA_DIR, port, use_llm=use_llm, host=host)
     except OSError as exc:
         print(f"Ошибка: порт {port} занят ({exc}). Запустите с --port 8001.", file=sys.stderr)
         return EXIT_INPUT
-    url = f"http://127.0.0.1:{server.server_address[1]}"
-    print(f"Веб-демо: {url}  (остановить — Ctrl+C)")
+    shown = "127.0.0.1" if host in ("0.0.0.0", "") else host
+    url = f"http://{shown}:{server.server_address[1]}"
+    print(f"Веб-демо: {url}  (остановить — Ctrl+C)", flush=True)
     if open_browser:
         webbrowser.open(url)
     try:
@@ -120,7 +122,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--out", default="out", help="папка для результатов (по умолчанию out)")
     parser.add_argument("--open", action="store_true", help="открыть отчёт в браузере")
     parser.add_argument("--serve", action="store_true", help="веб-демо: загрузка файла и профили семьи")
-    parser.add_argument("--port", type=int, default=8000, help="порт веб-демо (по умолчанию 8000)")
+    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT") or 8000),
+                        help="порт веб-демо (по умолчанию 8000 или переменная PORT, как на Render)")
+    parser.add_argument("--host", default=os.environ.get("HOST") or "127.0.0.1",
+                        help="адрес веб-демо: 127.0.0.1 — только этот компьютер (по умолчанию), 0.0.0.0 — хостинг")
     parser.add_argument("--llm", action="store_true", help="письмо абоненту от Claude по посчитанным числам (бонус)")
     return parser
 
@@ -129,7 +134,7 @@ def main(argv: list[str] | None = None) -> int:
     utf8_console()
     args = build_parser().parse_args(argv)
     if args.serve:
-        return serve(args.port, args.open, args.llm)
+        return serve(args.port, args.open, args.llm, args.host)
     files = resolve_inputs(args.files)
     if not files:
         print("Ошибка: не найдено ни одной детализации (billing_*.csv).", file=sys.stderr)

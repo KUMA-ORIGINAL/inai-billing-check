@@ -58,6 +58,20 @@ http://127.0.0.1:8000. Сервер слушает только этот ком�
 `report` — тот же отчёт жюри плюс поля экрана: `summary`, `meta`, `rows`, `by_hour`, `dropped_log`, `tariff`,
 а у каждой аномалии — `explanation(_ky)`, `advice(_ky)`, `reason_ky`, `evidence`, `context` (строки-улики).
 
+## В интернете (бесплатно)
+
+| Где | Адрес | Что работает |
+|---|---|---|
+| GitHub Pages | https://kuma-original.github.io/inai-billing-check/ | приложение без сервера: семья, дела, претензия, радар, тариф, RU/KY; собирается из `main` workflow `.github/workflows/pages.yml` (сначала прогоняет тесты) |
+| Render, бесплатный тариф | `https://akcham-kaida.onrender.com` (имя задаётся при создании) | всё приложение с API: свои файлы, пороги, «дубль вживую»; настройки — `render.yaml` |
+
+Включить один раз:
+- **Pages:** Settings → Pages → Source: **GitHub Actions**. Дальше страница обновляется на каждый push в `main`.
+- **Render:** New → **Blueprint** → этот репозиторий → Apply. Сервис засыпает после 15 минут без запросов, первое открытие после сна — около минуты: откройте адрес за пару минут до показа.
+
+Сервер берёт порт из `PORT`, адрес — из `--host` или `HOST` (по умолчанию `127.0.0.1`, на хостинге `0.0.0.0`).
+Загруженные файлы не сохраняются: разбираются во временной папке и удаляются после ответа.
+
 ## ТЗ 4 — что сделано и где проверить
 
 | Пункт ТЗ | Где увидеть | Код | Тесты |
@@ -143,7 +157,7 @@ run.bat --open                      # все пять файлов + семей�
 
 python -m venv .venv                               # один раз, для тестов
 .venv\Scripts\pip install -r requirements-dev.txt  # Linux/macOS: .venv/bin/pip …
-.venv\Scripts\python -m pytest                     # 219 тестов, ~7 секунд
+.venv\Scripts\python -m pytest                     # 220 тестов, ~7 секунд
 ```
 
 `run.bat` сам берёт Python из `.venv`, если он есть, иначе системный.

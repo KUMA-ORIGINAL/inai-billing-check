@@ -145,3 +145,20 @@ def test_api_errors_are_json(server):
     assert status == 400 and json.loads(text)["error"]
     assert _post_json(server + "/api/explain", {"lang": "ru"})[0] == 400
     assert _post_json(server + "/api/render", {})[0] == 400
+
+
+def test_hosting_reads_port_and_host_from_env(monkeypatch):
+    import analyze as cli
+    monkeypatch.setenv("PORT", "10000")
+    monkeypatch.setenv("HOST", "0.0.0.0")
+    args = cli.build_parser().parse_args(["--serve"])
+    assert (args.port, args.host) == (10000, "0.0.0.0")
+    monkeypatch.delenv("PORT")
+    monkeypatch.delenv("HOST")
+    args = cli.build_parser().parse_args(["--serve"])
+    assert (args.port, args.host) == (8000, "127.0.0.1")
+    srv = make_server(DATA_DIR, port=0, host="0.0.0.0")
+    try:
+        assert srv.server_address[0] == "0.0.0.0"
+    finally:
+        srv.server_close()

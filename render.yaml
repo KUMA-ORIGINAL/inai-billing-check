@@ -1,0 +1,16 @@
+# Render Blueprint: приложение «Акчам кайда?» с API на бесплатном тарифе.
+# Render → New → Blueprint → этот репозиторий. Зависимостей нет: только стандартная библиотека Python.
+# Бесплатный сервис засыпает после 15 минут без запросов — откройте адрес за пару минут до показа.
+services:
+  - type: web
+    name: akcham-kaida
+    runtime: python
+    plan: free
+    branch: main
+    buildCommand: python --version
+    startCommand: python analyze.py --serve --host 0.0.0.0
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"

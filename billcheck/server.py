@@ -72,7 +72,9 @@ class ReportStore:
             return self.pages.get(key)
 
 
-def make_server(data_dir: Path, port: int = 8000, use_llm: bool = False) -> ThreadingHTTPServer:
+def make_server(data_dir: Path, port: int = 8000, use_llm: bool = False,
+                host: str = "127.0.0.1") -> ThreadingHTTPServer:
+    """По умолчанию слушаем только этот компьютер; на хостинге (Render) — host="0.0.0.0"."""
     data_dir = Path(data_dir)
     reports = ReportStore()
     cache: dict[str, str] = {}
@@ -229,4 +231,4 @@ def make_server(data_dir: Path, port: int = 8000, use_llm: bool = False) -> Thre
                                      back_link=UPLOAD_BACK, expected_dir=data_dir)
             self._send(HTTPStatus.OK, page, headers={"X-Report-Url": f"/report/{reports.add(page)}"})
 
-    return ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    return ThreadingHTTPServer((host, port), Handler)
