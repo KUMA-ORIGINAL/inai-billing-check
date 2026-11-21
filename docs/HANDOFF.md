@@ -3,6 +3,30 @@
 Состояние на 21.11.2026. Всё лежит в `main` на GitHub (последний коммит `4096a5f`). Ядро ТЗ 4 готово и проверено:
 на открытых данных 5 из 5 отчётов совпадают с эталонами, 20 из 20 аномалий, 0 ложных. Тестов 252, CI зелёный.
 
+## Где работает
+
+| Что | Адрес |
+|---|---|
+| Приложение с сервером, ИИ и загрузкой файлов | https://akcham.confhub.kg (экскурсия: `/?tour=1`, автопоказ: `/?autoplay=1`) |
+| Telegram-бот | [@akchamkaida_bot](https://t.me/akchamkaida_bot): прислать CSV или PDF детализации |
+| Демо без сервера | https://kuma-original.github.io/inai-billing-check/ |
+
+Сервер `ssh kuma@5.59.233.69` — общий с forms.intuit.kg (`~/expo_comtehno`). Наш сервис стоит отдельно:
+- контейнер `akcham` из `~/inai-billing-check` (образ по `Dockerfile`), сеть `expo_comtehno_default`;
+- переменные `PUBLIC_URL`, `TELEGRAM_BOT_TOKEN`, `GEMINI_API_KEY` — в `~/inai-billing-check/.env` (права 600, в git нет);
+- блок nginx `akcham.confhub.kg` добавлен в работающий общий nginx, копия и команды обновления — `~/inai-billing-check/deploy/`;
+- сертификат Let's Encrypt отдельный (cert-name `akcham.confhub.kg`), продлевать раз в 90 дней командой из `deploy/README.txt`.
+
+Обновить после push в `main`:
+
+```bash
+ssh kuma@5.59.233.69
+cd ~/inai-billing-check && git pull && docker build -t akcham:latest . && docker rm -f akcham && docker run -d --name akcham --restart always --network expo_comtehno_default --env-file .env --memory 256m --cpus 0.5 akcham:latest
+```
+
+Если общий nginx пересоздадут (`docker compose up --build` в `expo_comtehno`), блок `akcham.conf` пропадёт: вернуть по `deploy/README.txt`.
+Токен бота и ключ Gemini передавались в чате: после хакатона их стоит перевыпустить (@BotFather `/revoke`, aistudio.google.com).
+
 ## С чего начать (15 минут)
 
 ```bash
