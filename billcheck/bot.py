@@ -269,9 +269,73 @@ def main(env: dict | None = None, transport: Transport | None = None, max_polls:
     except TelegramError as exc:
         print(f"Ошибка: Telegram не принял токен или недоступен ({exc}).", file=sys.stderr)
         return 2
+    try:  # если раньше бот работал через webhook на сервере, long polling иначе получит 409
+        transport.call("deleteWebhook", {"drop_pending_updates": False})
+    except TelegramError:
+        pass
     print(f"Бот @{(me or {}).get('username', '?')} запущен, жду файлы (остановить — Ctrl+C).", flush=True)
     try:
         Bot(transport, env.get("APP_URL", ""), log=lambda m: print(m, file=sys.stderr, flush=True)).run(max_polls)
     except KeyboardInterrupt:
         pass
     return 0
+
+
+# ---------- webhook: бот внутри веб-сервера (для хостинга, где нет постоянного фонового процесса)
+WEBHOOK_PREFIX = "/tg/"
+
+
+def webhook_secret(token: str) -> str:
+    """Секретная часть адреса и заголовок X-Telegram-Bot-Api-Secret-Token. Выводится из токена,
+    поэтому не нужна отдельная настройка, а сам токен в адресе не появляется."""
+    import hashlib
+    return hashlib.sha256(("akcham-webhook:" + token).encode("utf-8")).hexdigest()[:40]
+
+
+def setup_webhook(transport: Transport, public_url: str, secret: str) -> str:
+    """Регистрирует https://<домен>/tg/<секрет> у Telegram; возвращает адрес без секрета для лога."""
+    base = public_url.rstrip("/")
+    transport.call("setWebhook", {"url": f"{base}{WEBHOOK_PREFIX}{secret}", "secret_token": secret,
+                                  "allowed_updates": ["message"], "max_connections": 4})
+    return f"{base}{WEBHOOK_PREFIX}…"
+
+
+class WebhookBot:
+    """Бот для веб-сервера: принимает обновление из POST /tg/<секрет> и отвечает в фоне."""
+
+    def __init__(self, bot: Bot, secret: str):
+        self.bot, self.secret = bot, secret
+
+    def matches(self, path: str, header_secret: str | None) -> bool:
+        import hmac
+        return (path == WEBHOOK_PREFIX + self.secret
+                and hmac.compare_digest(header_secret or "", self.secret))
+
+    def accept(self, update: dict) -> None:
+        import threading
+
+        def work():
+            try:
+                self.bot.handle(update)
+            except Exception as exc:  # ответ Telegram уже отдан; ошибка — только в лог
+                self.bot.log(f"Webhook: не удалось ответить ({type(exc).__name__})")
+        threading.Thread(target=work, daemon=True).start()
+
+
+def webhook_from_env(env: dict | None = None, transport: Transport | None = None) -> WebhookBot | None:
+    """TELEGRAM_BOT_TOKEN + PUBLIC_URL → бот на webhook. Нет переменных или Telegram недоступен — None."""
+    env = os.environ if env is None else env
+    token = (env.get("TELEGRAM_BOT_TOKEN") or "").strip()
+    public = (env.get("PUBLIC_URL") or "").strip()
+    if not token or not public:
+        return None
+    transport = transport or UrllibTransport(token)
+    secret = webhook_secret(token)
+    log = lambda m: print(m, file=sys.stderr, flush=True)  # noqa: E731
+    try:
+        shown = setup_webhook(transport, public, secret)
+    except TelegramError as exc:
+        log(f"Telegram-бот не подключён: {exc}")
+        return None
+    log(f"Telegram-бот подключён через webhook: {shown}")
+    return WebhookBot(Bot(transport, env.get("APP_URL") or public, log=log), secret)

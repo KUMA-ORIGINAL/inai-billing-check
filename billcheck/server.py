@@ -14,6 +14,7 @@ import json
 import re
 import tempfile
 import threading
+import time
 import uuid
 from collections import OrderedDict
 from http import HTTPStatus
@@ -51,6 +52,28 @@ def upload_name(header: str | None) -> str:
     return SAFE_NAME.sub("_", name).strip("._") or "billing.csv"
 
 
+class RateLimit:
+    """Не больше limit запросов за window секунд с одного адреса (для платных или квотных вызовов ИИ)."""
+
+    def __init__(self, limit: int = 20, window: float = 60.0, clock=time.monotonic):
+        self.limit, self.window, self.clock = limit, window, clock
+        self.hits: dict[str, list[float]] = {}
+        self.lock = threading.Lock()
+
+    def allow(self, key: str) -> bool:
+        now = self.clock()
+        with self.lock:
+            recent = [t for t in self.hits.get(key, []) if now - t < self.window]
+            if len(recent) >= self.limit:
+                self.hits[key] = recent
+                return False
+            recent.append(now)
+            self.hits[key] = recent
+            if len(self.hits) > 5000:  # не копим память от разовых адресов
+                self.hits = {k: v for k, v in self.hits.items() if v and now - v[-1] < self.window}
+            return True
+
+
 class ReportStore:
     """Последние проверенные отчёты в памяти сервера: у каждого свой адрес /report/<id>."""
 
@@ -73,10 +96,11 @@ class ReportStore:
 
 
 def make_server(data_dir: Path, port: int = 8000, use_llm: bool = False,
-                host: str = "127.0.0.1") -> ThreadingHTTPServer:
+                host: str = "127.0.0.1", telegram=None, explain_limit: RateLimit | None = None) -> ThreadingHTTPServer:
     """По умолчанию слушаем только этот компьютер; на хостинге (Render) — host="0.0.0.0"."""
     data_dir = Path(data_dir)
     reports = ReportStore()
+    explain_limit = explain_limit or RateLimit()
     cache: dict[str, str] = {}
     cache_lock = threading.Lock()
 
@@ -167,8 +191,16 @@ def make_server(data_dir: Path, port: int = 8000, use_llm: bool = False,
             else:
                 self._error(HTTPStatus.NOT_FOUND, "Такой страницы нет.")
 
+        def client(self) -> str:
+            """Адрес клиента; за nginx — первый из X-Forwarded-For."""
+            forwarded = (self.headers.get("X-Forwarded-For") or "").split(",")[0].strip()
+            return forwarded or self.client_address[0]
+
         def do_POST(self) -> None:  # noqa: N802
             path = urlparse(self.path).path
+            if telegram is not None and path.startswith("/tg/"):
+                self._telegram(path)
+                return
             is_json = "json" in (self.headers.get("Content-Type") or "")
             if path in ("/api/radar", "/api/explain", "/api/render") or (path == "/api/analyze" and is_json):
                 body = self._read_json()
@@ -200,6 +232,9 @@ def make_server(data_dir: Path, port: int = 8000, use_llm: bool = False,
                     self._error(HTTPStatus.BAD_REQUEST, "Нужно поле anomaly из отчёта.")
                     return
                 lang = "ky" if body.get("lang") == "ky" else "ru"
+                if use_llm and not explain_limit.allow(self.client()):
+                    self._json(template_explanation(anomaly, lang) | {"note": "лимит запросов к ИИ, показан шаблон"})
+                    return
                 self._json(explain_anomaly(anomaly, lang) if use_llm else template_explanation(anomaly, lang))
             elif path == "/api/render":
                 report = body.get("report")
@@ -210,6 +245,17 @@ def make_server(data_dir: Path, port: int = 8000, use_llm: bool = False,
                     self._send(HTTPStatus.OK, render_print(report, str(body.get("complaint") or "")))
                 except (KeyError, TypeError, ValueError):
                     self._error(HTTPStatus.BAD_REQUEST, "Отчёт в запросе не в формате /api/analyze.")
+
+        def _telegram(self, path: str) -> None:
+            if not telegram.matches(path, self.headers.get("X-Telegram-Bot-Api-Secret-Token")):
+                self._error(HTTPStatus.NOT_FOUND, "Такой страницы нет.")
+                return
+            update = self._read_json()
+            if update is None:
+                return
+            if isinstance(update, dict):
+                telegram.accept(update)  # отвечаем Telegram сразу, разбор файла — в фоне
+            self._json({"ok": True})
 
         def _classic_upload(self) -> None:
             length = int(self.headers.get("Content-Length") or 0)

@@ -100,7 +100,9 @@ def serve(port: int, open_browser: bool, use_llm: bool = False, host: str = "127
     from billcheck.server import make_server
 
     try:
-        server = make_server(DATA_DIR, port, use_llm=use_llm, host=host)
+        from billcheck.bot import webhook_from_env
+
+        server = make_server(DATA_DIR, port, use_llm=use_llm, host=host, telegram=webhook_from_env())
     except OSError as exc:
         print(f"Ошибка: порт {port} занят ({exc}). Запустите с --port 8001.", file=sys.stderr)
         return EXIT_INPUT

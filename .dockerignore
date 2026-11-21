@@ -1,0 +1,14 @@
+.git
+.github
+.venv
+venv
+.claude
+.idea
+.vscode
+.pytest_cache
+__pycache__
+*.pyc
+out
+site
+tests
+docs/superpowers
