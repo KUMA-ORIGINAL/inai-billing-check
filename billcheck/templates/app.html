@@ -327,6 +327,35 @@ body.simple .tariff{background:var(--panel)}
 body.simple .tf-row .nm,body.simple .tf-facts span,body.simple .tf-note{font-size:15px}
 @media (max-width:760px){.tf-row{grid-template-columns:minmax(0,1fr) auto;gap:6px 12px}.tf-row .tf-bar{grid-column:1/-1;grid-row:2}.tf-facts{grid-template-columns:minmax(0,1fr)}.tf-facts div+div{padding-left:0;border-left:0;border-top:1px solid var(--line)}.tf-more-grid{grid-template-columns:minmax(0,1fr)}}
 
+/* ---------- вся детализация: каждая строка файла, фильтры и поиск */
+.det-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.det-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.det-chip{height:34px;padding:0 13px;border-radius:999px;border:1px solid var(--line2);background:rgba(255,255,255,.03);color:var(--text);font-weight:700;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.det-chip span{color:var(--muted);font-weight:600}
+.det-chip[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+.det-chip[aria-pressed="true"] span{color:inherit;opacity:.7}
+.det-chip.bad[aria-pressed="false"]{border-color:rgba(255,122,89,.45);color:var(--hot)}
+.det-search{margin-left:auto;position:relative;flex:1 1 220px;max-width:300px}
+.det-search input{width:100%;height:36px;border-radius:10px;border:1px solid var(--line2);background:var(--panel2);color:var(--text);padding:0 12px;font:500 14px var(--font)}
+.det-search input::placeholder{color:var(--dim)}
+.det-list{max-height:560px;overflow:auto;border:1px solid var(--line);border-radius:var(--r-md);background:var(--panel)}
+.det-day{position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;gap:12px;padding:8px 14px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:13px;font-weight:700;color:var(--muted)}
+.det-day.spike{color:var(--spike)}
+.det-row{display:grid;grid-template-columns:62px 92px minmax(0,1fr) minmax(0,140px) 92px;gap:12px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--line);font-size:14px}
+.det-row:last-child{border-bottom:0}
+.det-row .tm{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.det-row .tp{color:var(--muted);font-size:13px}
+.det-row .nb{font-family:var(--mono);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.det-row .ex{color:var(--dim);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.det-row .cs{text-align:right;font-family:var(--mono);font-weight:700;white-space:nowrap}
+.det-row.hit{background:rgba(255,122,89,.08);box-shadow:inset 3px 0 0 var(--hot)}
+.det-row.hit .cs{color:var(--hot)}
+.det-flag{display:inline-block;margin-left:8px;font:700 11px var(--font);color:var(--hot);border:1px solid rgba(255,122,89,.45);border-radius:999px;padding:1px 7px;vertical-align:1px;font-family:var(--font)}
+.det-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--muted)}
+.det-empty{padding:28px 14px;text-align:center;color:var(--muted)}
+body.simple .det-row{font-size:16px}
+@media (max-width:760px){.det-row{grid-template-columns:54px minmax(0,1fr) auto;row-gap:2px}.det-row .tp{grid-column:2;grid-row:1}.det-row .nb{grid-column:2;grid-row:2}.det-row .ex{display:none}.det-row .cs{grid-column:3;grid-row:1/3}.det-search{max-width:none;margin-left:0;flex-basis:100%}}
+
 /* ---------- день → строки, радар */
 .daymodal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);width:min(640px,calc(100% - 32px));max-height:86vh;overflow:auto;z-index:62;opacity:0;pointer-events:none;transition:.18s}
 .daymodal.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
@@ -825,6 +854,8 @@ function viewMember(m){
 
   ${tariffBlock(r)}
 
+  ${detailBlock(m)}
+
   <section class="block tech" style="padding-top:28px">
     <div class="panel chart">
       <div class="sec-head" style="margin-bottom:10px"><div><div class="h2" style="font-size:22px">${t("Траты по дням","Күндөр боюнча чыгым")}</div><p class="sub" style="font-size:14px">${t(`Пунктир: порог «среднее за ${S.settings.z_window_days} предыдущих дней + ${S.settings.z_threshold}σ». Выше порога значит всплеск. Нажмите на столбец, чтобы открыть строки дня.`,`Пунктир: «мурунку ${S.settings.z_window_days} күндүн орточосу + ${S.settings.z_threshold}σ» чеги. Андан жогору секирик. Мамычаны басыңыз.`)}</p></div></div>
@@ -1030,6 +1061,72 @@ function viewRadar(){
 async function refreshRadar(){ if(!S.online) return; try{ S.radar=(await api("/api/radar",{members:S.members.map(m=>({name:m.name,report:m.report})),settings:S.settings})).radar; }catch(e){} }
 
 /* ---------- M1: клик по дню → строки детализации этого дня */
+/* ---------- вся детализация: каждая строка файла с фильтрами и поиском */
+const DET={id:null,f:"all",q:""};
+const DET_FILTERS=[["all","Все","Баары"],["bad","Спорные","Талаштуу"],["call","Звонки","Чалуулар"],["sms","SMS","SMS"],["data","Интернет","Интернет"],["paid","Подписки и контент","Жазылуу жана контент"]];
+function detFlags(r){
+  const flags={};
+  r.anomalies.forEach(a=>{ if(a.anomaly_type==="day_spike") return;
+    (a.context||[]).filter(c=>c.hit).forEach(c=>{ (flags[c.line] ||= new Set()).add(a.anomaly_type); }); });
+  return flags;
+}
+function detMatch(x,flags){
+  const f=DET.f, kind=x[2];
+  if(f==="bad" && !flags[x[0]]) return false;
+  if(["call","sms","data"].includes(f) && kind!==f) return false;
+  if(f==="paid" && kind!=="subscription" && kind!=="content") return false;
+  const q=DET.q.trim().replace(/\s+/g,"");
+  return !q || String(x[3]).replace(/\s+/g,"").includes(q) || x[1].includes(q);
+}
+function detExtra(x){
+  if(x[2]==="call") return x[4]?`${Math.floor(x[4]/60)} мин ${Math.round(x[4]%60)} с`:"";
+  if(x[2]==="data") return `${fmt(x[5],1)} МБ`;
+  return "";
+}
+function detList(m){
+  const r=m.report, flags=detFlags(r), rows=(r.rows||[]).filter(x=>detMatch(x,flags));
+  const spikes=new Set(r.anomalies.filter(a=>a.anomaly_type==="day_spike").map(a=>a.datetime.slice(0,10)));
+  if(!rows.length) return {html:`<div class="det-empty">${t("Ничего не найдено. Измените фильтр или поиск.","Эч нерсе табылган жок. Чыпканы же издөөнү өзгөртүңүз.")}</div>`,count:0,sum:0};
+  let html="", day="", sum=0;
+  const byDay={}; rows.forEach(x=>{ byDay[x[1].slice(0,10)]=(byDay[x[1].slice(0,10)]||0)+x[6]; });
+  rows.forEach(x=>{
+    const d=x[1].slice(0,10);
+    if(d!==day){ day=d; html+=`<div class="det-day ${spikes.has(d)?"spike":""}"><span>${dt(d+" 00:00:00").label}${spikes.has(d)?" · "+t("всплеск трат","чыгым секириги"):""}</span><span class="num">${fmt(byDay[d])} ${t("сом","сом")}</span></div>`; }
+    const fl=flags[x[0]]; sum+=x[6];
+    html+=`<div class="det-row ${fl?"hit":""}"><span class="tm">${x[1].slice(11,16)}</span><span class="tp">${TYPE_RU[x[2]]||esc(x[2])}</span>
+      <span class="nb">${esc(x[3]||"·")}${fl?[...fl].map(k=>`<span class="det-flag">${ts(k)}</span>`).join(""):""}</span>
+      <span class="ex">${detExtra(x)} · ${t("стр.","сап")} ${x[0]}</span><span class="cs num">${fmt(x[6])}</span></div>`;
+  });
+  return {html,count:rows.length,sum};
+}
+function detailBlock(m){
+  if(DET.id!==m.id){ DET.id=m.id; DET.f="all"; DET.q=""; }
+  const r=m.report, flags=detFlags(r), rows=r.rows||[];
+  const cnt=k=>rows.filter(x=>{ const f=DET.f, q=DET.q; DET.f=k; DET.q=""; const ok=detMatch(x,flags); DET.f=f; DET.q=q; return ok; }).length;
+  const L=detList(m);
+  return `<section class="block" id="detail" style="padding-top:28px"><div class="panel">
+    <div class="det-head"><div><div class="h2" style="font-size:22px;margin:0">${t("Вся детализация","Толук детализация")}</div>
+      <p class="sub" style="font-size:14px;margin-top:6px">${t(`Все ${rows.length} строк файла по дням. Спорные выделены, у каждой строки номер в исходном файле.`,`Файлдын бардык ${rows.length} сабы күн боюнча. Талаштуулары белгиленген.`)}</p></div></div>
+    <div class="det-tools" role="toolbar" aria-label="${t("Фильтр строк","Саптарды чыпкалоо")}">
+      ${DET_FILTERS.map(([k,ru,ky])=>`<button type="button" class="det-chip ${k==="bad"?"bad":""}" data-det-f="${k}" aria-pressed="${DET.f===k}">${t(ru,ky)} <span>${cnt(k)}</span></button>`).join("")}
+      <label class="det-search"><span style="position:absolute;left:-9999px">${t("Поиск по номеру или дате","Номер же дата боюнча издөө")}</span>
+        <input id="detQ" type="search" value="${esc(DET.q)}" placeholder="${t("Номер или дата, например 7575","Номер же дата, мисалы 7575")}" autocomplete="off"></label>
+    </div>
+    <div class="det-list" id="detList" tabindex="0" aria-label="${t("Строки детализации","Детализациянын саптары")}">${L.html}</div>
+    <div class="det-foot"><span id="detCount">${t(`Показано строк: ${L.count}`,`Көрсөтүлдү: ${L.count}`)}</span><span id="detSum" class="num">${t("Сумма","Сумма")}: ${fmt(L.sum)} ${t("сом","сом")}</span></div>
+  </div></section>`;
+}
+function refreshDetail(){
+  const m=member(S.memberId); if(!m||!$("#detList")) return;
+  const L=detList(m);
+  $("#detList").innerHTML=L.html; $("#detList").scrollTop=0;
+  $("#detCount").textContent=t(`Показано строк: ${L.count}`,`Көрсөтүлдү: ${L.count}`);
+  $("#detSum").textContent=`${t("Сумма","Сумма")}: ${fmt(L.sum)} ${t("сом","сом")}`;
+  document.querySelectorAll("[data-det-f]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.detF===DET.f));
+}
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-det-f]"); if(b){ DET.f=b.dataset.detF; refreshDetail(); } });
+document.addEventListener("input",e=>{ if(e.target.id==="detQ"){ DET.q=e.target.value; refreshDetail(); } });
+
 function openDay(d){
   const m=member(S.memberId); if(!m) return; const r=m.report;
   const rows=(r.rows||[]).filter(x=>x[1].startsWith(d));
