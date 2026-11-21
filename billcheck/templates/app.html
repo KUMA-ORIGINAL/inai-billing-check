@@ -289,31 +289,43 @@ table.t code{font:12px var(--mono);color:#C9D3E0;word-break:break-all}
 footer{padding:64px 0 48px;color:var(--dim);font-size:13px}
 .loading{padding:120px 0;text-align:center;color:var(--muted)}
 
-/* ---------- M9 тариф */
-.tariff{background:linear-gradient(150deg,rgba(110,231,183,.16),rgba(110,231,183,.02) 55%),var(--panel);border-color:rgba(110,231,183,.32)}
-.tf-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:28px;align-items:start;margin-top:18px}
-.tf-compare{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:12px;align-items:stretch}
-.tf-col{padding:16px 18px;border-radius:var(--r-md);background:rgba(255,255,255,.04);border:1px solid var(--line)}
-.tf-col.good{background:rgba(110,231,183,.1);border-color:rgba(110,231,183,.35)}
-.tf-col .l{font:600 12.5px var(--font);letter-spacing:0;color:var(--muted)}
-.tf-col .v{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:-.02em;margin-top:6px}
-.tf-col.good .v{color:var(--mint)}
-.tf-col .s{font-size:12.5px;color:var(--muted);margin-top:4px}
-.tf-arrow{align-self:center;color:var(--muted);font-size:22px}
-.tf-save{font-family:var(--display);font-weight:800;font-size:44px;letter-spacing:-.03em;color:var(--mint);line-height:1;margin-top:22px}
-.tf-save small{font-size:.42em;margin-left:8px;color:#A7F3D0}
-.tf-year{margin-top:8px;color:var(--text);font-weight:700}
-.tf-opt{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 96px;gap:12px;align-items:center;padding:7px 0;font-size:13.5px}
-.tf-opt .t{height:8px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden}
-.tf-opt .t i{display:block;height:100%;border-radius:4px;background:#3B4A60}
-.tf-opt.best{font-weight:800;color:var(--mint)}
-.tf-opt.best .t i{background:var(--mint)}
-.tf-opt b{text-align:right;font-family:var(--mono);font-size:13px}
-.tf-opt.now .t i{background:var(--hot)}
-.tf-note{font-size:12.5px;color:var(--muted);margin:16px 0 0}
-body.simple .tf-grid,body.simple .tf-compare{grid-template-columns:minmax(0,1fr)}
-body.simple .tf-arrow{display:none}
-@media (max-width:760px){.tf-grid,.tf-compare{grid-template-columns:minmax(0,1fr)}.tf-arrow{display:none}.tf-save{font-size:34px}}
+/* ---------- M9 тариф: ответ, сравнение двумя полосами, три цифры, подробности под катом */
+.tariff{background:linear-gradient(150deg,rgba(110,231,183,.12),rgba(110,231,183,.02) 55%),var(--panel);border-color:rgba(110,231,183,.28)}
+.tf-title{font-family:var(--display);font-weight:800;font-size:clamp(22px,2.6vw,30px);letter-spacing:-.02em;line-height:1.15;margin:0}
+.tf-title b{color:var(--mint);white-space:nowrap}
+.tf-lead{color:var(--muted);font-size:15px;margin:8px 0 0;max-width:62ch}
+.tf-bars{display:grid;gap:14px;margin:24px 0 0}
+.tf-row{display:grid;grid-template-columns:minmax(170px,260px) minmax(0,1fr) 128px;gap:16px;align-items:center}
+.tf-row .nm{font-size:13px;color:var(--muted);line-height:1.35}
+.tf-row .nm b{display:block;color:var(--text);font-size:15px;font-weight:700}
+.tf-bar{position:relative;height:34px}
+.tf-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:8px}
+.tf-row.now .tf-bar i{background:var(--hot)}
+.tf-row.best .tf-bar i{background:var(--mint)}
+.tf-gap{position:absolute;top:0;bottom:0;right:0;border:1.5px dashed rgba(110,231,183,.65);border-radius:8px;display:flex;align-items:center;justify-content:center;font:800 14px var(--font);color:var(--mint);white-space:nowrap;background:repeating-linear-gradient(135deg,rgba(110,231,183,.10) 0 6px,transparent 6px 12px)}
+.tf-row .val{text-align:right;font:700 20px var(--display);letter-spacing:-.01em;white-space:nowrap}
+.tf-row.best .val{color:var(--mint)}
+.tf-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:26px 0 0;border-top:1px solid var(--line)}
+.tf-facts div{padding:16px 16px 0 0}
+.tf-facts div+div{padding-left:16px;border-left:1px solid var(--line)}
+.tf-facts b{display:block;font:800 clamp(22px,2.4vw,30px) var(--display);letter-spacing:-.02em;color:var(--text)}
+.tf-facts div:first-child b{color:var(--mint)}
+.tf-facts span{font-size:13px;color:var(--muted)}
+.tf-do{margin:20px 0 0;padding:12px 14px;border-radius:var(--r-sm);background:rgba(110,231,183,.08);color:var(--text);font-size:14.5px}
+.tf-do b{color:var(--mint)}
+.tf-more{margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
+.tf-more summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--muted);list-style-position:inside}
+.tf-more summary:hover{color:var(--text)}
+.tf-more-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;margin-top:14px}
+.tf-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:14px}
+.tf-list li{display:flex;justify-content:space-between;gap:12px}
+.tf-list li b{font-family:var(--mono);font-size:13px;white-space:nowrap}
+.tf-list li.best{color:var(--mint);font-weight:700}
+.tf-list li.sum{font-weight:800;padding-top:8px;border-top:1px solid var(--line)}
+.tf-note{font-size:12.5px;color:var(--muted);margin:14px 0 0}
+body.simple .tariff{background:var(--panel)}
+body.simple .tf-row .nm,body.simple .tf-facts span,body.simple .tf-note{font-size:15px}
+@media (max-width:760px){.tf-row{grid-template-columns:minmax(0,1fr) auto;gap:6px 12px}.tf-row .tf-bar{grid-column:1/-1;grid-row:2}.tf-facts{grid-template-columns:minmax(0,1fr)}.tf-facts div+div{padding-left:0;border-left:0;border-top:1px solid var(--line)}.tf-more-grid{grid-template-columns:minmax(0,1fr)}}
 
 /* ---------- день → строки, радар */
 .daymodal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);width:min(640px,calc(100% - 32px));max-height:86vh;overflow:auto;z-index:62;opacity:0;pointer-events:none;transition:.18s}
@@ -532,13 +544,15 @@ async function api(path,body){
 const expectedFormat = r => ({valid_rows:r.valid_rows,dropped_rows:r.dropped_rows,total_som:r.total_som,by_category:r.by_category,by_day:r.by_day,top5_numbers:r.top5_numbers,
   anomalies:r.anomalies.map(a=>({datetime:a.datetime,type:a.type,anomaly_type:a.anomaly_type,amount_som:a.amount_som,reason:a.reason}))});
 
-/* ---------- M4 светофор (по ТЗ команды): красный — подписка, ночной контент или межд. звонок;
-   жёлтый — только всплеск или дубль; зелёный — аномалий нет */
+/* ---------- M4 светофор: по сумме, которую можно вернуть.
+   красный: 50 сом и больше; жёлтый: от 15 до 50; зелёный: меньше 15 (или ничего). */
+const LIGHT_RED=50, LIGHT_YELLOW=15;
 function light(r){
-  const k=new Set(r.anomalies.map(a=>a.anomaly_type));
-  if(["new_subscription","night_charge","international_rate"].some(x=>k.has(x))) return {lvl:2,color:"#FF5A4E",label:t("Опасные списания","Коркунучтуу төлөмдөр"),hint:t("подписка, ночной контент или дорогой звонок","жазылуу, түнкү контент же кымбат чалуу")};
-  if(k.size) return {lvl:1,color:"#FBBF24",label:t("Проверьте","Текшериңиз"),hint:t("только всплеск трат или дубль","чыгым секириги же дубль гана")};
-  return {lvl:0,color:"#6EE7B7",label:t("Чисто","Таза"),hint:t("подозрительных списаний нет","шектүү төлөмдөр жок")};
+  const v=(r.summary&&r.summary.reclaimable_som)||0;
+  if(v>=LIGHT_RED) return {lvl:2,color:"#FF5A4E",label:t("Много лишнего","Ашыкча көп"),hint:t(`к возврату ${LIGHT_RED} сом и больше`,`кайтарууга ${LIGHT_RED} сом жана андан көп`)};
+  if(v>=LIGHT_YELLOW) return {lvl:1,color:"#FBBF24",label:t("Есть что вернуть","Кайтара турган бар"),hint:t(`к возврату от ${LIGHT_YELLOW} до ${LIGHT_RED} сом`,`кайтарууга ${LIGHT_YELLOW} сомдон ${LIGHT_RED} сомго чейин`)};
+  if(v>0) return {lvl:0,color:"#6EE7B7",label:t("Почти чисто","Дээрлик таза"),hint:t(`к возврату меньше ${LIGHT_YELLOW} сом`,`кайтарууга ${LIGHT_YELLOW} сомдон аз`)};
+  return {lvl:0,color:"#6EE7B7",label:t("Чисто","Таза"),hint:t("спорных списаний нет","талаштуу төлөмдөр жок")};
 }
 function ring(r,size=64){
   const L=light(r), h=size, w=Math.round(size*0.46), rad=w*0.32, cols=["#FF5A4E","#FBBF24","#6EE7B7"], on=[2,1,0].indexOf(L.lvl);
@@ -675,7 +689,7 @@ function viewFamily(){
   <div class="wrap">
   <section class="block">
     <div class="sec-head"><div><div class="h2">${t("У кого утекают деньги","Акча кимден агып жатат")}</div>
-      <p class="sub rc-legend"><span><i style="background:#FF5A4E"></i>${t("подписка, ночной контент или дорогой звонок","жазылуу, түнкү контент же кымбат чалуу")}</span><span><i style="background:#FBBF24"></i>${t("всплеск или дубль","секирик же дубль")}</span><span><i style="background:#6EE7B7"></i>${t("чисто","таза")}</span></p></div></div>
+      <p class="sub rc-legend"><span><i style="background:#FF5A4E"></i>${t(`к возврату от ${LIGHT_RED} сом`,`кайтарууга ${LIGHT_RED} сомдон`)}</span><span><i style="background:#FBBF24"></i>${t(`от ${LIGHT_YELLOW} до ${LIGHT_RED} сом`,`${LIGHT_YELLOW} сомдон ${LIGHT_RED} сомго чейин`)}</span><span><i style="background:#6EE7B7"></i>${t(`меньше ${LIGHT_YELLOW} сом`,`${LIGHT_YELLOW} сомдон аз`)}</span></p></div></div>
     <div class="grid g5" data-tour="family">${S.members.map((m,i)=>memberCard(m,i)).join("")}</div>
   </section>
 
@@ -856,33 +870,33 @@ function viewMember(m){
 /* ---------- M9 совет по тарифу: тот же месяц на пакете (тарифы и правила ТЗ 2) */
 function tariffBlock(r){
   const T=r.tariff; if(!T) return "";
-  const max=Math.max(T.paid_som,...T.options.map(o=>o.som))||1;
-  const opt=(name,v,cls)=>`<div class="tf-opt ${cls}"><span>${esc(name)}</span><span class="t"><i style="width:${(100*v/max).toFixed(1)}%"></i></span><b class="num">${fmt(v)}</b></div>`;
+  const ratio=Math.max(.08,Math.min(1,T.best_som/(T.paid_som||1)));
+  const days=Math.max(1,Math.ceil(50/((T.savings_som||1)/30)));
+  const gap=T.worth?`<span class="tf-gap" style="left:calc(${(ratio*100).toFixed(1)}% + 6px)">−${fmt(T.savings_som,0)} ${t("сом","сом")}</span>`:"";
+  const list=[{name:t("Сейчас, поштучно","Азыр, даана менен"),som:T.paid_som,cls:""},...T.options.map(o=>({name:o.name,som:o.som,cls:o.best?"best":""}))].sort((a,b)=>a.som-b.som);
   return `<section class="block" id="tariff" style="padding-top:28px"><div class="panel tariff">
-    <div class="eyebrow">${t("Сверх ТЗ · тарифы ТЗ 2","ТЗдан тышкары · ТЗ 2 тарифтери")}</div>
-    <div class="h2" style="font-size:24px">${T.worth?t("Можно платить меньше","Азыраак төлөөгө болот"):t("Тариф подобран удачно","Тариф ийгиликтүү тандалган")}</div>
-    <p class="sub" style="font-size:14px">${t(`Тот же месяц (${T.minutes} мин местных звонков, ${T.sms} SMS и ${fmt(T.gb,1)} ГБ интернета) на пакетном тарифе INAI Mobile.`,`Ошол эле ай (${T.minutes} мүн жергиликтүү чалуу, ${T.sms} SMS жана ${fmt(T.gb,1)} ГБ интернет) INAI Mobile пакеттик тарифинде.`)}</p>
-    <div class="tf-grid">
-      <div>
-        <div class="tf-compare">
-          <div class="tf-col"><div class="l">${t("Сейчас, поштучно","Азыр, даана менен")}</div><div class="v num">${fmt(T.paid_som)}</div><div class="s">${t("сом за звонки, SMS и интернет","сом чалуу, SMS жана интернет үчүн")}</div></div>
-          <div class="tf-arrow" aria-hidden="true">→</div>
-          <div class="tf-col good"><div class="l">${esc(T.best_name)}</div><div class="v num">${fmt(T.best_som)}</div><div class="s">${t("сом за то же самое","сом ошол эле үчүн")}</div></div>
-        </div>
-        ${T.worth?`<div class="tf-save num">−${fmt(T.savings_som)}<small>${t("сом в месяц","сом айына")}</small></div>
-        <div class="tf-year">${t(`≈ ${som(T.year_som,0)} в год. Смена тарифа стоит 50 сом и окупается за ${Math.max(1,Math.ceil(50/(T.savings_som/30)))} ${plural(Math.max(1,Math.ceil(50/(T.savings_som/30))),"день","дня","дней")}.`,`≈ жылына ${som(T.year_som,0)}. Тарифти алмаштыруу 50 сом, ${Math.max(1,Math.ceil(50/(T.savings_som/30)))} күндө актайт.`)}</div>`
-        :`<p class="tf-year">${t("Смена тарифа сэкономит меньше 50 сом за три месяца, менять не стоит.","Тарифти алмаштыруу үч айда 50 сомдон аз үнөмдөйт, алмаштыруунун кереги жок.")}</p>`}
-        ${T.advice_ru?`<p class="adv" style="color:var(--mint);font-weight:700;margin:16px 0 0">→ ${esc(t(T.advice_ru,T.advice_ky||T.advice_ru))}</p>`:""}
-      </div>
-      <div class="tech">
-        <div class="evid-label">${t("Из чего сложится цена","Баа эмнеден турат")}</div>
-        <ul class="claim-list" style="margin-top:0">${T.parts.map(p=>`<li><span>${esc(t(p.label,p.label_ky))}</span><b class="num">${fmt(p.som)}</b></li>`).join("")}<li><span><b>${t("Итого в месяц","Айына жыйынтыгы")}</b></span><b class="num">${fmt(T.best_som)}</b></li></ul>
-        <div class="evid-label" style="margin-top:18px">${t("Все тарифы на этот месяц","Бул айга бардык тарифтер")}</div>
-        ${opt(t("Сейчас, поштучно","Азыр, даана менен"),T.paid_som,"now")}
-        ${T.options.map(o=>opt(o.name,o.som,o.best?"best":"")).join("")}
-      </div>
+    <h2 class="tf-title">${T.worth?t(`Можно платить на <b>${fmt(T.savings_som,0)} сом</b> меньше в месяц`,`Айына <b>${fmt(T.savings_som,0)} сом</b> аз төлөөгө болот`):t("Тариф подобран удачно","Тариф ийгиликтүү тандалган")}</h2>
+    <p class="tf-lead">${T.worth?t("Те же звонки, SMS и интернет за месяц, но на пакетном тарифе INAI Mobile вместо оплаты поштучно.","Ошол эле чалуулар, SMS жана интернет, бирок даана менен эмес, INAI Mobile пакеттик тарифинде."):t("Пакетный тариф сэкономил бы меньше 50 сом за три месяца, менять не стоит.","Пакеттик тариф үч айда 50 сомдон аз үнөмдөйт, алмаштыруунун кереги жок.")}</p>
+    <div class="tf-bars" role="img" aria-label="${esc(t(`Сейчас ${fmt(T.paid_som)} сом, на тарифе ${T.best_name} ${fmt(T.best_som)} сом`,`Азыр ${fmt(T.paid_som)} сом, ${T.best_name} тарифинде ${fmt(T.best_som)} сом`))}">
+      <div class="tf-row now"><div class="nm"><b>${t("Сейчас","Азыр")}</b>${t("платите поштучно","даана менен төлөйсүз")}</div><div class="tf-bar"><i style="width:100%"></i></div><div class="val num">${fmt(T.paid_som,0)} ${t("сом","сом")}</div></div>
+      <div class="tf-row best"><div class="nm"><b>${t("На тарифе","Тарифте")}</b>${esc(T.best_name)}</div><div class="tf-bar"><i style="width:${(ratio*100).toFixed(1)}%"></i>${gap}</div><div class="val num">${fmt(T.best_som,0)} ${t("сом","сом")}</div></div>
     </div>
-    <p class="tf-note">${t(`Оценка по одному месяцу. Тарифы и доппакеты: учебный прайс INAI Mobile из ТЗ 2; каждый звонок округляется вверх до минуты, ночной безлимит снимает только ночной интернет. Международные звонки, подписки и платный контент (${som(T.outside_som)}) стоят одинаково на любом тарифе и в сравнение не входят.`,`Бир ай боюнча баалоо. Тарифтер жана кошумча пакеттер — ТЗ 2деги INAI Mobile окуу прайсы. Эл аралык чалуулар, жазылуулар жана акы төлөнүүчү контент (${som(T.outside_som)}) ар кандай тарифте бирдей турат жана салыштырууга кирбейт.`)}</p>
+    ${T.worth?`<div class="tf-facts">
+      <div><b class="num">${fmt(T.savings_som,0)} ${t("сом","сом")}</b><span>${t("меньше каждый месяц","ар айда азыраак")}</span></div>
+      <div><b class="num">${fmt(T.year_som,0)} ${t("сом","сом")}</b><span>${t("экономия за год","жылдык үнөм")}</span></div>
+      <div><b class="num">${days} ${t(plural(days,"день","дня","дней"),"күн")}</b><span>${t("и смена тарифа окупится (сбор 50 сом)","ичинде тариф алмаштыруу актайт (50 сом)")}</span></div>
+    </div>
+    ${T.advice_ru?`<p class="tf-do"><b>${t("Что сделать:","Эмне кылуу керек:")}</b> ${esc(t(T.advice_ru,T.advice_ky||T.advice_ru))}</p>`:""}`:""}
+    <details class="tf-more"><summary>${t("Как посчитали","Кантип эсептедик")}</summary>
+      <p class="tf-note" style="margin-top:10px">${t(`За месяц: ${T.minutes} мин местных звонков, ${T.sms} SMS и ${fmt(T.gb,1)} ГБ интернета. Каждый звонок округляется вверх до минуты. Международные звонки, подписки и платный контент (${som(T.outside_som)}) стоят одинаково на любом тарифе и в сравнение не входят.`,`Бир айда: ${T.minutes} мүн жергиликтүү чалуу, ${T.sms} SMS жана ${fmt(T.gb,1)} ГБ интернет. Эл аралык чалуулар, жазылуулар жана акы төлөнүүчү контент (${som(T.outside_som)}) ар кандай тарифте бирдей турат.`)}</p>
+      <div class="tf-more-grid">
+        <div><div class="evid-label">${t("Цена на лучшем тарифе","Эң жакшы тарифтеги баа")}</div>
+          <ul class="tf-list">${T.parts.map(p=>`<li><span>${esc(t(p.label,p.label_ky))}</span><b class="num">${fmt(p.som)}</b></li>`).join("")}<li class="sum"><span>${t("Итого в месяц","Айына жыйынтыгы")}</span><b class="num">${fmt(T.best_som)}</b></li></ul></div>
+        <div><div class="evid-label">${t("Все варианты на этот месяц","Бул айга бардык варианттар")}</div>
+          <ul class="tf-list">${list.map(o=>`<li class="${o.cls}"><span>${esc(o.name)}</span><b class="num">${fmt(o.som)}</b></li>`).join("")}</ul></div>
+      </div>
+      <p class="tf-note">${t("Тарифы и доппакеты: учебный прайс INAI Mobile из ТЗ 2. Оценка по одному месяцу.","Тарифтер жана кошумча пакеттер: ТЗ 2деги INAI Mobile окуу прайсы. Бир ай боюнча баалоо.")}</p>
+    </details>
   </div></section>`;
 }
 const isIncluded=(m,i)=>S.included[m.id+"|"+i] ?? m.report.anomalies[i].reclaimable;
@@ -1208,7 +1222,7 @@ function tourSteps(){
     {view:"family", el:'[data-tour="receipt"]', title:t("Улики прямо из счёта","Далилдер эсептин өзүнөн"),
      text:t("Маркером выделены подозрительные строки детализации, ручкой подписано, что с ними не так.","Шектүү саптар маркер менен белгиленген, эмнеси туура эмес экени калем менен жазылган.")},
     {view:"family", el:'[data-tour="family"]', title:t("Вся семья на одном экране","Бүт үй-бүлө бир экранда"),
-     text:t("Светофор у каждого: красный значит подписка, ночной контент или дорогой звонок. Нажмите на человека, чтобы разобрать его счёт.","Ар биринде светофор: кызыл болсо жазылуу, түнкү контент же кымбат чалуу. Эсебин көрүү үчүн адамды басыңыз.")},
+     text:t(`Светофор показывает, сколько можно вернуть: красный от ${LIGHT_RED} сом, жёлтый от ${LIGHT_YELLOW}, зелёный меньше. Нажмите на человека, чтобы разобрать его счёт.`,`Светофор канча кайтарса болорун көрсөтөт: кызыл ${LIGHT_RED} сомдон, сары ${LIGHT_YELLOW} сомдон, жашыл андан аз. Эсебин көрүү үчүн адамды басыңыз.`)},
     {view:"family", el:'[data-tour="feed"]', title:t("Что случилось и когда","Эмне жана качан болду"),
      text:t("Лента событий: кто, что и на сколько. Самые свежие сверху.","Окуялар тасмасы: ким, эмне жана канча. Эң жаңылары жогоруда.")},
     {view:"member", id:m&&m.id, el:'[data-tour="case"]', title:t("Каждая находка: отдельное дело","Ар бир табылга: өзүнчө иш"),
