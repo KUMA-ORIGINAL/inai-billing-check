@@ -2,6 +2,16 @@
 
 [![ci](https://github.com/KUMA-ORIGINAL/inai-billing-check/actions/workflows/ci.yml/badge.svg)](https://github.com/KUMA-ORIGINAL/inai-billing-check/actions/workflows/ci.yml)
 
+**Попробовать прямо сейчас:**
+
+| | |
+|---|---|
+| Приложение | **https://akcham.confhub.kg** — экскурсия по всем экранам: [/?tour=1](https://akcham.confhub.kg/?tour=1), автопоказ: [/?autoplay=1](https://akcham.confhub.kg/?autoplay=1) |
+| Telegram-бот | **[@akchamkaida_bot](https://t.me/akchamkaida_bot)** — пришлите CSV или PDF детализации |
+| Без сервера | https://kuma-original.github.io/inai-billing-check/ |
+
+<img src="docs/brand/qr-slide.png" alt="QR-коды: приложение akcham.confhub.kg и бот @akchamkaida_bot" width="640">
+
 «Акчам кайда?» (кырг. «Где мои деньги?») читает детализацию за месяц и отвечает на три вопроса:
 куда ушли деньги, сколько из них под вопросом и что сделать, чтобы их вернуть. Ядро — обязательная
 часть ТЗ 4. Вокруг него — продукт для абонента, его семьи и оператора:
