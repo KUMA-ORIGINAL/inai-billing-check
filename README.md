@@ -249,7 +249,7 @@ docs/                   как всё устроено, сценарий дем�
 tests/                  pytest
 ```
 
-Подробнее простым языком: [docs/how-it-works.md](docs/how-it-works.md). Сценарий защиты: [docs/demo.md](docs/demo.md).
+Передача проекта другому разработчику: [docs/HANDOFF.md](docs/HANDOFF.md). Подробнее простым языком: [docs/how-it-works.md](docs/how-it-works.md). Сценарий защиты: [docs/demo.md](docs/demo.md).
 
 ## Что не успели
 
